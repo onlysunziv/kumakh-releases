@@ -1,0 +1,114 @@
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--glass);
+  backdrop-filter: blur(13px) saturate(130%);
+  -webkit-backdrop-filter: blur(13px) saturate(130%);
+  border: 1px solid rgba(216, 225, 238, 0.85);
+  border-radius: 18px;
+  padding: 18px 20px;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.05);
+  transition:
+    transform 220ms var(--ease-out),
+    box-shadow 220ms var(--ease-out),
+    border-color 220ms ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(227, 30, 47, 0.28);
+  box-shadow: var(--shadow-hover);
+}
+
+.stat-card .label {
+  display: block;
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-bottom: 12px;
+}
+
+.stat-card .value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--secondary);
+}
+
+.stat-card .meta {
+  margin-top: 8px;
+  color: var(--success);
+  font-size: 0.78rem;
+}
+
+.panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 18px;
+}
+
+.chart-panel {
+  background: var(--glass);
+  backdrop-filter: blur(13px) saturate(130%);
+  -webkit-backdrop-filter: blur(13px) saturate(130%);
+  border: 1px solid rgba(216, 225, 238, 0.85);
+  border-radius: 18px;
+  padding: 18px 20px;
+  min-height: 220px;
+  transition:
+    transform 220ms var(--ease-out),
+    box-shadow 220ms var(--ease-out),
+    border-color 220ms ease;
+}
+
+.chart-panel:hover {
+  transform: translateY(-4px);
+  border-color: rgba(18, 103, 196, 0.28);
+  box-shadow: var(--shadow-hover);
+}
+
+.chart-panel h4 {
+  margin: 0 0 16px;
+  font-size: 1rem;
+}
+
+.chart-placeholder {
+  height: 150px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fff1f2, #eef5ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+}
+
+.chart-placeholder::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.6) 48%,
+    transparent 72%
+  );
+  transform: translateX(-130%);
+  animation: shimmer 3.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%,
+  45% {
+    transform: translateX(-130%);
+  }
+  75%,
+  100% {
+    transform: translateX(130%);
+  }
+}

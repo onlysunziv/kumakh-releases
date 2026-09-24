@@ -1,0 +1,100 @@
+{
+  "name": "kumakh-college-management-system",
+  "version": "1.0.0",
+  "description": "Kumakh College Management System desktop application",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "test": "node --check electron/main.js && node --check electron/preload.js && node --check electron/window.js && node --check frontend/js/auth.js && node --check frontend/js/app.js && node --test tests/*.test.js",
+    "db:backup": "node scripts/backup-database.js",
+    "db:turso:check": "node scripts/check-turso.js",
+    "db:migrate": "node scripts/migrate-mysql.js --run",
+    "db:inspect": "node scripts/migrate-mysql.js --inspect",
+    "build": "node scripts/build-win.js",
+    "build:win": "node scripts/build-win.js",
+    "release:patch": "node scripts/release.js patch",
+    "release:minor": "node scripts/release.js minor",
+    "release:major": "node scripts/release.js major",
+    "release:publish": "node scripts/release.js publish",
+    "release:verify": "node scripts/validate-release.js",
+    "config:installed": "node scripts/configure-installed.js"
+  },
+  "keywords": [
+    "electron",
+    "college",
+    "pos",
+    "management"
+  ],
+  "author": "Kumakh College",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^32.2.6",
+    "electron-builder": "^26.15.3",
+    "mysql2": "^3.24.4"
+  },
+  "dependencies": {
+    "@tursodatabase/sync": "^0.7.2",
+    "dotenv": "^17.4.2",
+    "electron-log": "^5.4.4",
+    "electron-updater": "^6.8.9",
+    "sqlite3": "^6.0.1"
+  },
+  "build": {
+    "appId": "np.kumakh.college.management",
+    "productName": "KCMT",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "electron/**/*",
+      "database/KUMAKH_DATABASE.sql",
+      "database/columns.json",
+      "frontend/**/*",
+      "package.json",
+      "!**/.env",
+      "!**/.env.*",
+      "!**/*.db",
+      "!**/*.db-*",
+      "!**/*.pem",
+      "!**/*.pfx",
+      "!**/*.p12"
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": {
+        "target": "nsis",
+        "arch": [
+          "x64"
+        ]
+      },
+      "artifactName": "KCMT-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "KCMT",
+      "deleteAppDataOnUninstall": false,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico",
+      "installerSidebar": "build/installerSidebar.bmp",
+      "uninstallerSidebar": "build/uninstallerSidebar.bmp"
+    },
+    "npmRebuild": true,
+    "asarUnpack": [
+      "node_modules/sqlite3/**/*.node",
+      "node_modules/@tursodatabase/**/*.node"
+    ],
+    "publish": {
+      "provider": "github",
+      "owner": "onlysunziv",
+      "repo": "kumakh-releases",
+      "releaseType": "release"
+    },
+    "afterPack": "scripts/verify-package.js"
+  }
+}

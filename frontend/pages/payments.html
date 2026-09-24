@@ -1,0 +1,505 @@
+<style>
+  .student-payment-page {
+    max-width: 1050px;
+    margin: 30px auto;
+    padding: 0 15px;
+  }
+
+  .student-payment-card {
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+  }
+
+  .student-payment-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    color: #fff;
+    background: #080d72;
+  }
+
+  .student-payment-header-icon {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    font-size: 18px;
+  }
+
+  .student-payment-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .student-payment-header p {
+    margin: 2px 0 0;
+    font-size: 11px;
+    opacity: 0.75;
+  }
+
+  .student-payment-form-area {
+    padding: 22px;
+  }
+
+  .student-payment-form-area .form-label {
+    margin-bottom: 6px;
+    color: #374151;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .payment-type-container {
+    display: flex;
+    gap: 12px;
+  }
+
+  .payment-type-option {
+    position: relative;
+    flex: 1;
+  }
+
+  .payment-type-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .payment-type-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 68px;
+    padding: 13px 16px;
+    border: 1px solid #d5dae2;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .payment-type-label:hover,
+  .payment-type-option input:checked + .payment-type-label {
+    border-color: #080d72;
+    background: #f5f6ff;
+  }
+
+  .payment-type-option input:checked + .payment-type-label .payment-type-icon {
+    color: #fff;
+    background: #080d72;
+  }
+
+  .payment-type-icon {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    place-items: center;
+    color: #080d72;
+    background: #f0f2fa;
+    border-radius: 5px;
+  }
+
+  .payment-type-text strong,
+  .payment-type-text span {
+    display: block;
+  }
+
+  .payment-type-text strong {
+    font-size: 13px;
+  }
+
+  .payment-type-text span {
+    margin-top: 2px;
+    color: #777;
+    font-size: 10px;
+  }
+
+  .payment-details {
+    display: none;
+  }
+
+  .payment-details.active {
+    display: block;
+  }
+
+  .payment-section-title {
+    margin: 24px 0 12px;
+    color: #080d72;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .payment-account-box,
+  .payment-entry {
+    margin-top: 16px;
+    padding: 17px;
+    border: 1px solid #dfe3ea;
+    border-radius: 7px;
+    background: #f7f8fb;
+  }
+
+  .payment-account-heading,
+  .payment-entry-title {
+    margin-bottom: 8px;
+    color: #777;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+  }
+
+  .payment-account-name {
+    margin-bottom: 14px;
+    color: #080d72;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .payment-stat {
+    padding: 11px 13px;
+    border: 1px solid #e1e5eb;
+    border-radius: 6px;
+    background: #fff;
+  }
+
+  .payment-stat span,
+  .payment-stat strong {
+    display: block;
+  }
+
+  .payment-stat span {
+    margin-bottom: 4px;
+    color: #777;
+    font-size: 10px;
+  }
+
+  .payment-stat strong {
+    color: #333;
+    font-size: 16px;
+  }
+
+  .payment-stat.due {
+    border-color: #efdba9;
+    background: #fffaf0;
+  }
+
+  .payment-stat.due strong {
+    color: #c27a00;
+  }
+
+  .payment-entry {
+    background: #f8f9fc;
+  }
+
+  .payment-entry-title {
+    color: #080d72;
+    font-size: 12px;
+    letter-spacing: 0;
+  }
+
+  .payment-amount-input {
+    height: 48px !important;
+    color: #080d72;
+    font-size: 19px !important;
+    font-weight: 700;
+  }
+
+  .payment-table-card {
+    margin-top: 22px;
+    padding: 17px;
+    border: 1px solid #dfe3ea;
+    border-radius: 7px;
+    background: #fff;
+  }
+
+  .payment-table-card h4 {
+    margin: 0;
+    color: #080d72;
+    font-size: 14px;
+  }
+
+  @media (max-width: 640px) {
+    .payment-type-container {
+      flex-direction: column;
+    }
+  }
+</style>
+
+<section class="student-payment-page">
+  <dialog id="paymentStatusDialog" aria-labelledby="paymentStatusTitle" style="border:0;border-radius:14px;box-shadow:0 1rem 3rem rgba(0,0,0,.3);max-width:440px;width:calc(100% - 2rem);padding:0">
+    <div style="padding:1.5rem">
+      <h2 class="h5 mb-2" id="paymentStatusTitle">Saving payment</h2>
+      <p class="mb-3" id="paymentStatusMessage">Saving payment to the database...</p>
+      <div class="progress mb-3"><div id="paymentStatusProgress" class="progress-bar progress-bar-striped progress-bar-animated" style="width:35%">Saving</div></div>
+      <div class="small text-muted" id="paymentStatusDetails"></div>
+      <button id="paymentStatusClose" type="button" class="btn btn-primary mt-3 d-none">Close</button>
+    </div>
+  </dialog>
+  <div class="student-payment-card">
+    <div class="student-payment-header">
+      <div class="student-payment-header-icon" aria-hidden="true">₹</div>
+      <div>
+        <h3>Payments</h3>
+        <p>Collect student fees and customer due payments</p>
+      </div>
+    </div>
+
+    <div class="student-payment-form-area">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="payment-section-title mt-0">Payment Type</div>
+        <strong
+          >Total collection:
+          <span id="studentPaymentTotal">NPR 0.00</span></strong
+        >
+      </div>
+      <div id="paymentMessage" class="alert d-none" role="status"></div>
+
+      <div class="payment-type-container">
+        <div class="payment-type-option">
+          <input
+            type="radio"
+            name="paymentTypeSelector"
+            id="studentFeePayment"
+            checked
+          />
+          <label class="payment-type-label" for="studentFeePayment">
+            <span class="payment-type-icon" aria-hidden="true">S</span>
+            <span class="payment-type-text"
+              ><strong>Student Fee</strong
+              ><span>Collect course and registration fees</span></span
+            >
+          </label>
+        </div>
+        <div class="payment-type-option">
+          <input
+            type="radio"
+            name="paymentTypeSelector"
+            id="customerDuePayment"
+          />
+          <label class="payment-type-label" for="customerDuePayment">
+            <span class="payment-type-icon" aria-hidden="true">C</span>
+            <span class="payment-type-text"
+              ><strong>Customer Due</strong
+              ><span>Receive an outstanding customer balance</span></span
+            >
+          </label>
+        </div>
+      </div>
+
+      <div id="studentFeeSection" class="payment-details active">
+        <div class="payment-section-title">Student Fee</div>
+        <form id="studentPaymentForm" class="row g-3">
+          <div class="col-md-8">
+            <label class="form-label" for="paymentStudent"
+              >Student name / registration number</label
+            >
+            <input
+              id="paymentStudent"
+              class="form-control"
+              list="paymentStudentOptions"
+              autocomplete="off"
+              required
+            />
+            <datalist id="paymentStudentOptions"></datalist>
+            <div id="selectedStudentDetails" class="form-text text-muted">
+              Enter or select a student name.
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="paymentDate">Payment date</label
+            ><input id="paymentDate" class="form-control" type="date" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="paymentCourse">Course</label
+            ><input id="paymentCourse" class="form-control" readonly />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="paymentCourseFee">Total fee</label
+            ><input id="paymentCourseFee" class="form-control" readonly />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="paymentTotalPaid">Already paid</label
+            ><input id="paymentTotalPaid" class="form-control" readonly />
+          </div>
+          <div class="payment-entry">
+            <div class="payment-entry-title">Payment Details</div>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label" for="paymentAmount"
+                  >Paid amount <span class="text-danger">*</span></label
+                ><input
+                  id="paymentAmount"
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  class="form-control payment-amount-input"
+                  required
+                />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="paymentMode">Payment mode</label
+                ><select id="paymentMode" class="form-select">
+                  <option>Cash</option>
+                  <option>QR</option>
+                  <option>Bank</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="paymentType">Fee type</label
+                ><input
+                  id="paymentType"
+                  class="form-control"
+                  value="Course Fee"
+                />
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="paymentRemarks">Remarks</label
+                ><input id="paymentRemarks" class="form-control" />
+              </div>
+              <div class="col-12">
+                <button class="btn btn-primary" type="submit">
+                  Record Student Fee
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+        <div class="payment-table-card">
+          <h4 class="mb-3">Student Fee Summary</h4>
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Registration Number</th>
+                  <th>Course</th>
+                  <th>Total Fee</th>
+                  <th>Paid Amount</th>
+                  <th>Due Amount</th>
+                </tr>
+              </thead>
+              <tbody id="studentPaymentsBody">
+                <tr>
+                  <td colspan="6" class="text-center text-muted">
+                    Loading student payment summary...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="customerDueSection" class="payment-details">
+        <div class="payment-section-title">Customer Due</div>
+        <form id="customerDueForm" class="row g-3" novalidate>
+          <div class="col-md-8">
+            <label class="form-label" for="dueCustomer"
+              >Customer name <span class="text-danger">*</span></label
+            ><select id="dueCustomer" class="form-select" required>
+              <option value="">Loading customers...</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="duePaymentDate">Payment date</label
+            ><input id="duePaymentDate" class="form-control" type="date" />
+          </div>
+          <div class="payment-account-box">
+            <div class="payment-account-heading">Customer Account</div>
+            <div id="dueCustomerDisplay" class="payment-account-name">
+              Select a customer to view the balance
+            </div>
+            <div id="dueCustomerDetails" class="small text-muted mb-3">
+              Choose a customer to load account details.
+            </div>
+            <div class="row g-2">
+              <div class="col-md-4">
+                <div class="payment-stat">
+                  <span>Total Bill / Credit Amount</span
+                  ><strong id="customerTotalCredit">NPR 0.00</strong>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="payment-stat">
+                  <span>Paid Amount</span
+                  ><strong id="customerTotalReceived">NPR 0.00</strong>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="payment-stat due">
+                  <span>Remaining Due</span
+                  ><strong id="customerRemainingDue">NPR 0.00</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="payment-entry">
+            <div class="payment-entry-title">Due Collection Details</div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label" for="dueAmount"
+                  >Received amount <span class="text-danger">*</span></label
+                ><input
+                  id="dueAmount"
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  class="form-control payment-amount-input"
+                  required
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="duePaymentMode"
+                  >Payment mode</label
+                ><select id="duePaymentMode" class="form-select">
+                  <option>Cash</option>
+                  <option>QR</option>
+                  <option>Bank</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="dueRemarks">Remarks</label
+                ><input id="dueRemarks" class="form-control" />
+              </div>
+              <div class="col-12">
+                <button id="receiveCustomerDueButton" class="btn btn-primary" type="submit" formnovalidate>
+                  Receive Customer Due
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+        <div class="payment-table-card">
+          <h4 class="mb-3">Customer Due Collections</h4>
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Customer</th>
+                  <th>Previous Due</th>
+                  <th>Received</th>
+                  <th>Remaining Due</th>
+                  <th>Mode</th>
+                </tr>
+              </thead>
+              <tbody id="customerDueBody">
+                <tr>
+                  <td colspan="6" class="text-center text-muted">
+                    No customer due collections yet.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

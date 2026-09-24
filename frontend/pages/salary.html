@@ -1,0 +1,917 @@
+<section class="page-section">
+  <div class="card p-3 p-lg-4">
+    <div
+      class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2"
+    >
+      <div>
+        <h3 class="mb-1">Staff Payroll</h3>
+        <p class="text-muted mb-0">
+          Manage monthly payroll, deductions, and payment status
+        </p>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <label for="salaryEmployeeSelect" class="form-label"
+          >Select Employee Name</label
+        >
+        <select id="salaryEmployeeSelect" class="form-select">
+          <option value="">Select employee name</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="salaryPayrollMonth" class="form-label">Payroll Month</label>
+        <input id="salaryPayrollMonth" class="form-control" type="month" />
+      </div>
+      <div class="col-md-4 d-flex align-items-end">
+        <button
+          id="salaryLoadButton"
+          class="btn btn-outline-primary w-100"
+          type="button"
+        >
+          Load Payroll
+        </button>
+      </div>
+    </div>
+
+    <div id="salaryPageMessage" class="alert d-none mb-3" role="alert"></div>
+
+    <div class="row g-4">
+      <div class="col-xl-8">
+        <form id="salaryForm" novalidate>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Employee ID</label
+              ><input id="salaryEmployeeId" class="form-control" readonly />
+            </div>
+            <div class="col-md-6">
+              <label for="salaryEmployeeDesignation" class="form-label"
+                >Designation</label
+              ><input
+                id="salaryEmployeeDesignation"
+                class="form-control"
+                readonly
+              />
+            </div>
+            <div class="col-md-6">
+              <label for="salaryPayrollMonthField" class="form-label"
+                >Payroll Month</label
+              >
+              <input
+                id="salaryPayrollMonthField"
+                class="form-control"
+                type="month"
+              />
+            </div>
+            <div class="col-md-6">
+              <label for="salaryBasicSalary" class="form-label"
+                >Basic Salary</label
+              ><input
+                id="salaryBasicSalary"
+                class="form-control"
+                type="number"
+                readonly
+              />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Normal Working Days</label
+              ><input
+                id="salaryNormalWorkingDays"
+                class="form-control"
+                value="26"
+                readonly
+              />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Days Worked</label
+              ><input
+                id="salaryDaysWorked"
+                class="form-control"
+                type="number"
+                min="0"
+                max="31"
+                value="26"
+              />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Earned Salary</label
+              ><input id="salaryEarnedSalary" class="form-control" readonly />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Bonus</label
+              ><input
+                id="salaryBonus"
+                class="form-control"
+                type="number"
+                min="0"
+                step="0.01"
+                value="0"
+              />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Allowance</label
+              ><input
+                id="salaryAllowance"
+                class="form-control"
+                type="number"
+                min="0"
+                step="0.01"
+                value="0"
+              />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Total Earning</label
+              ><input id="salaryGrossSalary" class="form-control" readonly />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Deduction</label
+              ><input
+                id="salaryDeduction"
+                class="form-control"
+                type="number"
+                min="0"
+                step="0.01"
+                value="0"
+              />
+            </div>
+            <div class="col-md-3">
+              <label for="salaryTds" class="form-label">TDS</label
+              ><input id="salaryTds" class="form-control" readonly />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Net Salary</label
+              ><input id="salaryNetSalary" class="form-control" readonly />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Total Paid</label
+              ><input
+                id="salaryTotalPaid"
+                class="form-control"
+                type="number"
+                min="0"
+                step="0.01"
+                value="0"
+              />
+            </div>
+            <div class="col-md-3">
+              <label for="salaryDueAmount" class="form-label">Due Salary</label
+              ><input id="salaryDueAmount" class="form-control" readonly />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Outstanding Salary</label
+              ><input
+                id="salaryOutstandingSalary"
+                class="form-control"
+                readonly
+              />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Payment Method</label
+              ><select id="salaryPaymentMethod" class="form-select">
+                <option>Cash</option>
+                <option>Bank</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Payment Date</label
+              ><input id="salaryPaymentDate" class="form-control" type="date" />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Remarks</label
+              ><textarea
+                id="salaryRemarks"
+                class="form-control"
+                rows="2"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-4 flex-wrap">
+            <button
+              id="salarySubmitButton"
+              class="btn btn-primary"
+              type="submit"
+            >
+              Save Payroll
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="col-xl-4">
+        <div class="card border-0 bg-light h-100">
+          <div class="card-body">
+            <h5 class="mb-3">Payroll Preview</h5>
+            <div class="d-flex justify-content-between border-bottom py-2">
+              <span class="text-muted">Total Earning</span>
+              <strong id="salarySummaryGross">0.00</strong>
+            </div>
+            <div class="d-flex justify-content-between border-bottom py-2">
+              <span class="text-muted">TDS</span>
+              <strong id="salarySummaryTds">0.00</strong>
+            </div>
+            <div class="d-flex justify-content-between border-bottom py-2">
+              <span class="text-muted">Total Paid</span>
+              <strong id="salarySummaryNet">0.00</strong>
+            </div>
+            <div class="d-flex justify-content-between border-bottom py-2">
+              <span class="text-muted">Due Amount</span>
+              <strong id="salarySummaryDue">0.00</strong>
+            </div>
+            <div class="d-flex justify-content-between py-2">
+              <span class="text-muted">Working Days</span>
+              <strong id="salarySummaryWorkingDays">26</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <h5 class="mb-3">Payroll History</h5>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Payroll Month</th>
+              <th>Employee Name</th>
+              <th>Designation</th>
+              <th>Days Worked</th>
+              <th>Basic Salary</th>
+              <th>TDS</th>
+              <th>Total Earning</th>
+              <th>Total Paid</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="salaryTableBody">
+            <tr>
+              <td colspan="9" class="text-center text-muted py-4">
+                Loading payroll...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  window.initializePayrollPage = async function initializePayrollPage() {
+    const employeeSelect = document.getElementById("salaryEmployeeSelect");
+    const monthInput = document.getElementById("salaryPayrollMonth");
+    const monthField = document.getElementById("salaryPayrollMonthField");
+    const employeeDesignationInput = document.getElementById(
+      "salaryEmployeeDesignation",
+    );
+    const employeeIdInput = document.getElementById("salaryEmployeeId");
+    const basicSalaryInput = document.getElementById("salaryBasicSalary");
+    const daysWorkedInput = document.getElementById("salaryDaysWorked");
+    const earnedSalaryInput = document.getElementById("salaryEarnedSalary");
+    const bonusInput = document.getElementById("salaryBonus");
+    const allowanceInput = document.getElementById("salaryAllowance");
+    const deductionInput = document.getElementById("salaryDeduction");
+    const totalPaidInput = document.getElementById("salaryTotalPaid");
+    const outstandingInput = document.getElementById("salaryOutstandingSalary");
+    const paymentMethodInput = document.getElementById("salaryPaymentMethod");
+    const paymentDateInput = document.getElementById("salaryPaymentDate");
+    const remarksInput = document.getElementById("salaryRemarks");
+    const tdsInput = document.getElementById("salaryTds");
+    const grossInput = document.getElementById("salaryGrossSalary");
+    const netInput = document.getElementById("salaryNetSalary");
+    const dueInput = document.getElementById("salaryDueAmount");
+    const salaryPageMessage = document.getElementById("salaryPageMessage");
+    const salarySubmitButton = document.getElementById("salarySubmitButton");
+    const salaryMarkPaidButton = document.getElementById(
+      "salaryMarkPaidButton",
+    );
+    const salaryLoadButton = document.getElementById("salaryLoadButton");
+    const salaryTableBody = document.getElementById("salaryTableBody");
+
+    if (!employeeSelect || !monthInput || !salaryTableBody) {
+      return;
+    }
+
+    const state = {
+      staffList: [],
+      payrollList: [],
+      paymentStatus: "Pending",
+    };
+
+    const staffValue = (staff, keys) => {
+      for (const key of keys) {
+        if (
+          staff &&
+          staff[key] !== undefined &&
+          staff[key] !== null &&
+          String(staff[key]).trim() !== ""
+        ) {
+          return staff[key];
+        }
+      }
+      return "";
+    };
+
+    const setMessage = (message, type = "info") => {
+      if (!salaryPageMessage) return;
+      if (!message) {
+        salaryPageMessage.classList.add("d-none");
+        salaryPageMessage.textContent = "";
+        return;
+      }
+      salaryPageMessage.classList.remove("d-none");
+      salaryPageMessage.className = `alert alert-${type} mb-3`;
+      salaryPageMessage.textContent = message;
+    };
+
+    const payrollMonthValidation = () => {
+      const employeeId = String(employeeSelect.value || "").trim();
+      const payrollMonth = String(monthInput.value || monthField?.value || "").trim();
+      if (!employeeId || !/^\d{4}-\d{2}$/.test(payrollMonth)) return "";
+
+      const staff = state.staffList.find((item) =>
+        String(
+          staffValue(item, [
+            "Employee ID",
+            "employeeId",
+            "Staff ID",
+            "staffId",
+            "Staff Code",
+            "staffCode",
+          ]),
+        ).trim().toLowerCase() === employeeId.toLowerCase(),
+      );
+      if (!staff) return "";
+
+      const rawJoiningDate = staffValue(staff, [
+        "Joining Date",
+        "joiningDate",
+        "joining_date",
+      ]);
+      const joiningDate = rawJoiningDate instanceof Date
+        ? rawJoiningDate.toISOString().slice(0, 10)
+        : String(rawJoiningDate || "").slice(0, 10);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(joiningDate)) return "";
+
+      const joiningMonth = joiningDate.slice(0, 7);
+      if (payrollMonth < joiningMonth) {
+        return "Salary cannot be calculated before the staff joining month.";
+      }
+      if (payrollMonth === joiningMonth) {
+        const joiningDay = Number(joiningDate.slice(8, 10));
+        const daysInMonth = new Date(
+          Number(payrollMonth.slice(0, 4)),
+          Number(payrollMonth.slice(5, 7)),
+          0,
+        ).getDate();
+        const eligibleDays = daysInMonth - joiningDay + 1;
+        const daysWorked = Number(daysWorkedInput.value || eligibleDays);
+        if (daysWorked > eligibleDays) {
+          return `Days worked cannot exceed ${eligibleDays} days for the joining month.`;
+        }
+      }
+      return "";
+    };
+
+    const formatNumber = (value) => Number(value || 0).toFixed(2);
+
+    const updateCalculationPreview = () => {
+      const basicSalary = Number(basicSalaryInput.value || 0);
+      const daysWorked = Number(daysWorkedInput.value || 0);
+      const earnedSalary =
+        Math.round((basicSalary / 26) * daysWorked * 100) / 100;
+      const totalEarning =
+        Math.round(
+          (earnedSalary +
+            Number(bonusInput.value || 0) +
+            Number(allowanceInput.value || 0)) *
+            100,
+        ) / 100;
+      const tds = Math.round(totalEarning * 0.01 * 100) / 100;
+      const netSalary =
+        Math.round(
+          (totalEarning - Number(deductionInput.value || 0) - tds) * 100,
+        ) / 100;
+      const totalPaid = Math.min(
+        Math.max(Number(totalPaidInput.value || 0), 0),
+        Math.max(netSalary, 0),
+      );
+      const dueAmount = Math.max(netSalary - totalPaid, 0);
+
+      earnedSalaryInput.value = formatNumber(earnedSalary);
+      tdsInput.value = formatNumber(tds);
+      grossInput.value = formatNumber(totalEarning);
+      netInput.value = formatNumber(netSalary);
+      if (dueInput) {
+        dueInput.value = formatNumber(dueAmount);
+      }
+      outstandingInput.value = formatNumber(dueAmount);
+
+      document.getElementById("salarySummaryGross").textContent =
+        formatNumber(totalEarning);
+      document.getElementById("salarySummaryTds").textContent =
+        formatNumber(tds);
+      document.getElementById("salarySummaryNet").textContent =
+        formatNumber(netSalary);
+      document.getElementById("salarySummaryDue").textContent =
+        formatNumber(dueAmount);
+      document.getElementById("salarySummaryWorkingDays").textContent = "26";
+    };
+
+    const populateEmployeeSelect = (staffList) => {
+      employeeSelect.innerHTML = '<option value="">Select employee</option>';
+      staffList.forEach((staff) => {
+        const option = document.createElement("option");
+        const employeeName =
+          staffValue(staff, [
+            "Full Name",
+            "fullName",
+            "Employee Name",
+            "employeeName",
+            "Name",
+            "name",
+          ]) || "Unnamed staff";
+        const employeeId = staffValue(staff, [
+          "Employee ID",
+          "employeeId",
+          "Staff ID",
+          "staffId",
+          "Staff Code",
+          "staffCode",
+        ]);
+        if (!employeeId) {
+          return;
+        }
+        option.value = employeeId;
+        option.textContent = employeeName;
+        employeeSelect.appendChild(option);
+      });
+    };
+
+    const applyEmployeeDetails = (employeeId) => {
+      const staff = state.staffList.find(
+        (item) =>
+          String(
+            staffValue(item, [
+              "Employee ID",
+              "employeeId",
+              "Staff ID",
+              "staffId",
+              "Staff Code",
+              "staffCode",
+            ]),
+          )
+            .trim()
+            .toLowerCase() ===
+          String(employeeId || "")
+            .trim()
+            .toLowerCase(),
+      );
+
+      if (!staff) {
+        employeeDesignationInput.value = "";
+        employeeIdInput.value = "";
+        basicSalaryInput.value = "";
+        return;
+      }
+
+      employeeDesignationInput.value = staffValue(staff, [
+        "Job Title",
+        "jobTitle",
+        "Designation",
+        "designation",
+      ]);
+      employeeIdInput.value = staffValue(staff, [
+        "Employee ID",
+        "employeeId",
+        "Staff ID",
+        "staffId",
+        "Staff Code",
+        "staffCode",
+      ]);
+      basicSalaryInput.value =
+        staffValue(staff, [
+          "Basic Salary",
+          "basicSalary",
+          "basic_salary",
+          "Salary",
+          "salary",
+        ]) || 0;
+      updateCalculationPreview();
+    };
+
+    const renderPayrollTable = () => {
+      if (!state.payrollList.length) {
+        salaryTableBody.innerHTML =
+          '<tr><td colspan="9" class="text-center text-muted py-4">No payroll records found.</td></tr>';
+        return;
+      }
+
+      salaryTableBody.innerHTML = state.payrollList
+        .map((record) => {
+          const employeeName =
+            record["Employee Name"] || record.employeeName || record.employee_name || "—";
+          const employeeId =
+            record["Employee ID"] || record.employeeId || record.employee_id || "—";
+          const designation =
+            record["Designation"] || record.designation || "—";
+          const daysWorked =
+            record["Days Worked"] ?? record.daysWorked ?? record.days_worked ?? "—";
+          const payrollMonth =
+            record["Payroll Month"] || record.payrollMonth || record.payroll_month || "—";
+          const basicSalary = Number(
+            record["Basic Salary"] ?? record.basicSalary ?? record.basic_salary ?? 0,
+          ).toFixed(2);
+          const tds = Number(record["TDS (1%)"] ?? record.TDS ?? record.tds ?? 0).toFixed(2);
+          const totalEarning = Number(
+            record["Total Earning"] ?? record.totalEarning ?? record.total_earning ?? 0,
+          ).toFixed(2);
+          const totalPaid = Number(
+            record["Total Paid"] ?? record.totalPaid ?? record.total_paid ?? 0,
+          ).toFixed(2);
+          return `
+        <tr>
+          <td>${payrollMonth}</td>
+          <td>${employeeName}</td>
+          <td>${designation}</td>
+          <td>${daysWorked}</td>
+          <td>${basicSalary}</td>
+          <td>${tds}</td>
+          <td>${totalEarning}</td>
+          <td>${totalPaid}</td>
+          <td class="text-end">
+            <div class="btn-group btn-group-sm">
+              <button type="button" class="btn btn-outline-secondary payroll-view-btn" data-employee-id="${employeeId}" data-payroll-month="${payrollMonth}">View</button>
+              <button type="button" class="btn btn-outline-primary payroll-edit-btn" data-employee-id="${employeeId}" data-payroll-month="${payrollMonth}">Edit</button>
+              <button type="button" class="btn btn-outline-success payroll-paid-btn" data-employee-id="${employeeId}" data-payroll-month="${payrollMonth}">Mark as Paid</button>
+            </div>
+          </td>
+        </tr>
+      `;
+        })
+        .join("");
+
+      salaryTableBody
+        .querySelectorAll(".payroll-view-btn")
+        .forEach((button) => {
+          button.addEventListener("click", () => {
+            const record = state.payrollList.find((item) => {
+              const employeeId = String(
+                item["Employee ID"] || item.employeeId || "",
+              ).trim();
+              const payrollMonth = String(
+                item["Payroll Month"] || item.payrollMonth || "",
+              ).trim();
+              return (
+                employeeId === button.dataset.employeeId &&
+                payrollMonth === button.dataset.payrollMonth
+              );
+            });
+            if (record) {
+              populateFormFromRecord(record);
+              const paidAmount = Number(
+                record["Total Paid"] ?? record.totalPaid ?? record.total_paid ?? 0,
+              );
+              const dueAmount = Number(
+                record["Due Salary"] ??
+                  record["Due Amount"] ??
+                  record.dueSalary ??
+                  record.dueAmount ??
+                  record.due_salary ??
+                  0,
+              );
+              window.KumakhVouchers?.paymentVoucher({
+                voucherNo:
+                  record["Payroll ID"] ||
+                  record.payrollId ||
+                  `PAYROLL-${button.dataset.employeeId}-${button.dataset.payrollMonth}`,
+                paymentType: "STAFF SALARY",
+                payeeId: record["Employee ID"] || record.employeeId || record.employee_id || "",
+                payeeName:
+                  record["Employee Name"] || record.employeeName || record.employee_name || "",
+                payrollDetails: {
+                  payrollMonth:
+                    record["Payroll Month"] || record.payrollMonth || "",
+                  designation:
+                    record["Designation"] || record.designation || "",
+                  basicSalary:
+                    record["Basic Salary"] ?? record.basicSalary ?? record.basic_salary ?? 0,
+                  daysWorked:
+                    record["Days Worked"] ?? record.daysWorked ?? record.days_worked ?? 0,
+                  earnedSalary:
+                    record["Earned Salary"] ?? record.earnedSalary ?? record.earned_salary ?? 0,
+                  bonus: record.Bonus ?? record.bonus ?? 0,
+                  allowance: record.Allowance ?? record.allowance ?? 0,
+                  totalEarning:
+                    record["Total Earning"] ?? record.totalEarning ?? record.total_earning ?? 0,
+                  deduction: record.Deduction ?? record.deduction ?? 0,
+                  tds: record.TDS ?? record.tds ?? record["TDS (1%)"] ?? 0,
+                  netSalary:
+                    record["Net Salary"] ?? record.netSalary ?? record.net_salary ?? 0,
+                  totalPaid: paidAmount,
+                  dueSalary: dueAmount,
+                },
+                previousDue: paidAmount + dueAmount,
+                paidAmount,
+                remainingDue: dueAmount,
+                paymentMethod:
+                  record["Payment Method"] || record.paymentMethod || "Cash",
+                paymentDate:
+                  record["Payment Date"] || record.paymentDate || "",
+                remarks:
+                  record.Remarks ||
+                  record.remarks ||
+                  `Salary payment for ${record["Payroll Month"] || record.payrollMonth || "the selected payroll period"}.`,
+              });
+              setMessage("Payroll record loaded for review.", "info");
+            }
+          });
+        });
+
+      salaryTableBody
+        .querySelectorAll(".payroll-edit-btn")
+        .forEach((button) => {
+          button.addEventListener("click", () => {
+            const record = state.payrollList.find((item) => {
+              const employeeId = String(
+                item["Employee ID"] || item.employeeId || "",
+              ).trim();
+              const payrollMonth = String(
+                item["Payroll Month"] || item.payrollMonth || "",
+              ).trim();
+              return (
+                employeeId === button.dataset.employeeId &&
+                payrollMonth === button.dataset.payrollMonth
+              );
+            });
+            if (record) {
+              populateFormFromRecord(record);
+              setMessage("Payroll record ready for editing.", "warning");
+            }
+          });
+        });
+
+      salaryTableBody
+        .querySelectorAll(".payroll-paid-btn")
+        .forEach((button) => {
+          button.addEventListener("click", async () => {
+            try {
+              const response = await markPayrollPaid({
+                employeeId: button.dataset.employeeId,
+                payrollMonth: button.dataset.payrollMonth,
+              });
+              if (!response.success) {
+                throw new Error(
+                  response.message || "Unable to mark payroll as paid.",
+                );
+              }
+              setMessage(
+                response.message || "Payroll marked as paid.",
+                "success",
+              );
+              await loadPayrollHistory();
+            } catch (error) {
+              setMessage(
+                error.message || "Unable to mark payroll as paid.",
+                "danger",
+              );
+            }
+          });
+        });
+    };
+
+    const populateFormFromRecord = (record) => {
+      const employeeId = String(
+        record["Employee ID"] || record.employeeId || "",
+      ).trim();
+      employeeSelect.value = employeeId;
+      applyEmployeeDetails(employeeId);
+      const payrollMonth = String(
+        record["Payroll Month"] || record.payrollMonth || "",
+      ).trim();
+      monthInput.value = payrollMonth;
+      monthField.value = payrollMonth;
+      basicSalaryInput.value = Number(
+        record["Basic Salary"] || record.basicSalary || 0,
+      );
+      daysWorkedInput.value = record["Days Worked"] || record.daysWorked || 26;
+      bonusInput.value = record.Bonus || record.bonus || 0;
+      allowanceInput.value = record.Allowance || record.allowance || 0;
+      deductionInput.value = record.Deduction || record.deduction || 0;
+      totalPaidInput.value = record["Total Paid"] || record.totalPaid || 0;
+      paymentMethodInput.value =
+        record["Payment Method"] || record.paymentMethod || "Cash";
+      paymentDateInput.value =
+        record["Payment Date"] || record.paymentDate || "";
+      remarksInput.value = record.Remarks || record.remarks || "";
+      updateCalculationPreview();
+    };
+
+    const loadPayrollHistory = async () => {
+      const validationMessage = payrollMonthValidation();
+      if (validationMessage) {
+        setMessage(validationMessage, "danger");
+        salaryTableBody.innerHTML =
+          '<tr><td colspan="9" class="text-center text-muted py-4">Select a valid payroll month.</td></tr>';
+        return;
+      }
+      try {
+        // Payroll History must show every saved payroll record. The employee
+        // and month controls are used for payroll entry, not history filtering.
+        const response = await getPayroll();
+
+        if (!response || !response.success) {
+          throw new Error(
+            response && response.message
+              ? response.message
+              : "Unable to load payroll history.",
+          );
+        }
+
+        state.payrollList = Array.isArray(response.data) ? response.data : [];
+        renderPayrollTable();
+      } catch (error) {
+        setMessage(
+          error.message || "Unable to load payroll history.",
+          "danger",
+        );
+        salaryTableBody.innerHTML =
+          '<tr><td colspan="9" class="text-center text-muted py-4">No payroll records found.</td></tr>';
+      }
+    };
+
+    employeeSelect.addEventListener("change", () => {
+      applyEmployeeDetails(employeeSelect.value);
+      if (monthInput.value) {
+        const validationMessage = payrollMonthValidation();
+        if (validationMessage) {
+          setMessage(validationMessage, "danger");
+          return;
+        }
+        loadPayrollHistory();
+      }
+    });
+
+    monthInput.addEventListener("change", () => {
+      monthField.value = monthInput.value;
+      const validationMessage = payrollMonthValidation();
+      if (validationMessage) {
+        setMessage(validationMessage, "danger");
+        return;
+      }
+      setMessage("");
+      loadPayrollHistory();
+    });
+
+    monthField.addEventListener("change", () => {
+      monthInput.value = monthField.value;
+      const validationMessage = payrollMonthValidation();
+      if (validationMessage) {
+        setMessage(validationMessage, "danger");
+        return;
+      }
+      setMessage("");
+      loadPayrollHistory();
+    });
+
+    salaryLoadButton.addEventListener("click", loadPayrollHistory);
+
+    salarySubmitButton.addEventListener("click", async (event) => {
+      event.preventDefault();
+      const employeeId = employeeSelect.value;
+      const payrollMonth = monthInput.value || monthField.value;
+
+      if (!employeeId) {
+        setMessage(
+          "Please select an employee before saving payroll.",
+          "warning",
+        );
+        return;
+      }
+
+      if (!payrollMonth) {
+        setMessage(
+          "Please select a payroll month before saving payroll.",
+          "warning",
+        );
+        return;
+      }
+      const validationMessage = payrollMonthValidation();
+      if (validationMessage) {
+        setMessage(validationMessage, "danger");
+        return;
+      }
+
+      try {
+        const payload = {
+          employeeId,
+          payrollMonth,
+          daysWorked: Number(daysWorkedInput.value || 0),
+          bonus: Number(bonusInput.value || 0),
+          allowance: Number(allowanceInput.value || 0),
+          deduction: Number(deductionInput.value || 0),
+          totalPaid: Number(totalPaidInput.value || 0),
+          paymentMethod: paymentMethodInput.value,
+          paymentDate: paymentDateInput.value,
+          remarks: remarksInput.value,
+        };
+
+        const response = await savePayroll(payload);
+        if (!response.success) {
+          throw new Error(response.message || "Unable to save payroll.");
+        }
+
+        setMessage(
+          response.message || "Payroll saved successfully.",
+          "success",
+        );
+        await loadPayrollHistory();
+      } catch (error) {
+        setMessage(error.message || "Unable to save payroll.", "danger");
+      }
+    });
+
+    [
+      daysWorkedInput,
+      bonusInput,
+      allowanceInput,
+      deductionInput,
+      totalPaidInput,
+    ].forEach((input) => {
+      input.addEventListener("input", updateCalculationPreview);
+    });
+
+    salaryMarkPaidButton?.addEventListener("click", async () => {
+      const employeeId = employeeSelect.value;
+      const payrollMonth = monthInput.value || monthField.value;
+
+      if (!employeeId) {
+        setMessage(
+          "Please select a payroll record to mark as paid.",
+          "warning",
+        );
+        return;
+      }
+
+      if (!payrollMonth) {
+        setMessage(
+          "Please select a payroll month before marking as paid.",
+          "warning",
+        );
+        return;
+      }
+
+      try {
+        const response = await markPayrollPaid({ employeeId, payrollMonth });
+        if (!response.success) {
+          throw new Error(
+            response.message || "Unable to mark payroll as paid.",
+          );
+        }
+
+        state.paymentStatus = "Paid";
+        updateCalculationPreview();
+        setMessage(response.message || "Payroll marked as paid.", "success");
+        await loadPayrollHistory();
+      } catch (error) {
+        setMessage(
+          error.message || "Unable to mark payroll as paid.",
+          "danger",
+        );
+      }
+    });
+
+    const initializePage = async () => {
+      try {
+        const staffResponse = await getStaff();
+        if (!staffResponse || !staffResponse.success) {
+          throw new Error(
+            staffResponse && staffResponse.message
+              ? staffResponse.message
+              : "Unable to load staff details.",
+          );
+        }
+
+        state.staffList = Array.isArray(staffResponse.data)
+          ? staffResponse.data
+          : [];
+        populateEmployeeSelect(state.staffList);
+        const defaultMonth = new Date().toISOString().slice(0, 7);
+        monthInput.value = defaultMonth;
+        monthField.value = defaultMonth;
+        updateCalculationPreview();
+        await loadPayrollHistory();
+      } catch (error) {
+        setMessage(
+          error.message || "Unable to load the payroll module.",
+          "danger",
+        );
+      }
+    };
+
+    initializePage();
+  };
+</script>

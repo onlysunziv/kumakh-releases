@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kumakh College | Log in</title>
+  
+  <!-- Bootstrap 5 & Icons -->
+  <link href="./assets/vendor/bootstrap.min.css" rel="stylesheet">
+  <link href="./assets/vendor/bootstrap-icons.min.css" rel="stylesheet">
+  
+  <!-- Google Fonts: Caveat (Handwritten) & Poppins -->
+  
+
+  <style>
+    :root {
+      --red: #d32f2f;
+      --red-bright: #ff4d4d;
+      --navy: #0b1a30;
+      --muted: #4a5d6e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body.login-body {
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      overflow-x: hidden;
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+      background: url("./assets/login-background.jpe") center/cover no-repeat fixed;
+    }
+
+    .login-shell {
+      width: min(1180px, 100%);
+      margin: auto;
+      padding: 40px 24px;
+    }
+
+    .login-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(360px, 450px);
+      gap: 60px;
+      align-items: center;
+    }
+
+    /* Left Branding Section */
+    .brand-logo-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 35px;
+    }
+
+    .logo-badge {
+      width: 62px;
+      height: 62px;
+      background: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--red);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+      flex: none;
+    }
+
+    .logo-badge img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .logo-badge .badge-fallback-text {
+      color: var(--red);
+      font-weight: 800;
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .logo-badge .badge-fallback-icon {
+      color: var(--red);
+      font-size: 10px;
+      margin-top: 1px;
+    }
+
+    .brand-title-group {
+      border-left: 2px solid rgba(255, 255, 255, 0.4);
+      padding-left: 15px;
+    }
+
+    .brand-title-group h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: 0.5px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .brand-title-group p {
+      font-size: 13px;
+      margin: 0;
+      opacity: 0.9;
+      font-weight: 300;
+    }
+
+    .hero-heading {
+      font-size: clamp(34px, 3.8vw, 46px);
+      font-weight: 700;
+      line-height: 1.25;
+      margin: 0 0 12px;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .hero-heading .highlight-red {
+      display: block;
+      color: var(--red-bright);
+    }
+
+    .hero-subtext {
+      font-size: 14px;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.88);
+      max-width: 320px;
+      margin: 0 0 45px;
+      position: relative;
+      padding-top: 14px;
+    }
+
+    .hero-subtext::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 32px;
+      height: 2px;
+      background: var(--red-bright);
+    }
+
+    .feature-row {
+      display: flex;
+      max-width: 380px;
+    }
+
+    .feature-item {
+      flex: 1;
+      text-align: center;
+      padding: 0 10px;
+      border-right: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .feature-item:last-child {
+      border-right: 0;
+    }
+
+    .feature-icon-box {
+      width: 42px;
+      height: 42px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 8px;
+      background: rgba(255, 255, 255, 0.08);
+      font-size: 18px;
+    }
+
+    .feature-label {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.25;
+      font-weight: 400;
+    }
+
+    /* Glassmorphism Card Right */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 24px;
+      padding: 35px 36px 28px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      color: var(--navy);
+    }
+
+    .glass-card .brand-logo-container {
+      margin-bottom: 22px;
+    }
+
+    .glass-card .logo-badge {
+      width: 52px;
+      height: 52px;
+    }
+
+    .glass-card .brand-title-group {
+      border-left-color: rgba(11, 26, 48, 0.25);
+      padding-left: 15px;
+    }
+
+    .glass-card .brand-title-group h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0;
+      color: #0b1a30;
+    }
+
+    .glass-card .brand-title-group p {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* Cursive Subtitle */
+    .login-subtitle {
+      font-family: 'Caveat', cursive;
+      font-size: 34px;
+      font-weight: 700;
+      color: #0a2540;
+      text-align: center;
+      margin: 5px 0 0;
+      line-height: 1.1;
+    }
+
+    .login-desc {
+      text-align: center;
+      font-size: 12px;
+      color: #4a5d6e;
+      margin-bottom: 24px;
+    }
+
+    /* Pill Input Wrappers */
+    .custom-input-group {
+      background: rgba(255, 255, 255, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      border-radius: 50px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      padding: 4px 18px;
+      transition: all 0.25s ease;
+    }
+
+    .custom-input-group:focus-within {
+      background: rgba(255, 255, 255, 0.7);
+      border-color: rgba(211, 47, 47, 0.5);
+      box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.18);
+    }
+
+    .custom-input-group .input-icon {
+      color: #2c3e50;
+      font-size: 16px;
+      margin-right: 12px;
+      display: flex;
+      align-items: center;
+    }
+
+    .custom-input-group input {
+      width: 100%;
+      height: 42px;
+      border: 0;
+      outline: none !important;
+      box-shadow: none !important;
+      background: transparent;
+      color: #1a2536;
+      font-size: 13px;
+      font-weight: 400;
+    }
+
+    .custom-input-group input:focus,
+    .custom-input-group input:focus-visible {
+      outline: none !important;
+      box-shadow: none !important;
+    }
+
+    .custom-input-group input::placeholder {
+      color: #6c7a89;
+    }
+
+    .toggle-password {
+      border: 0;
+      background: transparent;
+      color: #6c7a89;
+      padding: 0 0 0 10px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+    }
+
+    .toggle-password:hover {
+      color: #1a2536;
+    }
+
+    /* Remember Row */
+    .remember-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 14px 4px 20px;
+      color: #1c3148;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .remember-row input {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--red);
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    /* Login Pill Button */
+    .btn-login {
+      width: 100%;
+      border: 0;
+      border-radius: 50px;
+      padding: 13px;
+      background: linear-gradient(135deg, #e53935 0%, #b71c1c 100%);
+      color: #fff;
+      font-weight: 600;
+      font-size: 15px;
+      box-shadow: 0 6px 18px rgba(211, 47, 47, 0.4);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 22px rgba(211, 47, 47, 0.6);
+    }
+
+    .btn-login:disabled {
+      opacity: 0.7;
+      cursor: wait;
+    }
+    .btn-login.is-loading .spinner-border {
+      display: inline-block !important;
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: login-spin .7s linear infinite;
+    }
+    @keyframes login-spin { to { transform: rotate(360deg); } }
+
+    .error-message {
+      min-height: 18px;
+      margin-top: 10px;
+      color: #b71c1c;
+      font-size: 12px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    /* Divider Accent */
+    .card-footer-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 25px;
+    }
+
+    .card-footer-divider .line {
+      height: 1px;
+      background: rgba(11, 26, 48, 0.18);
+      flex: 1;
+    }
+
+    .card-footer-divider span {
+      color: var(--red);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 850px) {
+      .login-layout {
+        grid-template-columns: 1fr;
+        gap: 35px;
+      }
+      .login-intro {
+        text-align: center;
+      }
+      .brand-logo-container {
+        justify-content: center;
+      }
+      .hero-subtext {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .hero-subtext::before {
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      .feature-row {
+        margin: auto;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .glass-card {
+        padding: 28px 20px 22px;
+      }
+      .feature-item {
+        padding: 0 4px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="./css/ui-polish.css">
+</head>
+<body class="login-body">
+
+  <main class="login-shell">
+    <div class="login-layout">
+      
+      <!-- Left Hero Section -->
+      <section class="login-intro" aria-label="Kumakh College introduction">
+        <div class="brand-logo-container">
+          <div class="logo-badge">
+            <img src="./assets/kumakh-logo.png" alt="Kumakh College logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div style="display:none;" class="flex-column align-items-center">
+              <span class="badge-fallback-text">KCMT</span>
+              <i class="bi bi-file-earmark-pdf-fill badge-fallback-icon"></i>
+            </div>
+          </div>
+          <div class="brand-title-group">
+            <h1>Kumakh College</h1>
+            <p>College management and POS system</p>
+          </div>
+        </div>
+
+        <h2 class="hero-heading">
+          Welcome Back,
+    
+        </h2>
+
+        <p class="hero-subtext">Manage records, view reports and keep everything organized.</p>
+
+        <div class="feature-row">
+          <div class="feature-item">
+            <div class="feature-icon-box"><i class="bi bi-card-text"></i></div>
+            <div class="feature-label">Manage<br>Records</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon-box"><i class="bi bi-bar-chart-line-fill"></i></div>
+            <div class="feature-label">View<br>Reports</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon-box"><i class="bi bi-shield-check"></i></div>
+            <div class="feature-label">Secure<br>Access</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Glassmorphism Card Section -->
+      <section class="glass-card" aria-label="Login form">
+        <div class="brand-logo-container">
+          <div class="logo-badge">
+            <img src="./assets/kumakh-logo.png" alt="Kumakh College logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div style="display:none;" class="flex-column align-items-center">
+              <span class="badge-fallback-text" style="font-size:11px;">KCMT</span>
+              <i class="bi bi-file-earmark-pdf-fill badge-fallback-icon" style="font-size:8px;"></i>
+            </div>
+          </div>
+          <div class="brand-title-group">
+            <h2>Kumakh College</h2>
+            <p>College management and POS system</p>
+          </div>
+        </div>
+
+        <div class="login-subtitle">Login to your Account</div>
+        <div class="login-desc">Access your college management system</div>
+
+        <form id="loginForm" novalidate>
+          
+          <!-- Username Input -->
+          <div class="custom-input-group">
+            <span class="input-icon" aria-hidden="true"><i class="bi bi-person"></i></span>
+            <input id="username" name="username" type="text" placeholder="Enter username" autocomplete="username" required>
+          </div>
+
+          <!-- Password Input -->
+          <div class="custom-input-group">
+            <span class="input-icon" aria-hidden="true"><i class="bi bi-lock"></i></span>
+            <input id="password" name="password" type="password" placeholder="Enter password" autocomplete="current-password" required>
+            <button type="button" class="toggle-password" id="togglePassword" aria-label="Show password">
+              <i class="bi bi-eye" id="toggleIcon"></i>
+            </button>
+          </div>
+
+          <!-- Remember Me Checkbox -->
+          <label class="remember-row">
+            <input type="checkbox" id="rememberMe"> Remember me
+          </label>
+
+          <!-- Login Button -->
+          <button id="loginBtn" type="submit" class="btn-login">
+            <i class="bi bi-box-arrow-in-right"></i>
+            <span class="btn-label">Log in</span>
+            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+          </button>
+
+          <!-- Error Alert Area -->
+          <div id="loginError" class="error-message" role="alert" aria-live="assertive"></div>
+        </form>
+
+        <details class="mt-3"><summary>Software Update</summary><div data-software-update class="mt-3 p-3 rounded-3 bg-white bg-opacity-75"></div></details>
+        <!-- Card Bottom Line Accent -->
+        <div class="card-footer-divider">
+          <div class="line"></div>
+          <span><i class="bi bi-file-earmark-pdf-fill"></i></span>
+          <div class="line"></div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Optional auth script connection -->
+  <script src="./js/api.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/updates.js"></script>
+</body>
+</html>

@@ -1,0 +1,2197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KCMT Cafe Service</title>
+
+    <!-- Bootstrap 5 -->
+    <link
+      href="../assets/vendor/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="../assets/vendor/bootstrap-icons.min.css"
+    />
+
+    <style>
+      :root {
+        --primary: #0879e8;
+        --primary-dark: #075db4;
+        --navy: #12345b;
+        --text: #17365d;
+        --muted: #6d86a5;
+        --border: #dceafa;
+        --bg: #f4f9ff;
+        --green: #08ad80;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #f4f9ff;
+        color: var(--text);
+        font-family:
+          Inter,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+
+      /* =========================
+           APP
+        ========================= */
+
+      .app {
+        min-height: 100vh;
+        background:
+          radial-gradient(
+            circle at 15% 0%,
+            rgba(82, 171, 255, 0.08),
+            transparent 35%
+          ),
+          #f5faff;
+      }
+
+      /* =========================
+           HEADER
+        ========================= */
+
+      .top-header {
+        height: 92px;
+        background: rgba(255, 255, 255, 0.96);
+        border-bottom: 1px solid #e0ecf9;
+        display: flex;
+        align-items: center;
+        padding: 0 28px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .logo {
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        background: white;
+        border: 3px solid #d8f1ff;
+        box-shadow: 0 4px 15px rgba(20, 100, 170, 0.12);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        font-size: 21px;
+        font-weight: 800;
+      }
+
+      .brand-title {
+        font-size: 27px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        color: #123c6b;
+        line-height: 1.1;
+      }
+
+      .brand-subtitle {
+        margin-top: 5px;
+        color: #7790ad;
+        font-size: 13px;
+      }
+
+      .header-actions {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .back-btn {
+        height: 44px;
+        padding: 0 18px;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 11px;
+        color: var(--navy);
+        font-weight: 600;
+      }
+
+      .header-search {
+        width: 280px;
+        height: 44px;
+        border: 1px solid var(--border);
+        border-radius: 11px;
+        background: white;
+        display: flex;
+        align-items: center;
+        padding: 0 14px;
+        color: #8ba0b9;
+      }
+
+      .header-search input {
+        border: 0;
+        outline: 0;
+        width: 100%;
+        margin-left: 9px;
+        font-size: 14px;
+      }
+
+      .notification {
+        width: 44px;
+        height: 44px;
+        border-radius: 11px;
+        border: 1px solid var(--border);
+        background: white;
+        color: #53779f;
+        position: relative;
+      }
+
+      .notification-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #ed5470;
+        position: absolute;
+        top: 8px;
+        right: 8px;
+      }
+
+      /* =========================
+           MAIN
+        ========================= */
+
+      .main-container {
+        padding: 20px;
+      }
+
+      /* =========================
+           STAT CARDS
+        ========================= */
+
+      .stat-card {
+        height: 84px;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        box-shadow: 0 4px 14px rgba(32, 99, 160, 0.05);
+      }
+
+      .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        background: #e9f5ff;
+        color: var(--primary);
+      }
+
+      .stat-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: #7189a6;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .stat-value {
+        margin-top: 3px;
+        font-size: 21px;
+        font-weight: 800;
+        color: #163b66;
+      }
+
+      /* =========================
+           CONTENT GRID
+        ========================= */
+
+      .content-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 545px;
+        gap: 16px;
+        margin-top: 18px;
+        align-items: start;
+      }
+
+      /* =========================
+           MENU
+        ========================= */
+
+      .menu-panel {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 18px;
+        min-height: 620px;
+        box-shadow: 0 4px 14px rgba(32, 99, 160, 0.05);
+      }
+
+      .menu-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 15px;
+      }
+
+      .menu-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 20px;
+        font-weight: 800;
+        color: #163b66;
+      }
+
+      .menu-title i {
+        color: var(--primary);
+      }
+
+      .menu-search {
+        display: flex;
+        gap: 10px;
+        width: 470px;
+      }
+
+      .menu-search-box {
+        flex: 1;
+        height: 40px;
+        border: 1px solid #cfe2f6;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        padding: 0 13px;
+        background: white;
+      }
+
+      .menu-search-box i {
+        color: #7b94af;
+      }
+
+      .menu-search-box input {
+        width: 100%;
+        border: 0;
+        outline: 0;
+        margin-left: 9px;
+        font-size: 13px;
+      }
+
+      .search-btn {
+        height: 40px;
+        border: 0;
+        padding: 0 20px;
+        border-radius: 9px;
+        background: var(--primary);
+        color: white;
+        font-weight: 700;
+        font-size: 13px;
+      }
+
+      .search-btn:hover {
+        background: var(--primary-dark);
+      }
+
+      /* =========================
+           CATEGORY
+        ========================= */
+
+      .categories {
+        display: flex;
+        gap: 9px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #edf3fa;
+      }
+
+      .category-btn {
+        border: 1px solid #d9e8f7;
+        background: #fff;
+        color: #54779d;
+        border-radius: 22px;
+        padding: 8px 25px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .category-btn.active {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+        box-shadow: 0 4px 10px rgba(8, 121, 232, 0.2);
+      }
+
+      /* =========================
+           MENU CATEGORY SECTION
+        ========================= */
+
+      .category-section {
+        margin-top: 20px;
+      }
+
+      .category-heading {
+        font-size: 16px;
+        font-weight: 800;
+        margin-bottom: 11px;
+        color: #173c66;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .category-heading::after {
+        content: "";
+        width: 25px;
+        height: 3px;
+        border-radius: 5px;
+        background: var(--primary);
+      }
+
+      /* =========================
+           MENU ITEMS
+        ========================= */
+
+      .menu-items {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+
+      .menu-item {
+        border: 1px solid #dceafa;
+        border-radius: 11px;
+        min-height: 76px;
+        padding: 13px 14px;
+        background: #fff;
+        transition: 0.2s ease;
+      }
+
+      .menu-item:hover {
+        border-color: #9ecdf5;
+        box-shadow: 0 5px 16px rgba(31, 112, 185, 0.08);
+        transform: translateY(-1px);
+      }
+
+      .item-name {
+        font-size: 13px;
+        font-weight: 750;
+        color: #173b65;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .item-bottom {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 10px;
+      }
+
+      .item-price {
+        color: #086de0;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .item-actions {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .qty-btn {
+        width: 29px;
+        height: 28px;
+        border: 1px solid #d4e5f6;
+        border-radius: 7px;
+        background: white;
+        color: #3972a8;
+        font-weight: 700;
+      }
+
+      .qty-value {
+        min-width: 17px;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 700;
+        color: #7990aa;
+      }
+
+      .add-btn {
+        height: 28px;
+        margin-left: 5px;
+        padding: 0 12px;
+        border: 1px solid #a9d4fb;
+        border-radius: 7px;
+        background: #eaf6ff;
+        color: #0873d8;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .add-btn:hover {
+        background: var(--primary);
+        color: white;
+      }
+
+      /* =========================
+           CURRENT ORDER
+        ========================= */
+
+      .order-panel {
+        background: white;
+        border: 1px solid #cfe2f5;
+        border-radius: 14px;
+        overflow: hidden;
+        position: sticky;
+        top: 15px;
+        box-shadow: 0 6px 20px rgba(20, 80, 130, 0.08);
+      }
+
+      .order-header {
+        background: linear-gradient(135deg, #086bc4, #087fe7);
+        color: white;
+        padding: 16px 18px;
+      }
+
+      .order-title-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .order-title {
+        font-size: 19px;
+        font-weight: 800;
+      }
+
+      .order-type {
+        margin-top: 3px;
+        font-size: 12px;
+        opacity: 0.9;
+      }
+
+      .clear-btn {
+        color: white;
+        background: transparent;
+        border: 0;
+        text-decoration: underline;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .order-body {
+        padding: 0 14px 15px;
+      }
+
+      /* Dine in / takeaway */
+
+      .order-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border: 1px solid #9bc6ed;
+        border-radius: 9px;
+        overflow: hidden;
+        margin-top: 12px;
+      }
+
+      .order-tab {
+        height: 40px;
+        border: 0;
+        background: white;
+        color: #5c7b9e;
+        font-weight: 700;
+        font-size: 13px;
+      }
+
+      .order-tab.active {
+        background: #1688ec;
+        color: white;
+      }
+
+      /* =========================
+           FORM
+        ========================= */
+
+      .form-label-custom {
+        display: block;
+        margin-top: 13px;
+        margin-bottom: 6px;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: #6684a5;
+        letter-spacing: 0.4px;
+      }
+
+      .form-control-custom {
+        height: 38px;
+        border: 1px solid #cfe1f4;
+        border-radius: 8px;
+        padding: 0 12px;
+        width: 100%;
+        outline: none;
+        color: #274d75;
+        font-size: 13px;
+      }
+
+      .form-control-custom:focus {
+        border-color: #69afea;
+        box-shadow: 0 0 0 3px rgba(8, 121, 232, 0.08);
+      }
+
+      .customer-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+        margin-top: 9px;
+      }
+
+      /* =========================
+           ORDER TABLE
+        ========================= */
+
+      .order-table {
+        margin-top: 15px;
+      }
+
+      .order-table-head {
+        display: grid;
+        grid-template-columns: 1fr 55px 70px 75px;
+        padding: 0 7px 9px;
+        border-bottom: 1px solid #dbe8f5;
+        color: #6d88a5;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .empty-order {
+        height: 125px;
+        border-bottom: 1px solid #dbe8f5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: #7691ad;
+      }
+
+      .empty-icon {
+        width: 45px;
+        height: 45px;
+        margin: auto;
+        margin-bottom: 8px;
+        border-radius: 50%;
+        background: #eaf5ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #368bd4;
+        font-size: 19px;
+      }
+
+      .empty-title {
+        font-weight: 800;
+        font-size: 13px;
+        color: #52769d;
+      }
+
+      .empty-text {
+        font-size: 12px;
+        margin-top: 3px;
+      }
+
+      /* =========================
+           ORDER TOTALS
+        ========================= */
+
+      .totals {
+        padding: 13px 7px 0;
+      }
+
+      .total-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 12px;
+        color: #617f9f;
+        font-weight: 600;
+      }
+
+      .total-row strong {
+        color: #3c5e82;
+      }
+
+      .discount-input {
+        width: 54px;
+        height: 28px;
+        text-align: center;
+        border: 1px solid #bfd7ee;
+        border-radius: 7px;
+        outline: none;
+      }
+
+      .grand-total {
+        margin-top: 10px;
+        height: 40px;
+        border-radius: 8px;
+        background: #0969bd;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 13px;
+        color: white;
+      }
+
+      .grand-total span:first-child {
+        font-size: 16px;
+        font-weight: 800;
+      }
+
+      .grand-total span:last-child {
+        color: #62efc5;
+        font-size: 16px;
+        font-weight: 900;
+      }
+
+      /* =========================
+           PAYMENT
+        ========================= */
+
+      .payment-methods {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 11px;
+      }
+
+      .payment-btn {
+        height: 43px;
+        border-radius: 9px;
+        border: 1px solid #c9def1;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .payment-cash {
+        background: #dffaf2;
+        color: #078e70;
+      }
+
+      .payment-qr {
+        background: #eeeaff;
+        color: #6752bd;
+      }
+
+      .payment-credit {
+        background: #ffeaee;
+        color: #db506a;
+      }
+
+      .complete-btn {
+        width: 100%;
+        height: 44px;
+        margin-top: 10px;
+        border: 0;
+        border-radius: 9px;
+        background: #08a97e;
+        color: white;
+        font-weight: 800;
+        font-size: 13px;
+      }
+
+      .complete-btn:hover {
+        background: #078c6a;
+      }
+
+      /* =========================
+           RESPONSIVE
+        ========================= */
+
+      @media (max-width: 1250px) {
+        .content-grid {
+          grid-template-columns: minmax(0, 1fr) 450px;
+        }
+
+        .menu-items {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .menu-search {
+          width: 380px;
+        }
+      }
+
+      @media (max-width: 1000px) {
+        .content-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .order-panel {
+          position: static;
+        }
+
+        .menu-items {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .top-header {
+          height: auto;
+          padding: 15px;
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+
+        .header-actions {
+          width: 100%;
+        }
+
+        .header-search {
+          flex: 1;
+        }
+
+        .brand-title {
+          font-size: 21px;
+        }
+
+        .brand-subtitle {
+          display: none;
+        }
+
+        .menu-header {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .menu-search {
+          width: 100%;
+        }
+
+        .menu-items {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 500px) {
+        .main-container {
+          padding: 10px;
+        }
+
+        .menu-items {
+          grid-template-columns: 1fr;
+        }
+
+        .customer-row {
+          grid-template-columns: 1fr;
+        }
+
+        .stat-card {
+          margin-bottom: 8px;
+        }
+      }
+
+      /* =========================
+           KCMT APPLICATION SYSTEM
+        ========================= */
+      :root {
+        --primary: #8f1738;
+        --primary-dark: #70112d;
+        --secondary: #1769e8;
+        --navy: #173250;
+        --text: #334e68;
+        --muted: #64748b;
+        --border: #d9e2ec;
+        --bg: #f5f7fb;
+        --success: #16a34a;
+        --warning: #f59e0b;
+        --danger: #dc2626;
+        --radius: 12px;
+        --shadow: 0 8px 24px rgba(23, 50, 80, 0.06);
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          Inter,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        font-size: 14px;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+        transition:
+          background-color 0.18s ease,
+          border-color 0.18s ease,
+          color 0.18s ease,
+          box-shadow 0.18s ease,
+          transform 0.18s ease;
+      }
+
+      button:focus-visible,
+      input:focus-visible {
+        outline: 3px solid rgba(23, 105, 232, 0.16);
+        outline-offset: 1px;
+      }
+
+      .app {
+        min-height: 100vh;
+        background: var(--bg);
+      }
+
+      .top-header {
+        min-height: 72px;
+        height: auto;
+        padding: 14px clamp(16px, 3vw, 32px);
+        background: #fff;
+        border-bottom: 1px solid var(--border);
+        box-shadow: 0 1px 0 rgba(23, 50, 80, 0.02);
+      }
+
+      .brand {
+        gap: 12px;
+      }
+
+      .logo {
+        width: 42px;
+        height: 42px;
+        border: 0;
+        border-radius: 11px;
+        background: var(--primary);
+        color: #fff;
+        box-shadow: 0 5px 12px rgba(143, 23, 56, 0.2);
+        font-size: 12px;
+        letter-spacing: 0.3px;
+      }
+
+      .brand-title {
+        color: var(--navy);
+        font-size: 20px;
+        font-weight: 750;
+        letter-spacing: -0.25px;
+      }
+
+      .brand-subtitle {
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .header-actions {
+        gap: 8px;
+      }
+
+      .back-btn,
+      .notification,
+      .header-search {
+        height: 40px;
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        background: #fff;
+      }
+
+      .back-btn {
+        padding: 0 14px;
+        color: var(--navy);
+        font-weight: 650;
+      }
+
+      .back-btn:hover,
+      .notification:hover {
+        border-color: #b9c9d9;
+        background: #f8fafc;
+      }
+
+      .header-search {
+        width: min(280px, 25vw);
+        padding: 0 12px;
+        color: var(--muted);
+      }
+
+      .header-search input,
+      .menu-search-box input {
+        color: var(--navy);
+        background: transparent;
+      }
+
+      .header-search input::placeholder,
+      .menu-search-box input::placeholder {
+        color: #94a3b8;
+      }
+
+      .notification {
+        width: 40px;
+        color: var(--secondary);
+      }
+
+      .notification-dot {
+        width: 7px;
+        height: 7px;
+        top: 7px;
+        right: 7px;
+        background: var(--danger);
+      }
+
+      .main-container {
+        width: min(100%, 1440px);
+        margin: 0 auto;
+        padding: clamp(16px, 2.5vw, 32px);
+      }
+
+      .row {
+        --bs-gutter-x: 16px;
+        --bs-gutter-y: 16px;
+      }
+
+      .stat-card,
+      .menu-panel,
+      .order-panel {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+      }
+
+      .stat-card {
+        height: 80px;
+        padding: 14px 16px;
+        gap: 12px;
+      }
+
+      .stat-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        background: #fbecef;
+        color: var(--primary);
+        font-size: 19px;
+      }
+
+      .stat-title {
+        color: var(--muted);
+        font-size: 11px;
+        letter-spacing: 0.45px;
+      }
+
+      .stat-value {
+        margin-top: 2px;
+        color: var(--navy);
+        font-size: 20px;
+        font-weight: 750;
+      }
+
+      .content-grid {
+        grid-template-columns: minmax(0, 1fr) minmax(340px, 420px);
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .menu-panel {
+        min-height: 0;
+        padding: clamp(16px, 2vw, 24px);
+      }
+
+      .menu-header {
+        margin-bottom: 16px;
+        gap: 16px;
+      }
+
+      .menu-title {
+        color: var(--navy);
+        font-size: 19px;
+        font-weight: 750;
+      }
+
+      .menu-title i,
+      .category-heading::after {
+        color: var(--primary);
+      }
+
+      .menu-search {
+        width: min(470px, 55%);
+        gap: 8px;
+      }
+
+      .menu-search-box {
+        height: 40px;
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        padding: 0 12px;
+      }
+
+      .menu-search-box:focus-within {
+        border-color: var(--secondary);
+        box-shadow: 0 0 0 3px rgba(23, 105, 232, 0.1);
+      }
+
+      .search-btn,
+      .category-btn.active {
+        background: var(--primary);
+        border-color: var(--primary);
+      }
+
+      .search-btn {
+        height: 40px;
+        padding: 0 16px;
+        border-radius: 9px;
+        font-weight: 650;
+      }
+
+      .search-btn:hover,
+      .category-btn.active:hover {
+        background: var(--primary-dark);
+        border-color: var(--primary-dark);
+      }
+
+      .categories {
+        gap: 8px;
+        padding-bottom: 14px;
+        border-bottom-color: var(--border);
+        overflow-x: auto;
+      }
+
+      .category-btn {
+        flex: 0 0 auto;
+        padding: 8px 16px;
+        border-color: var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        font-size: 13px;
+        font-weight: 650;
+      }
+
+      .category-section {
+        margin-top: 20px;
+      }
+
+      .category-heading {
+        margin-bottom: 12px;
+        color: var(--navy);
+        font-size: 15px;
+        font-weight: 750;
+      }
+
+      .category-heading::after {
+        height: 2px;
+        background: var(--primary);
+      }
+
+      .menu-items {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .menu-item {
+        min-height: 84px;
+        padding: 13px;
+        border-color: var(--border);
+        border-radius: 10px;
+      }
+
+      .menu-item:hover {
+        border-color: #c3cfdb;
+        box-shadow: 0 6px 16px rgba(23, 50, 80, 0.08);
+        transform: translateY(-1px);
+      }
+
+      .item-name {
+        color: var(--navy);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .item-price {
+        color: var(--primary);
+        font-size: 13px;
+      }
+
+      .qty-btn,
+      .add-btn {
+        border-radius: 7px;
+      }
+
+      .qty-btn {
+        width: 28px;
+        height: 28px;
+        border-color: var(--border);
+        color: var(--secondary);
+      }
+
+      .qty-btn:hover {
+        border-color: var(--secondary);
+        background: #eff6ff;
+      }
+
+      .add-btn {
+        border-color: #e7b7c5;
+        background: #fbecef;
+        color: var(--primary);
+        font-weight: 700;
+      }
+
+      .add-btn:hover {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #fff;
+      }
+
+      .order-panel {
+        top: 20px;
+        border-color: var(--border);
+        box-shadow: var(--shadow);
+      }
+
+      .order-header {
+        padding: 16px 18px;
+        background: var(--primary);
+      }
+
+      .order-title {
+        font-size: 18px;
+      }
+
+      .order-type {
+        color: #fce9ee;
+      }
+
+      .clear-btn:hover {
+        color: #fff;
+        opacity: 0.8;
+      }
+
+      .order-body {
+        padding: 0 16px 16px;
+      }
+
+      .order-tabs {
+        margin-top: 14px;
+        border-color: var(--border);
+      }
+
+      .order-tab {
+        height: 40px;
+        color: var(--muted);
+      }
+
+      .order-tab.active {
+        background: var(--secondary);
+      }
+
+      .form-label-custom {
+        margin-top: 14px;
+        margin-bottom: 6px;
+        color: #344e6b;
+        font-size: 12px;
+        font-weight: 650;
+        letter-spacing: 0;
+        text-transform: none;
+      }
+
+      .form-control-custom,
+      .discount-input {
+        border-color: var(--border);
+        border-radius: 8px;
+        color: var(--navy);
+        background: #fff;
+      }
+
+      .form-control-custom {
+        height: 42px;
+        font-size: 14px;
+      }
+
+      .form-control-custom:focus,
+      .discount-input:focus {
+        border-color: var(--secondary);
+        box-shadow: 0 0 0 3px rgba(23, 105, 232, 0.1);
+      }
+
+      .customer-row {
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .order-table {
+        margin-top: 18px;
+      }
+
+      .order-table-head {
+        padding-bottom: 9px;
+        border-bottom-color: var(--border);
+        color: var(--muted);
+      }
+
+      .empty-order {
+        height: 140px;
+        border-bottom-color: var(--border);
+      }
+
+      .empty-icon {
+        background: #eff6ff;
+        color: var(--secondary);
+      }
+
+      .empty-title {
+        color: var(--navy);
+      }
+
+      .totals {
+        padding: 16px 7px 0;
+      }
+
+      .total-row {
+        color: var(--muted);
+      }
+
+      .total-row strong {
+        color: var(--navy);
+      }
+
+      .discount-input {
+        height: 30px;
+      }
+
+      .grand-total {
+        height: 44px;
+        margin-top: 12px;
+        border-radius: 8px;
+        background: var(--navy);
+      }
+
+      .grand-total span:last-child {
+        color: #b9d4ff;
+      }
+
+      .payment-methods {
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .payment-btn {
+        height: 42px;
+        border-color: var(--border);
+        border-radius: 8px;
+      }
+
+      .payment-cash {
+        background: #ecfdf3;
+        color: var(--success);
+      }
+
+      .payment-qr {
+        background: #eff6ff;
+        color: var(--secondary);
+      }
+
+      .payment-credit {
+        background: #fff7ed;
+        color: var(--warning);
+      }
+
+      .complete-btn {
+        height: 44px;
+        margin-top: 12px;
+        border-radius: 8px;
+        background: var(--primary);
+        font-size: 14px;
+      }
+
+      .complete-btn:hover {
+        background: var(--primary-dark);
+      }
+
+      @media (max-width: 1250px) {
+        .content-grid {
+          grid-template-columns: minmax(0, 1fr) minmax(320px, 390px);
+        }
+
+        .menu-items {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 1000px) {
+        .content-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .order-panel {
+          position: static;
+        }
+
+        .menu-items {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 700px) {
+        .top-header {
+          align-items: flex-start;
+          flex-wrap: wrap;
+        }
+
+        .header-actions {
+          width: 100%;
+        }
+
+        .header-search {
+          width: auto;
+          flex: 1;
+        }
+
+        .brand-title {
+          font-size: 18px;
+        }
+
+        .brand-subtitle {
+          display: none;
+        }
+
+        .menu-header {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .menu-search {
+          width: 100%;
+        }
+
+        .menu-items {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 500px) {
+        .main-container {
+          padding: 12px;
+        }
+
+        .stat-card {
+          height: 74px;
+        }
+
+        .menu-panel {
+          padding: 14px;
+        }
+
+        .menu-items {
+          grid-template-columns: 1fr;
+        }
+
+        .customer-row {
+          grid-template-columns: 1fr;
+        }
+
+        .order-header {
+          padding: 15px 16px;
+        }
+      }
+
+      /* Preserve the original application color palette. */
+      :root {
+        --primary: #0879e8;
+        --primary-dark: #075db4;
+        --navy: #12345b;
+        --text: #17365d;
+        --muted: #6d86a5;
+        --border: #dceafa;
+        --bg: #f4f9ff;
+        --green: #08ad80;
+      }
+
+      body {
+        background: #f4f9ff;
+        color: var(--text);
+      }
+
+      .app {
+        background:
+          radial-gradient(
+            circle at 15% 0%,
+            rgba(82, 171, 255, 0.08),
+            transparent 35%
+          ),
+          #f5faff;
+      }
+
+      .top-header {
+        border-bottom-color: #e0ecf9;
+      }
+
+      .logo {
+        background: white;
+        border: 3px solid #d8f1ff;
+        color: var(--primary);
+        box-shadow: 0 4px 15px rgba(20, 100, 170, 0.12);
+      }
+
+      .brand-title {
+        color: #123c6b;
+      }
+
+      .brand-subtitle {
+        color: #7790ad;
+      }
+
+      .stat-icon {
+        background: #e9f5ff;
+        color: var(--primary);
+      }
+
+      .menu-title {
+        color: #163b66;
+      }
+
+      .menu-title i {
+        color: var(--primary);
+      }
+
+      .category-btn {
+        border-color: #d9e8f7;
+        color: #54779d;
+      }
+
+      .category-btn.active {
+        background: var(--primary);
+        border-color: var(--primary);
+      }
+
+      .category-heading {
+        color: #173c66;
+      }
+
+      .category-heading::after {
+        background: var(--primary);
+      }
+
+      .menu-item {
+        border-color: #dceafa;
+      }
+
+      .item-name {
+        color: #173b65;
+      }
+
+      .item-price {
+        color: #086de0;
+      }
+
+      .qty-btn {
+        border-color: #d4e5f6;
+        color: #3972a8;
+      }
+
+      .add-btn {
+        border-color: #a9d4fb;
+        background: #eaf6ff;
+        color: #0873d8;
+      }
+
+      .order-panel {
+        border-color: #cfe2f5;
+      }
+
+      .order-header {
+        background: linear-gradient(135deg, #086bc4, #087fe7);
+      }
+
+      .order-type {
+        color: inherit;
+      }
+
+      .order-tabs {
+        border-color: #9bc6ed;
+      }
+
+      .order-tab.active {
+        background: #1688ec;
+      }
+
+      .form-label-custom {
+        color: #6684a5;
+      }
+
+      .form-control-custom,
+      .discount-input {
+        border-color: #cfe1f4;
+        color: #274d75;
+      }
+
+      .empty-icon {
+        background: #eaf5ff;
+        color: #368bd4;
+      }
+
+      .empty-title {
+        color: #52769d;
+      }
+
+      .grand-total {
+        background: #0969bd;
+      }
+
+      .grand-total span:last-child {
+        color: #62efc5;
+      }
+
+      .payment-cash {
+        background: #dffaf2;
+        color: #078e70;
+      }
+
+      .payment-qr {
+        background: #eeeaff;
+        color: #6752bd;
+      }
+
+      .payment-credit {
+        background: #ffeaee;
+        color: #db506a;
+      }
+
+      .complete-btn {
+        background: #08a97e;
+      }
+
+      .complete-btn:hover {
+        background: #078c6a;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="app">
+      <!-- ================= HEADER ================= -->
+      <header class="top-header">
+        <div class="brand">
+          <div class="logo">KCMT</div>
+
+          <div>
+            <div class="brand-title">KCMT CAFE SERVICE</div>
+
+            <div class="brand-subtitle">
+              Fresh orders, beautifully served. Build a customer order and keep
+              the counter moving.
+            </div>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button class="back-btn">
+            <i class="bi bi-arrow-left me-2"></i>
+            Back
+          </button>
+
+          <div class="header-search">
+            <i class="bi bi-search"></i>
+            <input type="text" placeholder="Search menu..." />
+          </div>
+
+          <button class="notification">
+            <i class="bi bi-bell-fill"></i>
+            <span class="notification-dot"></span>
+          </button>
+        </div>
+      </header>
+
+      <!-- ================= MAIN ================= -->
+
+      <main class="main-container">
+        <!-- STATISTICS -->
+
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="bi bi-currency-rupee"></i>
+              </div>
+
+              <div>
+                <div class="stat-title">Today's Sales</div>
+
+                <div class="stat-value">Rs. 0</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="bi bi-clipboard2-check"></i>
+              </div>
+
+              <div>
+                <div class="stat-title">Today's Orders</div>
+
+                <div class="stat-value">0</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="bi bi-table"></i>
+              </div>
+
+              <div>
+                <div class="stat-title">Tables Occupied</div>
+
+                <div class="stat-value">0 / 3</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= CONTENT ================= -->
+
+        <div class="content-grid">
+          <!-- ================= MENU ================= -->
+
+          <section class="menu-panel">
+            <div class="menu-header">
+              <div class="menu-title">
+                <i class="bi bi-shop"></i>
+                Menu
+              </div>
+
+              <!-- SEARCH -->
+
+              <div class="menu-search">
+                <div class="menu-search-box">
+                  <i class="bi bi-search"></i>
+
+                  <input
+                    id="menuSearch"
+                    type="text"
+                    placeholder="Search menu items..."
+                  />
+                </div>
+
+                <button class="search-btn" onclick="searchMenu()">
+                  <i class="bi bi-search me-1"></i>
+                  Search
+                </button>
+              </div>
+            </div>
+
+            <!-- CATEGORIES -->
+
+            <div class="categories">
+              <button
+                class="category-btn active"
+                onclick="filterCategory('all', this)"
+              >
+                Food
+              </button>
+
+              <button
+                class="category-btn"
+                onclick="filterCategory('snacks', this)"
+              >
+                Snacks
+              </button>
+
+              <button
+                class="category-btn"
+                onclick="filterCategory('drinks', this)"
+              >
+                Drinks
+              </button>
+            </div>
+
+            <!-- ================= FOOD ================= -->
+
+            <div class="category-section menu-category" data-category="food">
+              <div class="category-heading">Food</div>
+
+              <div class="menu-items">
+                <div class="menu-item" data-name="Chicken Steam Momo">
+                  <div class="item-name">Chicken Steam Momo</div>
+
+                  <div class="item-bottom">
+                    <span class="item-price"> Rs. 130 </span>
+
+                    <div class="item-actions">
+                      <button class="qty-btn">−</button>
+
+                      <span class="qty-value"> 0 </span>
+
+                      <button class="qty-btn">+</button>
+
+                      <button class="add-btn">Add</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="menu-item" data-name="Veg Momo">
+                  <div class="item-name">Veg Momo</div>
+
+                  <div class="item-bottom">
+                    <span class="item-price"> Rs. 110 </span>
+
+                    <div class="item-actions">
+                      <button class="qty-btn">−</button>
+                      <span class="qty-value">0</span>
+                      <button class="qty-btn">+</button>
+                      <button class="add-btn">Add</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="menu-item" data-name="Chicken Chowmein">
+                  <div class="item-name">Chicken Chowmein</div>
+
+                  <div class="item-bottom">
+                    <span class="item-price"> Rs. 120 </span>
+
+                    <div class="item-actions">
+                      <button class="qty-btn">−</button>
+                      <span class="qty-value">0</span>
+                      <button class="qty-btn">+</button>
+                      <button class="add-btn">Add</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="menu-item" data-name="Veg Chowmein">
+                  <div class="item-name">Veg Chowmein</div>
+
+                  <div class="item-bottom">
+                    <span class="item-price"> Rs. 100 </span>
+
+                    <div class="item-actions">
+                      <button class="qty-btn">−</button>
+                      <span class="qty-value">0</span>
+                      <button class="qty-btn">+</button>
+                      <button class="add-btn">Add</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="menu-item" data-name="Fried Rice">
+                  <div class="item-name">Fried Rice</div>
+
+                  <div class="item-bottom">
+                    <span class="item-price"> Rs. 90 </span>
+
+                    <div class="item-actions">
+                      <button class="qty-btn">−</button>
+                      <span class="qty-value">0</span>
+                      <button class="qty-btn">+</button>
+                      <button class="add-btn">Add</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="menu-item" data-name="Chicken Thukpa">
+                  <div class="item-name">Chicken Thukpa</div>
+
+                  <div class="item-bottom">
+                    <span class="item-price"> Rs. 140 </span>
+
+                    <div class="item-actions">
+                      <button class="qty-btn">−</button>
+                      <span class="qty-value">0</span>
+                      <button class="qty-btn">+</button>
+                      <button class="add-btn">Add</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ================= SNACKS ================= -->
+
+            <div class="category-section menu-category" data-category="snacks">
+              <div class="category-heading">Snacks</div>
+
+              <div class="menu-items">
+                <div class="menu-item" data-name="French Fries">
+                  <div class="item-name">French Fries</div>
+
+                  <div class="item-bottom">
+                    <span class="item-price"> Rs. 80 </span>
+
+                    <div class="item-actions">
+                      <button class="qty-btn">−</button>
+                      <span class="qty-value">0</span>
+                      <button class="qty-btn">+</button>
+                      <button class="add-btn">Add</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="menu-item" data-name="Spring Roll">
+                  <div class="item-name">Spring Roll</div>
+
+                  <div class="item-bottom">
+                    <span class="item-price"> Rs. 70 </span>
+
+                    <div class="item-actions">
+                      <button class="qty-btn">−</button>
+                      <span class="qty-value">0</span>
+                      <button class="qty-btn">+</button>
+                      <button class="add-btn">Add</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="menu-item" data-name="Samosa">
+                  <div class="item-name">Samosa</div>
+
+                  <div class="item-bottom">
+                    <span class="item-price"> Rs. 60 </span>
+
+                    <div class="item-actions">
+                      <button class="qty-btn">−</button>
+                      <span class="qty-value">0</span>
+                      <button class="qty-btn">+</button>
+                      <button class="add-btn">Add</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ================= DRINKS ================= -->
+
+            <div class="category-section menu-category" data-category="drinks">
+              <div class="category-heading">Drinks</div>
+
+              <div class="menu-items">
+                <div class="menu-item" data-name="Tea">
+                  <div class="item-name">Tea</div>
+
+                  <div class="item-bottom">
+                    <span class="item-price"> Rs. 30 </span>
+
+                    <div class="item-actions">
+                      <button class="qty-btn">−</button>
+                      <span class="qty-value">0</span>
+                      <button class="qty-btn">+</button>
+                      <button class="add-btn">Add</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="menu-item" data-name="Coffee">
+                  <div class="item-name">Coffee</div>
+
+                  <div class="item-bottom">
+                    <span class="item-price"> Rs. 50 </span>
+
+                    <div class="item-actions">
+                      <button class="qty-btn">−</button>
+                      <span class="qty-value">0</span>
+                      <button class="qty-btn">+</button>
+                      <button class="add-btn">Add</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="menu-item" data-name="Cold Coffee">
+                  <div class="item-name">Cold Coffee</div>
+
+                  <div class="item-bottom">
+                    <span class="item-price"> Rs. 80 </span>
+
+                    <div class="item-actions">
+                      <button class="qty-btn">−</button>
+                      <span class="qty-value">0</span>
+                      <button class="qty-btn">+</button>
+                      <button class="add-btn">Add</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ================= CURRENT ORDER ================= -->
+
+          <aside class="order-panel">
+            <div class="order-header">
+              <div class="order-title-row">
+                <div>
+                  <div class="order-title">
+                    <i class="bi bi-list-check me-2"></i>
+                    Current order
+                  </div>
+
+                  <div class="order-type">Takeaway</div>
+                </div>
+
+                <button class="clear-btn">Clear all</button>
+              </div>
+            </div>
+
+            <div class="order-body">
+              <!-- ORDER TYPE -->
+
+              <div class="order-tabs">
+                <button class="order-tab">
+                  <i class="bi bi-people-fill me-1"></i>
+                  Dine-in
+                </button>
+
+                <button class="order-tab active">
+                  <i class="bi bi-bag-fill me-1"></i>
+                  Take away
+                </button>
+              </div>
+
+              <!-- TABLE -->
+
+              <label class="form-label-custom">
+                Select table before adding items
+              </label>
+
+              <select class="form-control-custom">
+                <option>Takeaway</option>
+                <option>Table 1</option>
+                <option>Table 2</option>
+                <option>Table 3</option>
+              </select>
+
+              <div style="font-size: 11px; color: #7893ae; margin-top: 6px">
+                Takeaway is selected for this order.
+              </div>
+
+              <div style="font-size: 11px; color: #7893ae; margin-top: 5px">
+                No open orders yet.
+              </div>
+
+              <!-- CUSTOMER -->
+
+              <div class="customer-row">
+                <input
+                  class="form-control-custom"
+                  type="text"
+                  placeholder="Customer name"
+                />
+
+                <input
+                  class="form-control-custom"
+                  type="text"
+                  placeholder="Phone number"
+                />
+              </div>
+
+              <!-- ORDER TABLE -->
+
+              <div class="order-table">
+                <div class="order-table-head">
+                  <span> Item name </span>
+
+                  <span class="text-center"> Qty </span>
+
+                  <span class="text-end"> Rate </span>
+
+                  <span class="text-end"> Amount </span>
+                </div>
+
+                <div class="empty-order">
+                  <div>
+                    <div class="empty-icon">
+                      <i class="bi bi-receipt"></i>
+                    </div>
+
+                    <div class="empty-title">Your order is empty.</div>
+
+                    <div class="empty-text">
+                      Choose something delicious to begin.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- TOTALS -->
+
+              <div class="totals">
+                <div class="total-row">
+                  <span> Subtotal </span>
+
+                  <strong> Rs. 0 </strong>
+                </div>
+
+                <div class="total-row">
+                  <span> VAT (13%) </span>
+
+                  <strong> Rs. 0 </strong>
+                </div>
+
+                <div class="total-row">
+                  <span> Discount (%) </span>
+
+                  <span>
+                    <input class="discount-input" type="number" value="0" />
+
+                    <strong> - Rs. 0 </strong>
+                  </span>
+                </div>
+
+                <div class="grand-total">
+                  <span> Total </span>
+
+                  <span> Rs. 0 </span>
+                </div>
+
+                <!-- PAYMENT -->
+
+                <div class="payment-methods">
+                  <button class="payment-btn payment-cash">
+                    <i class="bi bi-cash-stack me-1"></i>
+                    Cash
+                  </button>
+
+                  <button class="payment-btn payment-qr">
+                    <i class="bi bi-qr-code me-1"></i>
+                    QR
+                  </button>
+
+                  <button class="payment-btn payment-credit">
+                    <i class="bi bi-credit-card me-1"></i>
+                    Credit
+                  </button>
+                </div>
+
+                <button class="complete-btn">
+                  <i class="bi bi-printer-fill me-2"></i>
+
+                  Complete and print bill
+                </button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </main>
+    </div>
+
+    <!-- ================= JAVASCRIPT ================= -->
+
+    <script src="../js/dialogs.js"></script>
+    <script>
+      // ============================
+      // MENU SEARCH
+      // ============================
+
+      function searchMenu() {
+        const searchValue = document
+          .getElementById("menuSearch")
+          .value.toLowerCase()
+          .trim();
+
+        const items = document.querySelectorAll(".menu-item");
+
+        items.forEach((item) => {
+          const name = item.dataset.name.toLowerCase();
+
+          if (searchValue === "" || name.includes(searchValue)) {
+            item.style.display = "";
+          } else {
+            item.style.display = "none";
+          }
+        });
+      }
+
+      // Search when pressing Enter
+
+      document
+        .getElementById("menuSearch")
+        .addEventListener("keyup", function (event) {
+          if (event.key === "Enter") {
+            searchMenu();
+          }
+        });
+
+      // ============================
+      // CATEGORY FILTER
+      // ============================
+
+      function filterCategory(category, button) {
+        document.querySelectorAll(".category-btn").forEach((btn) => {
+          btn.classList.remove("active");
+        });
+
+        button.classList.add("active");
+
+        const sections = document.querySelectorAll(".menu-category");
+
+        sections.forEach((section) => {
+          if (category === "all") {
+            section.style.display = "";
+          } else {
+            section.style.display =
+              section.dataset.category === category ? "" : "none";
+          }
+        });
+      }
+
+      // ============================
+      // QUANTITY BUTTONS
+      // ============================
+
+      document.querySelectorAll(".menu-item").forEach((item) => {
+        const buttons = item.querySelectorAll(".qty-btn");
+
+        const value = item.querySelector(".qty-value");
+
+        let quantity = 0;
+
+        buttons[0].addEventListener("click", () => {
+          if (quantity > 0) {
+            quantity--;
+          }
+
+          value.textContent = quantity;
+        });
+
+        buttons[1].addEventListener("click", () => {
+          quantity++;
+
+          value.textContent = quantity;
+        });
+      });
+
+      // ============================
+      // ADD BUTTON
+      // ============================
+
+      document.querySelectorAll(".add-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+          const item = button.closest(".menu-item");
+
+          const name = item.dataset.name;
+
+          window.kumakhDialogs.alert(name + " added to order");
+        });
+      });
+    </script>
+  </body>
+</html>

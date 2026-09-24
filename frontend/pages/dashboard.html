@@ -1,0 +1,372 @@
+<style>
+  body.app-body:has(#homeDashboard) {
+    background:
+      linear-gradient(rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.08)),
+      url("../assets/login-background.jpe") center/cover fixed no-repeat;
+  }
+
+  body.app-body #homeDashboard .home-stat,
+  body.app-body #homeDashboard .home-panel {
+    background: rgba(255, 255, 255, 0.2) !important;
+    background-image: none !important;
+    backdrop-filter: blur(16px) saturate(135%);
+    -webkit-backdrop-filter: blur(16px) saturate(135%);
+  }
+
+  .home-dashboard {
+    --home-ink: #142b45;
+    --home-muted: #6d7f92;
+    --home-line: #dce6f0;
+  }
+  .home-dashboard * {
+    box-sizing: border-box;
+  }
+  .home-hero {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 28px;
+    margin-bottom: 20px;
+    border-radius: 24px;
+    color: #fff;
+    background: linear-gradient(120deg, #123b61, #176bb6 61%, #cf2438);
+    box-shadow: 0 18px 36px rgba(16, 42, 67, 0.16);
+    position: relative;
+    overflow: hidden;
+  }
+  .home-hero h1 {
+    margin: 0;
+    font-size: clamp(1.45rem, 3vw, 2.25rem);
+  }
+  .home-hero p {
+    margin: 8px 0 0;
+    opacity: 0.82;
+  }
+  .home-date {
+    padding: 10px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 12px;
+    white-space: nowrap;
+    font-size: 0.82rem;
+  }
+  .home-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .home-stat,
+  .home-panel {
+    border: 1px solid var(--home-line);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.3) !important;
+    backdrop-filter: blur(16px) saturate(135%);
+    -webkit-backdrop-filter: blur(16px) saturate(135%);
+    border-color: rgba(255, 255, 255, 0.5) !important;
+    box-shadow: 0 12px 28px rgba(16, 42, 67, 0.1) !important;
+    transition:
+      transform 0.22s ease,
+      box-shadow 0.22s ease,
+      border-color 0.22s ease;
+  }
+  .home-stat {
+    padding: 18px;
+  }
+  .home-stat:hover,
+  .home-panel:hover {
+    transform: translateY(-3px);
+    border-color: #c7ddec;
+    box-shadow: 0 16px 30px rgba(16, 42, 67, 0.1);
+  }
+  .home-stat small {
+    display: block;
+    color: var(--home-muted);
+    font-size: 0.76rem;
+  }
+  .home-stat strong {
+    display: block;
+    margin-top: 8px;
+    color: var(--home-ink);
+    font-size: 1.55rem;
+  }
+  .home-stat em {
+    display: block;
+    margin-top: 4px;
+    color: #159b70;
+    font-size: 0.72rem;
+    font-style: normal;
+  }
+  .home-layout {
+    display: grid;
+    grid-template-columns: 1.25fr 0.75fr;
+    gap: 18px;
+  }
+  .home-panel {
+    padding: 20px;
+  }
+  .home-panel h2 {
+    margin: 0 0 16px;
+    color: var(--home-ink);
+    font-size: 1.05rem;
+  }
+  .home-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .home-action {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.52);
+    border-radius: 12px;
+    color: var(--home-ink);
+    background: rgba(255, 255, 255, 0.28);
+    backdrop-filter: blur(12px) saturate(125%);
+    -webkit-backdrop-filter: blur(12px) saturate(125%);
+    cursor: pointer;
+    text-align: left;
+  }
+  .home-action:hover {
+    border-color: #1267c4;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(18, 103, 196, 0.1);
+  }
+  .home-action span {
+    color: var(--home-muted);
+    font-size: 0.75rem;
+  }
+  .home-health {
+    display: grid;
+    gap: 10px;
+  }
+  .home-health-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 11px 0;
+    border-bottom: 1px solid #edf2f7;
+    font-size: 0.83rem;
+  }
+  .home-health-row:last-child {
+    border-bottom: 0;
+  }
+  .home-health-row strong {
+    color: #20b26b;
+    font-size: 0.76rem;
+  }
+  .home-note {
+    margin: 16px 0 0;
+    color: var(--home-muted);
+    font-size: 0.78rem;
+  }
+  @media (max-width: 760px) {
+    .home-hero {
+      align-items: flex-start;
+      flex-direction: column;
+      padding: 22px;
+    }
+    .home-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 430px) {
+    .home-actions {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<section class="page-section home-dashboard" id="homeDashboard">
+  <div class="home-hero">
+    <div>
+      <h1>Good day, <span id="homeUserName">there</span>.</h1>
+      <p>Your college and Café operations at a glance.</p>
+    </div>
+    <div class="home-date" id="homeDate">Loading date...</div>
+  </div>
+
+  <div class="home-stat-grid">
+    <article class="home-stat">
+      <small>Active students</small><strong id="homeStudents">—</strong
+      ><em>Students database</em>
+    </article>
+    <article class="home-stat">
+      <small>Courses</small><strong id="homeCourses">—</strong
+      ><em>Courses database</em>
+    </article>
+    <article class="home-stat">
+      <small>Staff members</small><strong id="homeStaff">—</strong
+      ><em>Staff database</em>
+    </article>
+    <article class="home-stat">
+      <small>Café sales today</small><strong id="homeCafeSales">—</strong
+      ><em id="homeCafeOrders">Loading orders...</em>
+    </article>
+    <article class="home-stat">
+      <small>Available menu items</small><strong id="homeMenu">—</strong
+      ><em id="homeCafeCustomers">Loading customers...</em>
+    </article>
+  </div>
+
+  <div class="home-layout">
+    <section class="home-panel">
+      <h2>Quick actions</h2>
+      <div class="home-actions">
+        <button class="home-action" type="button" data-home-page="cafe">
+          Open Café POS <span>Orders →</span>
+        </button>
+        <button class="home-action" type="button" data-home-page="students">
+          Manage students <span>Students →</span>
+        </button>
+        <button class="home-action" type="button" data-home-page="payments">
+          Record payment <span>Finance →</span>
+        </button>
+        <button class="home-action" type="button" data-home-page="purchases">
+          Add purchase <span>Expenses →</span>
+        </button>
+        <button class="home-action" type="button" data-home-page="staff">
+          Manage staff <span>People →</span>
+        </button>
+        <button class="home-action" type="button" data-home-page="settings">
+          System settings <span>Configure →</span>
+        </button>
+      </div>
+      <p class="home-note">
+        Café menu, tables, customers, sales, and summaries are loaded from their
+        respective Google Sheets tables.
+      </p>
+    </section>
+    <section class="home-panel">
+      <h2>Live database status</h2>
+      <div class="home-health">
+        <div class="home-health-row">
+          <span>Students</span><strong id="homeStudentsStatus">Loading</strong>
+        </div>
+        <div class="home-health-row">
+          <span>Café menu & categories</span
+          ><strong id="homeCafeStatus">Loading</strong>
+        </div>
+        <div class="home-health-row">
+          <span>Café tables</span><strong id="homeTablesStatus">Loading</strong>
+        </div>
+        <div class="home-health-row">
+          <span>Credit customers</span
+          ><strong id="homeCustomersStatus">Loading</strong>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+
+<script>
+  (() => {
+    const root = document.getElementById("homeDashboard");
+    if (!root || root.dataset.ready === "true") return;
+    root.dataset.ready = "true";
+    const session = JSON.parse(
+      sessionStorage.getItem("kumakhSession") || "null",
+    );
+    root.querySelector("#homeUserName").textContent =
+      (session && (session.fullName || session.username)) || "there";
+    root.querySelector("#homeDate").textContent = new Intl.DateTimeFormat(
+      "en-IN",
+      { dateStyle: "full" },
+    ).format(new Date());
+    root.querySelectorAll("[data-home-page]").forEach((button) =>
+      button.addEventListener("click", () => {
+        const target = button.dataset.homePage;
+        const nav = document.querySelector(`.nav-item[data-page="${target}"]`);
+        if (nav) nav.click();
+      }),
+    );
+    const value = (response) =>
+      response && response.success && Array.isArray(response.data)
+        ? response.data
+        : null;
+    const setStatus = (id, ok) => {
+      root.querySelector(`#${id}`).textContent = ok
+        ? "Connected"
+        : "Unavailable";
+      root.querySelector(`#${id}`).style.color = ok ? "#20b26b" : "#dc3545";
+    };
+    const load = async () => {
+      if (!window.kumakhApi) return;
+      const requests = [
+        () => window.kumakhApi.getStudents(),
+        () => window.kumakhApi.getCourses(),
+        () => window.kumakhApi.getStaff(),
+        () => window.kumakhApi.getCafeTodaySummary(),
+        () => window.kumakhApi.getCafeMenu(),
+        () => window.kumakhApi.getCafeTables(),
+        () => window.kumakhApi.getCafeCustomers(),
+        () => window.kumakhApi.getCafeCategories(),
+      ];
+      const results = [];
+      // Apps Script can close connections when too many requests start at
+      // once. Keep a small concurrency limit without making the dashboard
+      // wait for every request serially.
+      for (let index = 0; index < requests.length; index += 2) {
+        const batch = await Promise.all(
+          requests.slice(index, index + 2).map(async (request) => {
+            try {
+              return await request();
+            } catch (error) {
+              console.error("Dashboard data request failed:", error);
+              return null;
+            }
+          }),
+        );
+        results.push(...batch);
+      }
+      const students = value(results[0]),
+        courses = value(results[1]),
+        staff = value(results[2]);
+      const menu = value(results[4]),
+        tables = value(results[5]),
+        customers = value(results[6]),
+        categories = value(results[7]);
+      root.querySelector("#homeStudents").textContent = students
+        ? students.filter(
+            (item) =>
+              String(item.Status || "Active").toLowerCase() === "active",
+          ).length
+        : "—";
+      root.querySelector("#homeCourses").textContent = courses
+        ? courses.length
+        : "—";
+      root.querySelector("#homeStaff").textContent = staff
+        ? staff.filter(
+            (item) =>
+              String(item.Status || "Active").toLowerCase() === "active",
+          ).length
+        : "—";
+      root.querySelector("#homeCafeSales").textContent =
+        results[3] && results[3].success
+          ? `NPR ${Number((results[3].data && results[3].data["Total Sales"]) || 0).toLocaleString("en-IN")}`
+          : "—";
+      root.querySelector("#homeCafeOrders").textContent =
+        results[3] && results[3].success
+          ? `${results[3].data["Transaction Count"] || 0} orders today`
+          : "Summary unavailable";
+      root.querySelector("#homeMenu").textContent = menu
+        ? menu.filter(
+            (item) => String(item.Available || "Yes").toLowerCase() !== "no",
+          ).length
+        : "—";
+      root.querySelector("#homeCafeCustomers").textContent = customers
+        ? `${customers.filter((item) => String(item.Status || "Active").toLowerCase() === "active").length} active credit customers`
+        : "Customers unavailable";
+      setStatus("homeStudentsStatus", !!students);
+      setStatus("homeCafeStatus", !!menu && !!categories);
+      setStatus("homeTablesStatus", !!tables);
+      setStatus("homeCustomersStatus", !!customers);
+    };
+    load().catch((error) => {
+      root.querySelector("#homeCafeStatus").textContent = "Unavailable";
+      console.error("Dashboard data loading failed:", error);
+    });
+  })();
+</script>

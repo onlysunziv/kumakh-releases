@@ -1,0 +1,2209 @@
+<section class="page-section vendors-page">
+  <div class="container-fluid px-0">
+    <!-- =====================================================
+         PAGE HEADER
+    ====================================================== -->
+    <div class="page-header mb-4">
+      <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <span class="page-icon">
+            <i class="bi bi-shop"></i>
+          </span>
+
+          <h2 class="fw-bold mb-0">Vendor Management</h2>
+        </div>
+
+        <p class="text-muted mb-0">
+          Manage suppliers and vendor information for college purchases.
+        </p>
+      </div>
+
+      <!-- IMPORTANT:
+           No Bootstrap data-bs-toggle is used here.
+           The modal is opened by JavaScript.
+      -->
+      <button
+        type="button"
+        class="btn btn-primary px-4"
+        id="openAddVendorButton"
+        data-permission="vendors.add"
+      >
+        <i class="bi bi-plus-lg me-2"></i>
+        Add Vendor
+      </button>
+    </div>
+
+    <!-- =====================================================
+         STATISTICS
+    ====================================================== -->
+    <div class="row g-3 mb-4 vendor-stats-grid">
+      <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="bi bi-shop"></i>
+          </div>
+
+          <div>
+            <span class="stat-label">Total Vendors</span>
+            <h3 id="totalVendors" class="stat-value">0</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="bi bi-person-check"></i>
+          </div>
+
+          <div>
+            <span class="stat-label">Active Vendors</span>
+            <h3 id="activeVendors" class="stat-value">0</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="bi bi-cart-check"></i>
+          </div>
+
+          <div>
+            <span class="stat-label">Purchase Suppliers</span>
+            <h3 id="purchaseVendors" class="stat-value">0</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="bi bi-building"></i>
+          </div>
+
+          <div>
+            <span class="stat-label">Registered Vendors</span>
+            <h3 id="registeredVendors" class="stat-value">0</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =====================================================
+         MAIN CARD
+    ====================================================== -->
+    <div class="card vendor-main-card border-0">
+      <!-- Toolbar -->
+      <div class="card-header bg-white border-0 p-3 p-lg-4">
+        <div
+          class="d-flex justify-content-between align-items-center flex-wrap gap-3"
+        >
+          <div>
+            <h5 class="fw-bold mb-1">
+              <i class="bi bi-buildings me-2 text-primary"></i>
+              All Vendors
+            </h5>
+
+            <small class="text-muted">
+              View and manage all registered suppliers
+            </small>
+          </div>
+
+          <div class="vendor-toolbar">
+            <!-- Search -->
+            <div class="search-box">
+              <i class="bi bi-search"></i>
+
+              <input
+                type="search"
+                id="vendorSearch"
+                class="form-control"
+                placeholder="Search vendor..."
+              />
+            </div>
+
+            <!-- Refresh -->
+            <button
+              type="button"
+              id="refreshVendorsButton"
+              class="btn btn-light border"
+              title="Refresh"
+            >
+              <i class="bi bi-arrow-clockwise"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message -->
+      <div class="px-3 px-lg-4">
+        <div id="vendorPageMessage" class="alert d-none" role="alert"></div>
+      </div>
+
+      <!-- =====================================================
+           TABLE
+      ====================================================== -->
+      <div class="table-responsive">
+        <table class="table vendor-table align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Vendor</th>
+              <th>Vendor ID</th>
+              <th>PAN / VAT</th>
+              <th>Contact</th>
+              <th>Address</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody id="vendorTableBody">
+            <tr>
+              <td colspan="6" class="text-center py-5">
+                <div class="spinner-border text-primary mb-2"></div>
+
+                <div class="text-muted">Loading vendors...</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty state -->
+      <div id="vendorEmptyState" class="empty-state d-none">
+        <div class="empty-icon">
+          <i class="bi bi-shop"></i>
+        </div>
+
+        <h5>No vendors found</h5>
+
+        <p class="text-muted mb-3">
+          Add your first supplier to start managing vendors.
+        </p>
+
+        <button type="button" id="emptyAddVendorButton" class="btn btn-primary">
+          <i class="bi bi-plus-lg me-2"></i>
+          Add Vendor
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     ADD VENDOR MODAL
+========================================================= -->
+
+<div class="modal fade" id="addVendorModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <!-- Modal Header -->
+      <div class="modal-header border-0 px-4 pt-4">
+        <div class="d-flex align-items-center gap-2">
+          <span class="modal-icon">
+            <i class="bi bi-shop"></i>
+          </span>
+
+          <div>
+            <h5 class="modal-title fw-bold mb-0" id="vendorModalTitle">Add New Vendor</h5>
+
+            <small class="text-muted"> Enter supplier information </small>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="btn-close"
+          id="closeVendorModalButton"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <!-- Form -->
+      <form id="vendorForm">
+        <div class="modal-body px-4">
+          <input id="vendorId" type="hidden">
+          <div class="form-section">
+            <div class="form-section-title">
+              <i class="bi bi-building"></i>
+
+              Vendor Information
+            </div>
+
+            <div class="row g-3">
+              <!-- Vendor Name -->
+              <div class="col-md-6">
+                <label for="vendorName" class="form-label">
+                  Vendor Name
+                  <span class="text-danger">*</span>
+                </label>
+
+                <input
+                  id="vendorName"
+                  class="form-control"
+                  type="text"
+                  placeholder="e.g. ABC Suppliers"
+                  autocomplete="organization"
+                  required
+                />
+              </div>
+
+              <!-- PAN -->
+              <div class="col-md-6">
+                <label for="vendorPanNo" class="form-label">
+                  PAN / VAT No
+                  <span class="text-danger">*</span>
+                </label>
+
+                <input
+                  id="vendorPanNo"
+                  class="form-control"
+                  type="text"
+                  placeholder="e.g. 123456789"
+                  required
+                />
+              </div>
+
+              <!-- Contact -->
+              <div class="col-md-6">
+                <label for="vendorContactNumber" class="form-label">
+                  Contact Number
+                  <span class="text-danger">*</span>
+                </label>
+
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="bi bi-telephone"></i>
+                  </span>
+
+                  <input
+                    id="vendorContactNumber"
+                    class="form-control"
+                    type="tel"
+                    placeholder="9841000000"
+                    autocomplete="tel"
+                    required
+                  />
+                </div>
+              </div>
+
+              <!-- Address -->
+              <div class="col-md-6">
+                <label for="vendorAddress" class="form-label">
+                  Address
+                  <span class="text-danger">*</span>
+                </label>
+
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="bi bi-geo-alt"></i>
+                  </span>
+
+                  <input
+                    id="vendorAddress"
+                    class="form-control"
+                    type="text"
+                    placeholder="Kathmandu, Nepal"
+                    autocomplete="street-address"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="vendorEmail" class="form-label">Email</label>
+                <div class="input-group">
+                  <span class="input-group-text"
+                    ><i class="bi bi-envelope"></i
+                  ></span>
+                  <input
+                    id="vendorEmail"
+                    class="form-control"
+                    type="email"
+                    placeholder="accounts@example.com"
+                    autocomplete="email"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Information notice -->
+          <div class="vendor-info-box mt-4">
+            <i class="bi bi-info-circle"></i>
+
+            <div>
+              <strong>Vendor information</strong>
+
+              <p class="mb-0 text-muted small">
+                The vendor will be stored in the existing
+                <strong>Vendor Ledger</strong> database table.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer border-0 px-4 pb-4">
+          <button
+            type="button"
+            class="btn btn-light border"
+            id="cancelVendorButton"
+          >
+            Cancel
+          </button>
+
+          <button
+            id="saveVendorButton"
+            data-permission="vendors.add"
+            class="btn btn-primary px-4"
+            type="submit"
+          >
+            <i class="bi bi-check-circle me-2"></i>
+            Save Vendor
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="vendorLedgerModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content vendor-ledger-modal-content">
+      <div class="modal-header border-0">
+        <div>
+          <h5 class="modal-title fw-bold mb-1" id="vendorLedgerModalTitle">
+            Vendor Ledger
+          </h5>
+          <small class="text-muted" id="vendorLedgerModalSubtitle"></small>
+        </div>
+        <button type="button" class="btn-close" id="closeVendorLedgerButton" aria-label="Close"></button>
+      </div>
+      <div class="modal-body pt-0">
+        <div class="vendor-ledger-summary">
+          <div class="vendor-ledger-metric">
+            <span>Purchased</span>
+            <strong id="vendorLedgerPurchased">0.00</strong>
+          </div>
+          <div class="vendor-ledger-metric vendor-ledger-paid">
+            <span>Paid</span>
+            <strong id="vendorLedgerPaid">0.00</strong>
+          </div>
+          <div class="vendor-ledger-metric vendor-ledger-pending">
+            <span>Pending</span>
+            <strong id="vendorLedgerPending">0.00</strong>
+          </div>
+        </div>
+        <div class="vendor-ledger-detail" id="vendorLedgerLastTransaction"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* =========================================================
+   PAGE
+========================================================= */
+
+  .vendors-page {
+    padding: 1rem;
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .page-icon {
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+    font-size: 1.2rem;
+  }
+
+  /* =========================================================
+   STAT CARDS
+========================================================= */
+
+  .stat-card {
+    background: #fff;
+    border: 1px solid #edf0f4;
+    border-radius: 16px;
+    padding: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 105px;
+    transition: 0.2s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+  }
+
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+    font-size: 1.25rem;
+  }
+
+  .stat-label {
+    display: block;
+    color: #7a8491;
+    font-size: 0.82rem;
+    margin-bottom: 0.15rem;
+  }
+
+  .stat-value {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  /* =========================================================
+   MAIN CARD
+========================================================= */
+
+  .vendor-main-card {
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.04);
+  }
+
+  /* =========================================================
+   TOOLBAR
+========================================================= */
+
+  .vendor-toolbar {
+    display: flex;
+    gap: 0.6rem;
+  }
+
+  .search-box {
+    position: relative;
+    min-width: 280px;
+  }
+
+  .search-box i {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #8a94a3;
+  }
+
+  .search-box input {
+    padding-left: 38px;
+  }
+
+  /* =========================================================
+   TABLE
+========================================================= */
+
+  .vendor-table thead th {
+    background: #f8fafc;
+    color: #667085;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 700;
+    padding: 1rem;
+    white-space: nowrap;
+  }
+
+  .vendor-table tbody td {
+    padding: 1rem;
+    border-color: #f0f2f5;
+  }
+
+  .vendor-table tbody tr {
+    transition: background 0.15s ease;
+  }
+
+  .vendor-table tbody tr:hover {
+    background: #fafcff;
+  }
+
+  /* Vendor avatar */
+
+  .vendor-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: #eef4ff;
+    color: #0d6efd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+  }
+
+  /* =========================================================
+   EMPTY STATE
+========================================================= */
+
+  .empty-state {
+    padding: 4rem 1rem;
+    text-align: center;
+  }
+
+  .empty-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 20px;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto auto 1rem;
+    font-size: 1.8rem;
+    color: #64748b;
+  }
+
+  /* =========================================================
+   MODAL
+========================================================= */
+
+  .modal-content {
+    border-radius: 20px;
+  }
+
+  .modal-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* =========================================================
+   FORM
+========================================================= */
+
+  .form-section {
+    border: 1px solid #edf0f4;
+    border-radius: 14px;
+    padding: 1.2rem;
+  }
+
+  .form-section-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #475467;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .form-section-title i {
+    color: #0d6efd;
+  }
+
+  .form-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #344054;
+  }
+
+  .form-control {
+    min-height: 44px;
+    border-color: #dfe3e8;
+    border-radius: 9px;
+  }
+
+  .form-control:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.08);
+  }
+
+  .input-group .input-group-text {
+    background: #f8fafc;
+    border-color: #dfe3e8;
+  }
+
+  /* =========================================================
+   INFO BOX
+========================================================= */
+
+  .vendor-info-box {
+    display: flex;
+    gap: 0.8rem;
+    padding: 1rem;
+    border-radius: 12px;
+    background: #f8fafc;
+  }
+
+  .vendor-info-box > i {
+    color: #0d6efd;
+    font-size: 1.1rem;
+  }
+
+  /* =========================================================
+   MODAL FIX
+========================================================= */
+
+  #addVendorModal {
+    z-index: 1060;
+  }
+
+  #addVendorModal .modal-dialog {
+    pointer-events: auto;
+    width: min(920px, calc(100vw - 2rem));
+    max-height: calc(100vh - 3rem);
+  }
+
+  #addVendorModal .modal-content {
+    max-height: calc(100vh - 3rem);
+    overflow: hidden;
+  }
+
+  #addVendorModal form {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+  }
+
+  #addVendorModal .modal-body {
+    min-height: 0;
+    overflow-y: auto;
+    padding: 1.25rem 1.5rem !important;
+  }
+
+  #addVendorModal .modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+
+  body.vendor-modal-open {
+    overflow: hidden;
+  }
+
+  /* =========================================================
+   SPIN
+========================================================= */
+
+  .spin {
+    animation: vendorSpin 0.8s linear infinite;
+  }
+
+  @keyframes vendorSpin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* =========================================================
+   RESPONSIVE
+========================================================= */
+
+  @media (max-width: 768px) {
+    .vendors-page {
+      padding: 0.5rem;
+    }
+
+    .page-header {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .page-header .btn {
+      width: 100%;
+    }
+
+    .vendor-toolbar {
+      width: 100%;
+    }
+
+    .search-box {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .vendor-table {
+      min-width: 850px;
+    }
+  }
+
+  /* Keep the vendor overview inside the available workspace at every display
+     scale. The generic Bootstrap xl grid was forcing cards beyond the edge. */
+  .vendors-page,
+  .vendors-page .container-fluid {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .vendors-page .vendor-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-right: 0;
+    margin-left: 0;
+  }
+
+  .vendors-page .vendor-stats-grid > [class*="col-"] {
+    width: auto;
+    max-width: none;
+    padding: 0;
+  }
+
+  .vendors-page .stat-card {
+    min-width: 0;
+    min-height: 116px;
+    padding: 1.2rem 1.3rem;
+    background: rgba(255, 255, 255, 0.54);
+  }
+
+  .vendors-page .stat-card > div:last-child {
+    min-width: 0;
+  }
+
+  .vendors-page .stat-label {
+    overflow: hidden;
+    color: #45647e;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .vendors-page .stat-value {
+    color: #123b60;
+    font-size: 1.65rem;
+    font-weight: 800;
+  }
+
+  .vendors-page .vendor-actions-trigger {
+    display: inline-grid;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    place-items: center;
+    border: 1px solid #d8e2ec !important;
+    border-radius: 0.65rem;
+    color: #50677d;
+    background: #f8fbfe;
+    box-shadow: 0 2px 7px rgba(28, 64, 96, 0.06);
+    transition: color 0.18s ease, background 0.18s ease,
+      border-color 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .vendors-page .vendor-actions-trigger:hover,
+  .vendors-page .vendor-actions-trigger[aria-expanded="true"] {
+    border-color: #9fc3e3 !important;
+    color: #1769a8;
+    background: #edf6ff;
+    box-shadow: 0 4px 12px rgba(23, 105, 168, 0.14);
+  }
+
+  .vendors-page .vendor-row-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.35rem;
+    white-space: nowrap;
+  }
+
+  .vendors-page .vendor-direct-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    min-height: 2rem;
+    padding: 0.35rem 0.55rem;
+    border: 1px solid #d8e2ec;
+    border-radius: 0.55rem;
+    background: #f8fbfe;
+    color: #45647e;
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1;
+    transition: color 0.16s ease, background 0.16s ease,
+      border-color 0.16s ease, box-shadow 0.16s ease;
+  }
+
+  .vendors-page .vendor-direct-action:hover,
+  .vendors-page .vendor-direct-action:focus-visible {
+    border-color: #9fc3e3;
+    background: #edf6ff;
+    color: #1769a8;
+    box-shadow: 0 3px 9px rgba(23, 105, 168, 0.12);
+  }
+
+  .vendors-page .vendor-direct-action i {
+    font-size: 0.8rem;
+  }
+
+  .vendors-page .vendor-delete-action {
+    border-color: #f1cbd0;
+    background: #fff8f9;
+    color: #d64d5c;
+  }
+
+  .vendors-page .vendor-delete-action:hover,
+  .vendors-page .vendor-delete-action:focus-visible {
+    border-color: #efaab3;
+    background: #fff0f2;
+    color: #b92f40;
+  }
+
+  .vendors-page .vendor-actions-menu {
+    min-width: 8.4rem;
+    margin-top: 0.35rem !important;
+    padding: 0.3rem;
+    border: 1px solid #dbe6ef;
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 10px 24px rgba(26, 58, 87, 0.16);
+    white-space: nowrap;
+  }
+
+  .vendors-page .vendor-actions-menu.show {
+    position: fixed !important;
+    z-index: 1080;
+  }
+
+  .vendors-page .vendor-actions-menu .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2rem;
+    padding: 0.4rem 0.55rem;
+    border-radius: 0.5rem;
+    color: #38556d;
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+    transition: color 0.16s ease, background 0.16s ease;
+  }
+
+  .vendors-page .vendor-actions-menu .dropdown-item:hover,
+  .vendors-page .vendor-actions-menu .dropdown-item:focus {
+    color: #1769a8;
+    background: #edf6ff;
+  }
+
+  .vendors-page .vendor-actions-menu .dropdown-item.text-danger {
+    color: #d64d5c !important;
+  }
+
+  .vendors-page .vendor-actions-menu .dropdown-item.text-danger:hover,
+  .vendors-page .vendor-actions-menu .dropdown-item.text-danger:focus {
+    color: #b92f40 !important;
+    background: #fff0f2;
+  }
+
+  .vendors-page .vendor-actions-menu .dropdown-item i {
+    width: 1rem;
+    margin: 0 !important;
+    font-size: 0.85rem;
+    text-align: center;
+  }
+
+  .vendors-page .vendor-actions-menu .dropdown-divider {
+    margin: 0.25rem 0.35rem;
+    border-color: #e6edf3;
+  }
+
+  .vendor-ledger-modal-content {
+    border: 1px solid #dbe6ef;
+    border-radius: 1rem;
+    box-shadow: 0 18px 45px rgba(26, 58, 87, 0.2);
+  }
+
+  .vendor-ledger-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+
+  .vendor-ledger-metric {
+    padding: 0.75rem;
+    border: 1px solid #dceaf5;
+    border-radius: 0.75rem;
+    background: #f3f8fc;
+  }
+
+  .vendor-ledger-metric span,
+  .vendor-ledger-detail {
+    color: #6a7f91;
+    font-size: 0.74rem;
+  }
+
+  .vendor-ledger-metric strong {
+    display: block;
+    margin-top: 0.25rem;
+    color: #1769a8;
+    font-size: 0.95rem;
+  }
+
+  .vendor-ledger-paid {
+    background: #f1fbf5;
+    border-color: #d5efdf;
+  }
+
+  .vendor-ledger-paid strong {
+    color: #21864b;
+  }
+
+  .vendor-ledger-pending {
+    background: #fff8ed;
+    border-color: #f5e2bf;
+  }
+
+  .vendor-ledger-pending strong {
+    color: #b76b08;
+  }
+
+  .vendor-ledger-detail {
+    margin-top: 0.8rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid #e8eef3;
+  }
+
+  @media (min-width: 1500px) {
+    .vendors-page .vendor-stats-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 620px) {
+    .vendors-page .vendor-stats-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .vendors-page .stat-card {
+      min-height: 96px;
+      padding: 1rem;
+    }
+  }
+</style>
+
+<script>
+  /* ============================================================
+   VENDOR MANAGEMENT FRONTEND
+   ============================================================
+
+   IMPORTANT BACKEND CONTRACT
+
+   This page expects these existing backend functions:
+
+      getVendors()
+      saveVendor(payload)
+
+   saveVendor() MUST write into your existing Vendor Ledger.
+
+   Expected payload:
+
+      {
+        vendorName: "...",
+        panNo: "...",
+        contactNumber: "...",
+        address: "..."
+      }
+
+   Expected response:
+
+      {
+        success: true,
+        message: "...",
+        data: {...}
+      }
+
+============================================================ */
+
+  window.initializeVendorsPage = async function initializeVendorsPage() {
+    console.log("[Vendors] Initializing vendor page...");
+
+    /* =========================================================
+     ELEMENTS
+  ========================================================= */
+
+    const vendorForm = document.getElementById("vendorForm");
+
+    const vendorTableBody = document.getElementById("vendorTableBody");
+
+    const vendorPageMessage = document.getElementById("vendorPageMessage");
+
+    const vendorSearch = document.getElementById("vendorSearch");
+
+    const refreshButton = document.getElementById("refreshVendorsButton");
+
+    const emptyState = document.getElementById("vendorEmptyState");
+
+    const openAddVendorButton = document.getElementById("openAddVendorButton");
+
+    const emptyAddVendorButton = document.getElementById(
+      "emptyAddVendorButton",
+    );
+
+    const closeVendorModalButton = document.getElementById(
+      "closeVendorModalButton",
+    );
+
+    const cancelVendorButton = document.getElementById("cancelVendorButton");
+
+    const addVendorModalElement = document.getElementById("addVendorModal");
+
+    const vendorLedgerModalElement = document.getElementById("vendorLedgerModal");
+
+    const closeVendorLedgerButton = document.getElementById(
+      "closeVendorLedgerButton",
+    );
+
+    const saveVendorButton = document.getElementById("saveVendorButton");
+
+    if (!vendorForm || !vendorTableBody) {
+      console.error("[Vendors] Required vendor elements were not found.");
+
+      return;
+    }
+
+    let vendors = [];
+
+    let vendorModal = null;
+
+    const formatMoney = (value) =>
+      Number(value || 0).toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+
+    const closeVendorLedger = () => {
+      vendorLedgerModalElement?.classList.remove("show");
+      if (vendorLedgerModalElement) {
+        vendorLedgerModalElement.style.display = "none";
+        vendorLedgerModalElement.setAttribute("aria-hidden", "true");
+      }
+      document.getElementById("vendorLedgerBackdrop")?.remove();
+    };
+
+    const openVendorLedger = async (vendorId) => {
+      try {
+        if (typeof getVendorLedger !== "function") {
+          throw new Error("Vendor Ledger service is not available.");
+        }
+
+        const response = await getVendorLedger();
+        if (!response?.success || !Array.isArray(response.data)) {
+          throw new Error(response?.message || "Unable to load Vendor Ledger.");
+        }
+
+        const normalizedId = String(vendorId || "").trim().toLowerCase();
+        const ledger = response.data.find(
+          (row) =>
+            String(row.vendorId || "").trim().toLowerCase() === normalizedId,
+        );
+
+        if (!ledger) {
+          throw new Error("No purchase ledger found for this vendor.");
+        }
+
+        const purchased = Number(ledger.totalPurchased || 0);
+        const paid = Number(ledger.totalPaid || 0);
+        const pending = Number(
+          ledger.totalDue !== undefined ? ledger.totalDue : purchased - paid,
+        );
+
+        document.getElementById("vendorLedgerModalTitle").textContent =
+          ledger.vendorName || "Vendor Ledger";
+        document.getElementById("vendorLedgerModalSubtitle").textContent =
+          `Vendor ID: ${ledger.vendorId || vendorId}`;
+        document.getElementById("vendorLedgerPurchased").textContent =
+          formatMoney(purchased);
+        document.getElementById("vendorLedgerPaid").textContent =
+          formatMoney(paid);
+        document.getElementById("vendorLedgerPending").textContent =
+          formatMoney(pending);
+        document.getElementById("vendorLedgerLastTransaction").textContent =
+          ledger.lastTransactionDate
+            ? `Last transaction: ${ledger.lastTransactionDate}`
+            : "No purchase transaction recorded yet.";
+
+        vendorLedgerModalElement.style.display = "block";
+        vendorLedgerModalElement.classList.add("show");
+        vendorLedgerModalElement.setAttribute("aria-hidden", "false");
+
+        const backdrop = document.createElement("div");
+        backdrop.id = "vendorLedgerBackdrop";
+        backdrop.className = "modal-backdrop fade show";
+        backdrop.addEventListener("click", closeVendorLedger);
+        document.body.appendChild(backdrop);
+      } catch (error) {
+        console.error("[Vendors] Vendor ledger load error:", error);
+        setMessage(error.message || "Unable to load Vendor Ledger.", "danger");
+      }
+    };
+
+    closeVendorLedgerButton?.addEventListener("click", closeVendorLedger);
+
+    /* =========================================================
+     BOOTSTRAP MODAL
+  ========================================================= */
+
+    const initializeModal = () => {
+      if (!addVendorModalElement) {
+        console.error("[Vendors] #addVendorModal not found.");
+
+        return;
+      }
+
+      /*
+      Bootstrap 5 is preferred.
+    */
+
+      if (typeof bootstrap !== "undefined" && bootstrap.Modal) {
+        vendorModal = bootstrap.Modal.getOrCreateInstance(
+          addVendorModalElement,
+          {
+            backdrop: true,
+            keyboard: true,
+          },
+        );
+
+        console.log("[Vendors] Bootstrap modal initialized.");
+
+        return;
+      }
+
+      /*
+      Fallback modal implementation.
+
+      This prevents the Add Vendor button from
+      completely failing if Bootstrap JS has not
+      been loaded.
+    */
+
+      console.warn(
+        "[Vendors] Bootstrap JS not detected. Using fallback modal.",
+      );
+    };
+
+    /* =========================================================
+     OPEN MODAL
+  ========================================================= */
+
+    const openVendorModal = () => {
+      console.log("[Vendors] Opening Add Vendor modal...");
+
+      if (vendorModal) {
+        vendorModal.show();
+
+        return;
+      }
+
+      /*
+      Fallback modal.
+    */
+
+      if (!addVendorModalElement) {
+        return;
+      }
+
+      addVendorModalElement.classList.add("show");
+
+      addVendorModalElement.style.display = "block";
+
+      addVendorModalElement.removeAttribute("aria-hidden");
+
+      addVendorModalElement.setAttribute("aria-modal", "true");
+
+      document.body.classList.add("modal-open", "vendor-modal-open");
+
+      let backdrop = document.getElementById("vendorModalFallbackBackdrop");
+
+      if (!backdrop) {
+        backdrop = document.createElement("div");
+
+        backdrop.id = "vendorModalFallbackBackdrop";
+
+        backdrop.className = "modal-backdrop fade show";
+
+        backdrop.style.zIndex = "1055";
+
+        document.body.appendChild(backdrop);
+      }
+    };
+
+    /* =========================================================
+     CLOSE MODAL
+  ========================================================= */
+
+    const closeVendorModal = () => {
+      console.log("[Vendors] Closing Add Vendor modal...");
+
+      if (vendorModal) {
+        vendorModal.hide();
+
+        return;
+      }
+
+      if (!addVendorModalElement) {
+        return;
+      }
+
+      addVendorModalElement.classList.remove("show");
+
+      addVendorModalElement.style.display = "none";
+
+      addVendorModalElement.setAttribute("aria-hidden", "true");
+
+      addVendorModalElement.removeAttribute("aria-modal");
+
+      document.body.classList.remove("modal-open", "vendor-modal-open");
+
+      const backdrop = document.getElementById("vendorModalFallbackBackdrop");
+
+      backdrop?.remove();
+    };
+
+    initializeModal();
+
+    /* =========================================================
+     ADD VENDOR BUTTON
+  ========================================================= */
+
+    openAddVendorButton?.addEventListener("click", function (event) {
+      event.preventDefault();
+
+      vendorForm.reset();
+      document.getElementById("vendorId").value = "";
+      document.getElementById("vendorModalTitle").textContent = "Add New Vendor";
+      openVendorModal();
+    });
+
+    emptyAddVendorButton?.addEventListener("click", function (event) {
+      event.preventDefault();
+
+      vendorForm.reset();
+      document.getElementById("vendorId").value = "";
+      document.getElementById("vendorModalTitle").textContent = "Add New Vendor";
+      openVendorModal();
+    });
+
+    closeVendorModalButton?.addEventListener("click", function () {
+      closeVendorModal();
+    });
+
+    cancelVendorButton?.addEventListener("click", function () {
+      closeVendorModal();
+    });
+
+    /* =========================================================
+     ESCAPE KEY
+  ========================================================= */
+
+    document.addEventListener("keydown", function (event) {
+      if (
+        event.key === "Escape" &&
+        addVendorModalElement?.classList.contains("show")
+      ) {
+        closeVendorModal();
+      }
+    });
+
+    /* =========================================================
+     MESSAGE
+  ========================================================= */
+
+    const setMessage = (message, type = "info") => {
+      if (!vendorPageMessage) {
+        return;
+      }
+
+      if (!message) {
+        vendorPageMessage.classList.add("d-none");
+
+        vendorPageMessage.textContent = "";
+
+        return;
+      }
+
+      const icons = {
+        success: "check-circle",
+
+        danger: "exclamation-circle",
+
+        warning: "exclamation-triangle",
+
+        info: "info-circle",
+      };
+
+      const icon = icons[type] || icons.info;
+
+      vendorPageMessage.className = `alert alert-${type} mb-3`;
+
+      vendorPageMessage.classList.remove("d-none");
+
+      /*
+      Use DOM instead of unsafe innerHTML
+      for the message itself.
+    */
+
+      vendorPageMessage.innerHTML = "";
+
+      const iconElement = document.createElement("i");
+
+      iconElement.className = `bi bi-${icon}`;
+
+      const textElement = document.createElement("span");
+
+      textElement.className = "ms-2";
+
+      textElement.textContent = message;
+
+      vendorPageMessage.appendChild(iconElement);
+
+      vendorPageMessage.appendChild(textElement);
+    };
+
+    /* =========================================================
+     ESCAPE HTML
+  ========================================================= */
+
+    const escapeHtml = (value) => {
+      const div = document.createElement("div");
+
+      div.textContent = value ?? "";
+
+      return div.innerHTML;
+    };
+
+    /* =========================================================
+     INITIALS
+  ========================================================= */
+
+    const getInitials = (name) => {
+      if (!name) {
+        return "V";
+      }
+
+      return name
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((word) => word.charAt(0).toUpperCase())
+        .join("");
+    };
+
+    /* =========================================================
+     NORMALIZE VENDOR
+  ========================================================= */
+
+    const getVendorField = (vendor, ...keys) => {
+      if (!vendor) {
+        return "";
+      }
+
+      for (const key of keys) {
+        const value = vendor[key];
+        if (
+          value !== undefined &&
+          value !== null &&
+          String(value).trim() !== ""
+        ) {
+          return value;
+        }
+      }
+
+      return "";
+    };
+
+    const normalizeVendor = (vendor) => {
+      if (!vendor) {
+        return {};
+      }
+
+      return {
+        vendorId: getVendorField(
+          vendor,
+          "Vendor ID",
+          "Vendor Id",
+          "VendorID",
+          "vendorId",
+          "vendorid",
+          "ID",
+          "id",
+        ),
+
+        vendorName: getVendorField(
+          vendor,
+          "Vendor Name",
+          "VendorName",
+          "Name",
+          "vendorName",
+          "vendorname",
+          "name",
+        ),
+
+        panNo: getVendorField(
+          vendor,
+          "PAN/VAT No",
+          "PAN / VAT No",
+          "PAN No",
+          "PAN Number",
+          "PAN Number",
+          "Pan/VAT No",
+          "panNo",
+          "panVatNo",
+          "pan",
+          "panno",
+          "panvatno",
+        ),
+
+        contactNumber: getVendorField(
+          vendor,
+          "Contact No",
+          "Contact Number",
+          "ContactNo",
+          "contactNumber",
+          "contactNo",
+          "phone",
+          "Phone",
+          "Mobile",
+          "mobile",
+        ),
+
+        address: getVendorField(vendor, "Address", "address"),
+
+        email: getVendorField(vendor, "Email", "email"),
+      };
+    };
+
+    const findVendorInLedger = async (vendorId) => {
+      if (!vendorId) {
+        return null;
+      }
+
+      const response = await getVendors();
+
+      if (!response || !response.success || !Array.isArray(response.data)) {
+        throw new Error(
+          response?.message ||
+            "Unable to load vendor details from Vendor Ledger.",
+        );
+      }
+
+      const normalizedVendorId = String(vendorId).trim().toLowerCase();
+
+      return (
+        response.data.find((vendor) => {
+          const normalized = normalizeVendor(vendor);
+          const currentId = String(normalized.vendorId || "")
+            .trim()
+            .toLowerCase();
+
+          return currentId === normalizedVendorId;
+        }) || null
+      );
+    };
+
+    /* =========================================================
+     STATISTICS
+  ========================================================= */
+
+    const updateStatistics = () => {
+      const total = vendors.length;
+
+      const registered = vendors.filter((vendor) => {
+        const normalized = normalizeVendor(vendor);
+
+        return String(normalized.panNo).trim();
+      }).length;
+
+      const totalElement = document.getElementById("totalVendors");
+
+      const activeElement = document.getElementById("activeVendors");
+
+      const purchaseElement = document.getElementById("purchaseVendors");
+
+      const registeredElement = document.getElementById("registeredVendors");
+
+      if (totalElement) {
+        totalElement.textContent = total;
+      }
+
+      if (activeElement) {
+        activeElement.textContent = total;
+      }
+
+      if (purchaseElement) {
+        purchaseElement.textContent = total;
+      }
+
+      if (registeredElement) {
+        registeredElement.textContent = registered;
+      }
+    };
+
+    /* =========================================================
+     RENDER TABLE
+  ========================================================= */
+
+    const renderVendorTable = (data) => {
+      if (!Array.isArray(data) || !data.length) {
+        vendorTableBody.innerHTML = "";
+
+        emptyState?.classList.remove("d-none");
+
+        return;
+      }
+
+      emptyState?.classList.add("d-none");
+
+      vendorTableBody.innerHTML = data
+        .map((vendor) => {
+          const normalized = normalizeVendor(vendor);
+
+          const vendorId = normalized.vendorId || "—";
+
+          const name = normalized.vendorName || "—";
+
+          const panVatNo = normalized.panNo || "—";
+
+          const contactNo = normalized.contactNumber || "—";
+
+          const address = normalized.address || "—";
+
+          return `
+
+          <tr>
+
+            <!-- Vendor -->
+
+            <td>
+
+              <div class="d-flex align-items-center gap-3">
+
+                <div class="vendor-avatar">
+
+                  ${escapeHtml(getInitials(name))}
+
+                </div>
+
+                <div>
+
+                  <div class="fw-semibold">
+
+                    ${escapeHtml(name)}
+
+                  </div>
+
+                  <small class="text-muted">
+
+                    Supplier
+
+                  </small>
+
+                </div>
+
+              </div>
+
+            </td>
+
+
+            <!-- Vendor ID -->
+
+            <td>
+
+              <span class="badge text-bg-light border">
+
+                ${escapeHtml(vendorId)}
+
+              </span>
+
+            </td>
+
+
+            <!-- PAN -->
+
+            <td>
+
+              <span class="fw-medium">
+
+                ${escapeHtml(panVatNo)}
+
+              </span>
+
+            </td>
+
+
+            <!-- Contact -->
+
+            <td>
+
+              <div class="d-flex align-items-center gap-2">
+
+                <i class="bi bi-telephone text-muted"></i>
+
+                ${escapeHtml(contactNo)}
+
+              </div>
+
+            </td>
+
+
+            <!-- Address -->
+
+            <td>
+
+              <div
+                class="text-truncate"
+                style="max-width:230px"
+                title="${escapeHtml(address)}"
+              >
+
+                <i class="bi bi-geo-alt text-muted me-1"></i>
+
+                ${escapeHtml(address)}
+
+              </div>
+
+            </td>
+
+
+            <!-- Actions -->
+
+            <td class="text-end">
+
+              <div class="vendor-row-actions" role="group" aria-label="Vendor actions">
+                <button
+                  class="btn btn-sm vendor-direct-action vendor-view-action"
+                  type="button"
+                  data-vendor-action="view"
+                  data-vendor-id="${escapeHtml(vendorId)}"
+                  title="View vendor ledger"
+                >
+                  <i class="bi bi-journal-text"></i>
+                  <span>View</span>
+                </button>
+                <button
+                  class="btn btn-sm vendor-direct-action vendor-edit-action"
+                  type="button"
+                  data-vendor-action="edit"
+                  data-vendor-id="${escapeHtml(vendorId)}"
+                  title="Edit vendor"
+                >
+                  <i class="bi bi-pencil"></i>
+                  <span>Edit</span>
+                </button>
+                <button
+                  class="btn btn-sm vendor-direct-action vendor-delete-action"
+                  type="button"
+                  data-vendor-action="delete"
+                  data-vendor-id="${escapeHtml(vendorId)}"
+                  title="Delete vendor"
+                >
+                  <i class="bi bi-trash"></i>
+                  <span>Delete</span>
+                </button>
+              </div>
+
+            </td>
+
+          </tr>
+
+        `;
+        })
+        .join("");
+    };
+
+    /* =========================================================
+     LOAD VENDORS
+  ========================================================= */
+
+    const loadVendors = async () => {
+      try {
+        vendorTableBody.innerHTML = `
+
+        <tr>
+
+          <td
+            colspan="6"
+            class="text-center py-5"
+          >
+
+            <div
+              class="spinner-border text-primary mb-2"
+            ></div>
+
+            <div class="text-muted">
+
+              Loading vendors...
+
+            </div>
+
+          </td>
+
+        </tr>
+
+      `;
+
+        /*
+        IMPORTANT:
+
+        getVendors() must be your existing
+        backend function that reads Vendor Ledger.
+      */
+
+        if (typeof getVendors !== "function") {
+          throw new Error("getVendors() backend function is not available.");
+        }
+
+        const response = await getVendors();
+
+        console.log("[Vendors] getVendors response:", response);
+
+        if (!response || !response.success) {
+          throw new Error(
+            response?.message || "Unable to load vendors from Vendor Ledger.",
+          );
+        }
+
+        vendors = Array.isArray(response.data) ? response.data : [];
+
+        updateStatistics();
+
+        renderVendorTable(vendors);
+
+        setMessage("");
+      } catch (error) {
+        console.error("[Vendors] Load error:", error);
+
+        setMessage(error.message || "Unable to load vendors.", "danger");
+
+        vendorTableBody.innerHTML = "";
+
+        emptyState?.classList.remove("d-none");
+      }
+    };
+
+    /* =========================================================
+     SEARCH
+  ========================================================= */
+
+    vendorSearch?.addEventListener("input", function () {
+      const query = this.value.trim().toLowerCase();
+
+      if (!query) {
+        renderVendorTable(vendors);
+
+        return;
+      }
+
+      const filtered = vendors.filter((vendor) => {
+        const normalized = normalizeVendor(vendor);
+
+        const values = [
+          normalized.vendorId,
+
+          normalized.vendorName,
+
+          normalized.panNo,
+
+          normalized.contactNumber,
+
+          normalized.address,
+        ];
+
+        return values.some((value) =>
+          String(value ?? "")
+            .toLowerCase()
+            .includes(query),
+        );
+      });
+
+      renderVendorTable(filtered);
+    });
+
+    /* =========================================================
+     REFRESH
+  ========================================================= */
+
+    refreshButton?.addEventListener("click", async function () {
+      this.disabled = true;
+
+      const icon = this.querySelector("i");
+
+      icon?.classList.add("spin");
+
+      await loadVendors();
+
+      this.disabled = false;
+
+      icon?.classList.remove("spin");
+    });
+
+    /* =========================================================
+     SAVE VENDOR
+  ========================================================= */
+
+    vendorForm.addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const vendorName = document.getElementById("vendorName").value.trim();
+
+      const panNo = document.getElementById("vendorPanNo").value.trim();
+
+      const contactNumber = document
+        .getElementById("vendorContactNumber")
+        .value.trim();
+
+      const address = document.getElementById("vendorAddress").value.trim();
+
+      const email = document.getElementById("vendorEmail").value.trim();
+
+      /* =====================================================
+         VALIDATION
+      ===================================================== */
+
+      if (!vendorName) {
+        setMessage("Vendor name is required.", "warning");
+
+        return;
+      }
+
+      if (!panNo) {
+        setMessage("PAN/VAT number is required.", "warning");
+
+        return;
+      }
+
+      if (!contactNumber) {
+        setMessage("Contact number is required.", "warning");
+
+        return;
+      }
+
+      if (!address) {
+        setMessage("Address is required.", "warning");
+
+        return;
+      }
+
+      /* =====================================================
+         PAYLOAD
+      ===================================================== */
+
+      const payload = {
+        id: document.getElementById("vendorId").value.trim(),
+        vendorName: vendorName,
+
+        panNo: panNo,
+
+        contactNumber: contactNumber,
+
+        address: address,
+
+        email: email,
+      };
+
+      console.log("[Vendors] Saving vendor:", payload);
+
+      try {
+        saveVendorButton.disabled = true;
+
+        saveVendorButton.innerHTML = `
+
+          <span
+            class="spinner-border spinner-border-sm me-2"
+          ></span>
+
+          Saving...
+
+        `;
+
+        /*
+          IMPORTANT:
+
+          saveVendor() must write into
+          your EXISTING Vendor Ledger.
+        */
+
+        if (typeof saveVendor !== "function") {
+          throw new Error("saveVendor() backend function is not available.");
+        }
+
+        const response = await saveVendor(payload);
+
+        console.log("[Vendors] saveVendor response:", response);
+
+        if (!response || !response.success) {
+          throw new Error(
+            response?.message || "Unable to save vendor into Vendor Ledger.",
+          );
+        }
+
+        /* =================================================
+           SUCCESS
+        ================================================= */
+
+        vendorForm.reset();
+        document.getElementById("vendorId").value = "";
+        document.getElementById("vendorModalTitle").textContent = "Add New Vendor";
+
+        closeVendorModal();
+
+        setMessage(
+          response.message || "Vendor added successfully to Vendor Ledger.",
+          "success",
+        );
+
+        /*
+          Reload directly from backend.
+
+          This guarantees the newly saved
+          vendor is actually coming from
+          the Vendor Ledger.
+        */
+
+        await loadVendors();
+
+        const savedRecord = response.data || {};
+        const savedVendorId = String(
+          savedRecord.vendorId || savedRecord.id || savedRecord["Vendor ID"] || "",
+        )
+          .trim()
+          .toLowerCase();
+        const savedVendorName = String(
+          savedRecord.vendorName ||
+            savedRecord["Vendor Name"] ||
+            savedRecord.Name ||
+            vendorName,
+        )
+          .trim()
+          .toLowerCase();
+        const savedVendor = vendors.some((vendor) => {
+          const normalized = normalizeVendor(vendor);
+          const currentId = String(normalized.vendorId || "")
+            .trim()
+            .toLowerCase();
+          const currentName = String(normalized.vendorName || "")
+            .trim()
+            .toLowerCase();
+          return (
+            (savedVendorId && currentId === savedVendorId) ||
+            (!savedVendorId && currentName === savedVendorName)
+          );
+        });
+
+        if (!savedVendor) {
+          throw new Error(
+            "The API reported success, but the vendor was not found in the Vendor Ledger after saving.",
+          );
+        }
+
+        /*
+          Automatically scroll to table.
+        */
+
+        document.querySelector(".vendor-main-card")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      } catch (error) {
+        console.error("[Vendors] Save error:", error);
+
+        setMessage(error.message || "Unable to save vendor.", "danger");
+      } finally {
+        saveVendorButton.disabled = false;
+
+        saveVendorButton.innerHTML = `
+
+          <i class="bi bi-check-circle me-2"></i>
+
+          Save Vendor
+
+        `;
+      }
+    });
+
+    /* =========================================================
+     TABLE ACTIONS
+  ========================================================= */
+
+    document.addEventListener("click", function (event) {
+      const dropdownToggle = event.target.closest(
+        '[data-bs-toggle="dropdown"]',
+      );
+
+      if (dropdownToggle && vendorTableBody.contains(dropdownToggle)) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const dropdown = dropdownToggle.closest(".dropdown");
+        const menu = dropdown?.querySelector(".dropdown-menu");
+
+        if (!dropdown || !menu) {
+          setMessage("Unable to open the vendor actions menu.", "danger");
+          return;
+        }
+
+        const wasOpen = menu.classList.contains("show");
+
+        document
+          .querySelectorAll("#vendorTableBody .dropdown-menu.show")
+          .forEach((openMenu) => {
+            openMenu.classList.remove("show");
+            openMenu.previousElementSibling?.setAttribute(
+              "aria-expanded",
+              "false",
+            );
+          });
+
+        if (!wasOpen) {
+          menu.classList.add("show");
+          dropdownToggle.setAttribute("aria-expanded", "true");
+
+          const triggerRect = dropdownToggle.getBoundingClientRect();
+          const menuRect = menu.getBoundingClientRect();
+          const viewportPadding = 8;
+          const left = Math.max(
+            viewportPadding,
+            Math.min(
+              triggerRect.right - menuRect.width,
+              window.innerWidth - menuRect.width - viewportPadding,
+            ),
+          );
+          const top = Math.min(
+            triggerRect.bottom + 6,
+            window.innerHeight - menuRect.height - viewportPadding,
+          );
+
+          menu.style.left = `${left}px`;
+          menu.style.top = `${Math.max(viewportPadding, top)}px`;
+        }
+
+        return;
+      }
+
+      const button = event.target.closest("[data-vendor-action]");
+
+      if (!button || !button.dataset.vendorAction) {
+        return;
+      }
+
+      if (!button.dataset.vendorId) {
+        setMessage("This vendor action is missing the vendor ID.", "danger");
+        return;
+      }
+
+      const action = button.dataset.vendorAction;
+
+      const vendorId = button.dataset.vendorId;
+
+      button.closest(".dropdown-menu")?.classList.remove("show");
+      button
+        .closest(".dropdown")
+        ?.querySelector('[data-bs-toggle="dropdown"]')
+        ?.setAttribute("aria-expanded", "false");
+
+      console.log("[Vendors] Action:", action, "Vendor ID:", vendorId);
+
+      if (action === "view") {
+        openVendorLedger(vendorId);
+        return;
+      }
+
+      if (action === "edit") {
+        (async () => {
+          try {
+            const vendor = await findVendorInLedger(vendorId);
+
+            if (!vendor) {
+              throw new Error("Vendor not found in Vendor Ledger.");
+            }
+
+            const normalized = normalizeVendor(vendor);
+
+            document.getElementById("vendorId").value = normalized.vendorId || "";
+            document.getElementById("vendorModalTitle").textContent = "Edit Vendor";
+            document.getElementById("vendorName").value =
+              normalized.vendorName || "";
+            document.getElementById("vendorPanNo").value =
+              normalized.panNo || "";
+            document.getElementById("vendorContactNumber").value =
+              normalized.contactNumber || "";
+            document.getElementById("vendorAddress").value =
+              normalized.address || "";
+            document.getElementById("vendorEmail").value =
+              normalized.email || "";
+
+            setMessage(
+              `Loaded vendor details for ${normalized.vendorName || "this supplier"} from the Vendor Ledger.`,
+              "info",
+            );
+
+            openVendorModal();
+          } catch (error) {
+            console.error("[Vendors] Vendor edit load error:", error);
+            setMessage(
+              error.message ||
+                "Unable to load vendor details from Vendor Ledger.",
+              "danger",
+            );
+          }
+        })();
+      }
+
+      if (action === "delete") {
+        (async () => {
+          if (!await window.kumakhDialogs.confirm("Delete this vendor? Existing purchase records may prevent deletion.")) return;
+          try {
+            if (typeof deleteVendor !== "function") throw new Error("deleteVendor() backend function is not available.");
+            const response = await deleteVendor({ vendorId });
+            if (!response?.success) throw new Error(response?.message || "Unable to delete vendor.");
+            setMessage(response.message || "Vendor deleted successfully.", "success");
+            await loadVendors();
+          } catch (error) {
+            console.error("[Vendors] Vendor delete error:", error);
+            setMessage(error.message || "Unable to delete vendor.", "danger");
+          }
+        })();
+      }
+    });
+
+    document.addEventListener("click", function (event) {
+      if (event.target.closest("#vendorTableBody .dropdown")) {
+        return;
+      }
+
+      document
+        .querySelectorAll("#vendorTableBody .dropdown-menu.show")
+        .forEach((menu) => {
+          menu.classList.remove("show");
+          menu.previousElementSibling?.setAttribute("aria-expanded", "false");
+        });
+    });
+
+    /* =========================================================
+     INITIAL LOAD
+  ========================================================= */
+
+    await loadVendors();
+
+    console.log("[Vendors] Vendor page initialized successfully.");
+  };
+</script>

@@ -1,0 +1,376 @@
+<section class="page-section reports-page">
+  <div class="page-header">
+    <div><h1><i class="bi bi-cloud-arrow-up-fill"></i> Submit Reports</h1>
+      <p class="text-muted">Preview and submit selected records to the configured college reporting sheets.</p></div>
+  </div>
+  <div class="card p-3 mb-3 reports-control-card">
+    <form id="reportForm" class="row g-3 align-items-end">
+      <div class="col-12">
+        <div class="report-select-heading">
+          <label class="form-label mb-1">Select reports</label>
+          <div class="report-select-actions">
+            <button class="btn btn-sm btn-outline-secondary" id="selectAllReports" type="button">Select all</button>
+            <button class="btn btn-sm btn-outline-secondary" id="clearReports" type="button">Clear</button>
+          </div>
+        </div>
+        <div id="reportTypes" class="report-options"></div>
+      </div>
+      <div class="col-12 date-action-row">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-4"><label class="form-label" for="reportFrom">From date</label><input id="reportFrom" class="form-control" type="date" required></div>
+          <div class="col-md-4"><label class="form-label" for="reportTo">To date</label><input id="reportTo" class="form-control" type="date" required></div>
+          <div class="col-md-4 d-flex gap-2"><button class="btn btn-outline-primary flex-fill" id="previewReportButton" type="submit"><i class="bi bi-eye me-1"></i>Preview</button><button class="btn btn-primary flex-fill" id="submitReportButton" type="button" disabled><i class="bi bi-cloud-arrow-up me-1"></i>Submit</button></div>
+        </div>
+      </div>
+    </form>
+    <div id="reportMessage" class="small mt-3" role="status"></div>
+  </div>
+  <div class="card p-3 mb-3 reports-panel"><div class="reports-panel-heading"><div><h2 class="h5 mb-1">Report preview</h2><p class="small text-muted mb-0">Review the records and destination before submitting.</p></div><span class="reports-panel-icon"><i class="bi bi-eye"></i></span></div><div id="reportPreview"><div class="empty-report-state"><i class="bi bi-file-earmark-bar-graph"></i><span>Select one or more reports and a date range.</span></div></div></div>
+  <div class="card p-3 reports-panel"><div class="reports-panel-heading"><div><h2 class="h5 mb-1">Submission results</h2><p class="small text-muted mb-0">Every submission is recorded here with its current status.</p></div><span class="reports-panel-icon"><i class="bi bi-cloud-check"></i></span></div><div id="reportResults"><div class="empty-report-state"><i class="bi bi-inbox"></i><span>No submissions yet.</span></div></div></div>
+  <dialog id="reportSubmissionDialog" class="report-submission-dialog" aria-labelledby="reportSubmissionTitle">
+    <div class="report-submission-content">
+      <div class="report-submission-emblem" aria-hidden="true">
+        <div class="report-submission-halo"></div><div class="report-submission-orbit"></div>
+        <img class="report-submission-logo" src="./assets/kumakh-logo.png" alt="">
+        <span class="report-submission-mark"><i id="reportSubmissionMark" class="bi bi-check-lg"></i></span>
+      </div>
+      <div class="report-submission-copy" id="reportSubmissionCopy" aria-live="polite" aria-atomic="true">
+        <h2 id="reportSubmissionTitle">Preparing records</h2>
+        <p id="reportSubmissionStatus">Getting your records ready for submission.</p>
+      </div>
+      <div id="reportSubmissionCount" class="report-submission-count"></div>
+      <div id="reportSubmissionTrack" class="report-submission-track" role="progressbar" aria-label="Reports processed" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="report-submission-fill" id="reportSubmissionProgress" style="width:0%"></div>
+      </div>
+      <div id="reportSubmissionDetails" tabindex="0" role="region" aria-label="Submission results"></div>
+      <button type="button" class="btn btn-primary d-none" id="closeReportSubmissionDialog">Close</button>
+    </div>
+  </dialog>
+</section>
+<style>
+  .reports-page .page-header{margin-bottom:1.25rem}
+  .reports-page .page-header h1{display:flex;align-items:center;gap:.7rem;margin-bottom:.35rem}
+  .reports-page .page-header h1 i{display:grid;place-items:center;width:2.5rem;height:2.5rem;border-radius:.85rem;color:#fff;background:linear-gradient(135deg,#1769e8,#55a8ff);box-shadow:0 .5rem 1.25rem rgba(23,105,232,.2)}
+  .reports-page .reports-control-card{border:1px solid #dce7f3;border-radius:1rem;background:linear-gradient(145deg,#fff,#f6faff);box-shadow:0 .5rem 1.5rem rgba(23,61,107,.06)}
+  .reports-page .report-auth-card{border-left:4px solid #1769e8}
+  .reports-page .report-auth-card summary{font-weight:800;color:#173d6b;cursor:pointer}
+  .reports-page .report-select-heading{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1rem}
+  .reports-page .report-select-heading label{font-size:1.05rem;font-weight:800;color:#173d6b}
+  .reports-page .report-select-actions{display:flex;gap:.5rem}
+  .reports-page .report-select-actions .btn{border-radius:.6rem;font-weight:700}
+  .reports-page .report-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem}
+  .reports-page .report-option{position:relative;display:flex;align-items:center;gap:.7rem;min-height:4.15rem;padding:.75rem 1rem!important;border:1px solid #dce5f0!important;border-radius:.8rem!important;background:#fff;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease}
+  .reports-page .report-option:hover{transform:translateY(-2px);border-color:#8db9eb!important;box-shadow:0 .5rem 1rem rgba(23,105,232,.1)}
+  .reports-page .report-option:has(input:checked){border-color:#1769e8!important;background:#eef6ff;box-shadow:inset 0 0 0 1px #1769e8,0 .45rem 1rem rgba(23,105,232,.1)}
+  .reports-page .report-option input{margin:0;width:1.1rem;height:1.1rem;accent-color:#1769e8}
+  .reports-page .report-option-icon{display:grid;place-items:center;flex:0 0 2rem;width:2rem;height:2rem;border-radius:.65rem;background:#eaf3ff;color:#1769e8;font-size:1rem}
+  .reports-page .report-option-text{display:flex;flex-direction:column;gap:.12rem;min-width:0;font-weight:750;color:#244766}
+  .reports-page .report-option-text small{font-size:.7rem;font-weight:600;color:#8191a5}
+  .reports-page .complete-report-option{grid-column:1/-1;min-height:3.4rem;background:linear-gradient(100deg,#173d6b,#216bb3);border-color:#173d6b!important;color:#fff}
+  .reports-page .complete-report-option .report-option-icon{background:rgba(255,255,255,.16);color:#fff}
+  .reports-page .complete-report-option .report-option-text,.reports-page .complete-report-option .report-option-text small{color:#fff}
+  .reports-page .date-action-row{margin-top:.35rem;padding-top:1rem;border-top:1px solid #e5edf5}
+  .reports-page .date-action-row .form-label{font-weight:750;color:#526579}
+  .reports-page .date-action-row .form-control{border-radius:.7rem;border-color:#cddbea;min-height:2.7rem}
+  .reports-page .date-action-row .btn{min-height:2.7rem;border-radius:.7rem;font-weight:750}
+  .reports-page .reports-panel-heading{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem}
+  .reports-page .reports-panel-icon{width:2.25rem;height:2.25rem;display:grid;place-items:center;border-radius:.75rem;background:#eaf2ff;color:#2563eb}
+  .reports-page .preview-report-card{border:1px solid #e3eaf2;border-radius:.8rem;padding:1rem;background:#fbfcfe}
+  .reports-page .preview-report-card+.preview-report-card{margin-top:.65rem}
+  .reports-page .preview-report-title{display:flex;align-items:center;gap:.55rem;font-weight:700;color:#1e293b}
+  .reports-page .preview-report-title i{color:#2563eb}
+  .reports-page .preview-report-meta{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.7rem}
+  .reports-page .preview-report-meta span{padding:.3rem .55rem;border-radius:.45rem;background:#eef3f8;color:#526173;font-size:.78rem}
+  .reports-page .reports-results-table{min-width:760px}
+  .reports-page .reports-results-table thead th{font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;color:#64748b;background:#f7f9fc;white-space:nowrap}
+  .reports-page .reports-results-table td{padding:.8rem .65rem}
+  .reports-page .report-name-cell{font-weight:600;color:#1e293b}
+  .reports-page .report-detail{max-width:260px;white-space:normal}
+  .reports-page .empty-report-state{display:flex;align-items:center;justify-content:center;gap:.6rem;padding:2rem 1rem;color:#748196;text-align:center}
+  .reports-page .empty-report-state i{font-size:1.35rem;color:#9aabc0}
+  @media (max-width:900px){.reports-page .report-options{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (max-width:600px){.reports-page .report-options{grid-template-columns:1fr}.reports-page .complete-report-option{grid-column:auto}.reports-page .report-select-heading{align-items:flex-start;flex-direction:column}.reports-page .report-select-actions{width:100%}.reports-page .report-select-actions .btn{flex:1}}
+</style>
+<script>
+(function () {
+  window.initializeReportsPage = async function () {
+    const form = document.getElementById("reportForm"); if (!form) return;
+    const types = document.getElementById("reportTypes"), from = document.getElementById("reportFrom"), to = document.getElementById("reportTo");
+    const preview = document.getElementById("reportPreview"), submit = document.getElementById("submitReportButton"), message = document.getElementById("reportMessage"), resultsContainer = document.getElementById("reportResults");
+    const submissionDialog = document.getElementById("reportSubmissionDialog");
+    const submissionAnimation = new window.KcmtReportSubmission(submissionDialog);
+    let authenticatedReportSession = null;
+    let reportEndpoint = "";
+    let reportAuthenticationError = '';
+    window.sessionStorage.removeItem("kumakhReportSession");
+    const reportSession = () => authenticatedReportSession;
+    const reportSessionToken = () => {
+      const session = reportSession();
+      return session?.endpoint === reportEndpoint ? session.sessionToken || "" : "";
+    };
+    const readyToSubmit = async (refresh = false) => {
+      if (refresh) authenticatedReportSession = null;
+      if (reportSessionToken()) return true;
+      const credentials = window.kumakhReportCredentials;
+      if (!credentials?.username || !credentials?.password) {
+        reportAuthenticationError = "Your reporting login has expired. Reopen the Reports page and sign in again.";
+        say(reportAuthenticationError, "warning");
+        return false;
+      }
+      try {
+        submissionAnimation.stage({ stage: 'authorizing', detail: 'Signing in to the reporting service. Temporary connection failures are retried once.' });
+        const response = await window.kumakhApi.authenticateReports(credentials);
+        if (!response.success || !response.data?.sessionToken) {
+          throw Object.assign(new Error(response.message || "Google reporting authorization failed."), { code: response.code, retryable: response.retryable });
+        }
+        authenticatedReportSession = response.data;
+        reportEndpoint = response.data.endpoint || reportEndpoint;
+        return true;
+      } catch (error) {
+        if (['REPORT_AUTH_INVALID', 'ACCESS_DENIED'].includes(error.code)) window.kumakhReportCredentials = null;
+        reportAuthenticationError = /timeout|timed out|aborted/i.test(error.message)
+          ? 'Google reporting sign-in timed out. Check your connection and click Submit to try again.'
+          : error.message || "Google reporting authorization failed.";
+        say(reportAuthenticationError, "danger");
+        return false;
+      }
+    };
+    const submitWithSession = async (method, payload) => {
+      const progressRequestId = window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+      payload = { ...payload, progressRequestId };
+      const unsubscribe = window.kumakhApp?.onReportProgress?.((progress) => {
+        if (progress.requestId === progressRequestId) submissionAnimation.stage(progress);
+      });
+      try {
+      let result = await window.kumakhApi[method]({ ...payload, sessionToken: reportSessionToken() });
+      if (!result || typeof result.success !== 'boolean') throw new Error('The reporting service returned an invalid result. Retry this report.');
+      // Retry only an explicit session rejection, never an uncertain network result.
+      if (result.code === "REPORT_AUTH_REQUIRED" ||
+          (result.code === "ACCESS_DENIED" && /session.*(?:invalid|expired|rejected)/i.test(result.message || ""))) {
+        if (await readyToSubmit(true)) {
+          result = await window.kumakhApi[method]({ ...payload, submissionId: result.submissionId || payload.submissionId, sessionToken: reportSessionToken() });
+        }
+      }
+      if (!result || typeof result.success !== 'boolean') throw new Error('The reporting service returned an invalid result. Retry this report.');
+      return result;
+      } finally { unsubscribe?.(); }
+    };
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    from.value = today; to.value = today;
+    let current = [];
+    let previewVersion = 0;
+    let submitting = false;
+    let endpointConfigured = true;
+    let reportPackages = {};
+    const escape = (value) => String(value ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const say = (text, level = "info") => {
+      const classes = {
+        info: "small mt-3 text-muted",
+        success: "small mt-3 text-success",
+        warning: "small mt-3 text-warning",
+        danger: "small mt-3 text-danger",
+      };
+      message.textContent = text;
+      message.className = classes[level] || classes.info;
+    };
+    const selected = () => {
+      const complete = types.querySelector('input[value="all-reports"]');
+      if (complete && complete.checked) return ["all-reports"];
+      return [...types.querySelectorAll(".report-section-option:checked")].map((input) => input.value);
+    };
+    const showSubmissionPopup = (total) => submissionAnimation.start(total);
+    const updateSubmissionPopup = (processed, total) => submissionAnimation.processed(processed, total);
+    const finishSubmissionPopup = (results) => submissionAnimation.finish(results);
+    const formatDate = (value) => {
+      if (!value) return "—";
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString();
+    };
+    const statusBadge = (status) => {
+      const normalized = String(status || "").toLowerCase();
+      const success = normalized === "submitted";
+      const pending = normalized === "pending";
+      const className = success ? "bg-success" : pending ? "bg-warning text-dark" : "bg-danger";
+      const label = success ? "Submitted successfully" : pending ? "Submission pending" : "Submission failed";
+      return `<span class="badge ${className}">${label}</span>`;
+    };
+    const render = (reports) => {
+      if (!reports.length) { preview.innerHTML = '<div class="empty-report-state"><i class="bi bi-file-earmark-bar-graph"></i><span>No reports selected.</span></div>'; return; }
+      preview.innerHTML = reports.map((item) => `<article class="preview-report-card"><div class="preview-report-title"><i class="bi bi-file-earmark-text"></i><span>${escape(item.report.name)}</span></div><div class="preview-report-meta"><span><i class="bi bi-database me-1"></i>${escape(item.report.table)}</span><span><i class="bi bi-calendar3 me-1"></i>${escape(item.dateFrom)} to ${escape(item.dateTo)}</span><span><i class="bi bi-list-ol me-1"></i>${escape(item.count)} record(s)</span></div></article>`).join("");
+    };
+    const invalidatePreview = () => {
+      if (submitting) return;
+      previewVersion++;
+      current = [];
+      render([]);
+      submit.disabled = true;
+      say('Selection changed. Preview the reports before submitting.');
+    };
+    const setSubmissionBusy = (busy) => {
+      submitting = busy;
+      if (busy) previewVersion++;
+      form.querySelectorAll('input,button').forEach(control => { control.disabled = busy; });
+      submit.disabled = busy || !endpointConfigured || !current.length;
+    };
+    form.addEventListener('change',invalidatePreview);
+    from.addEventListener('input',invalidatePreview);
+    to.addEventListener('input',invalidatePreview);
+    const loadResults = async () => {
+      const response = await window.kumakhApi.getReportSubmissions({ limit: 25 });
+      if (!response?.success) throw new Error(response?.message || 'Submission history could not be loaded.');
+      const rows = response.success ? response.data : [];
+      resultsContainer.innerHTML = rows.length
+        ? `<div class="table-responsive"><table class="table table-hover reports-results-table align-middle mb-0"><thead><tr><th>Report</th><th>Date range</th><th>Status</th><th>Submitted</th><th>Details</th><th class="text-end">Action</th></tr></thead><tbody>${rows.map((r) => `<tr><td class="report-name-cell">${escape(r.report_name)}</td><td class="text-nowrap">${escape(r.date_from)}<br><span class="text-muted small">to ${escape(r.date_to)}</span></td><td>${statusBadge(r.status)}</td><td class="text-nowrap">${escape(formatDate(r.submitted_at))}</td><td class="report-detail ${r.status === "Failed" ? "text-danger" : "text-muted"}">${escape(r.error_message || (r.status === "Submitted" ? "Remote sheet updated successfully." : "Waiting for submission."))}</td><td class="text-end">${r.status === "Failed" ? `<button class="btn btn-sm btn-outline-danger retry-report" data-id="${escape(r.id)}"><i class="bi bi-arrow-repeat me-1"></i>Retry</button>` : '<span class="text-success"><i class="bi bi-check-circle"></i></span>'}</td></tr>`).join("")}</tbody></table></div>`
+        : '<div class="empty-report-state"><i class="bi bi-inbox"></i><span>No submissions yet.</span></div>';
+      document.querySelectorAll(".retry-report").forEach((button) => button.addEventListener("click", async () => {
+        if (button.disabled || submitting) return;
+        setSubmissionBusy(true);
+        button.disabled = true;
+        showSubmissionPopup(1);
+        try {
+        if (!(await readyToSubmit())) { submissionAnimation.stopBeforeSubmission(reportAuthenticationError); return; }
+        let session = {}; try { session = JSON.parse(window.sessionStorage.getItem("kumakhSession") || "{}"); } catch (_) {}
+        const result = await submitWithSession("retryReport", { submissionId: button.dataset.id, userId: session.userId || "" });
+        finishSubmissionPopup([{ report: 'Report retry', result }]);
+        if (result.code === "ACCESS_DENIED" || result.code === "REPORT_AUTH_REQUIRED") {
+          authenticatedReportSession = null;
+          say(result.message || "Reporting session expired. Reopen the Reports page and sign in again.", "warning");
+        }
+        say(result.message || (result.success ? "Retry completed." : "Retry failed."), result.success ? "success" : "danger");
+        await loadResults();
+        } catch (error) {
+          if (submissionAnimation.running) finishSubmissionPopup([{ report: 'Report retry', result: { success: false, message: error.message } }]);
+          say(error.message, "danger");
+        } finally { button.disabled = false; setSubmissionBusy(false); }
+      }));
+    };
+    try {
+      const config = await window.kumakhApi.getReportConfig();
+      if (!config.success) throw new Error(config.message);
+      endpointConfigured = Boolean(config.data.endpointConfigured);
+      reportEndpoint = config.data.endpoint;
+      const visibleReports = config.data.reports.filter((report) => report.visible !== false);
+      reportPackages = Object.fromEntries(config.data.reports.map((report) => [report.key, report.package || [report.key]]));
+      const allReportKeys = visibleReports.flatMap((report) => reportPackages[report.key] || [report.key]);
+      reportPackages["all-reports"] = [...new Set(allReportKeys)];
+      const reportIcons = {
+        students: "bi-mortarboard-fill", staff: "bi-people-fill", courses: "bi-journal-bookmark-fill",
+        vendors: "bi-shop", "vendor-ledger": "bi-wallet2", "vendor-payments": "bi-cash-coin",
+        "student-payments": "bi-credit-card", "staff-payments": "bi-person-badge", payroll: "bi-calendar2-week",
+        expenses: "bi-receipt", purchases: "bi-cart-check", inventory: "bi-box-seam",
+        "cafe-sales": "bi-cup-hot", "cafe-tables": "bi-grid-3x3-gap", "cafe-menu": "bi-menu-button-wide",
+        "cafe-categories": "bi-tags", "cafe-daily-sales": "bi-bar-chart-line",
+      };
+      const reportOption = (report, extraClass = "") => {
+        const icon = reportIcons[report.key] || "bi-file-earmark-bar-graph";
+        return `<label class="report-option ${extraClass}"><input type="checkbox" class="${report.key === "all-reports" ? "" : "report-section-option"}" value="${escape(report.key)}"><span class="report-option-icon"><i class="bi ${icon}"></i></span><span class="report-option-text">${escape(report.name)}<small>${report.key === "all-reports" ? "Submit every available report section" : "Preview and submit this section"}</small></span></label>`;
+      };
+      types.innerHTML = `${reportOption({ key: "all-reports", name: "Complete Report" }, "complete-report-option")}${visibleReports.map((report) => reportOption(report)).join("")}`;
+      const allReportsCheckbox = types.querySelector('input[value="all-reports"]');
+      allReportsCheckbox.addEventListener("change", () => {
+        types.querySelectorAll(".report-section-option").forEach((input) => { input.checked = allReportsCheckbox.checked; });
+      });
+      types.querySelectorAll(".report-section-option").forEach((input) => input.addEventListener("change", () => {
+        allReportsCheckbox.checked = false;
+      }));
+      if (!endpointConfigured) {
+        submit.disabled = true;
+        say("Preview is available. Configure REPORTS_APPS_SCRIPT_URL before submitting.", "warning");
+      }
+      try { await loadResults(); }
+      catch (error) { say(`Reports are ready, but submission history could not load: ${error.message}`,'warning'); }
+    } catch (error) { say(error.message, "danger"); return; }
+    document.getElementById("selectAllReports").onclick = () => {
+      if (submitting) return;
+      const complete = types.querySelector('input[value="all-reports"]');
+      complete.checked = true;
+      types.querySelectorAll(".report-section-option").forEach((input) => { input.checked = true; });
+      invalidatePreview();
+    };
+    document.getElementById("clearReports").onclick = () => {
+      if (submitting) return;
+      types.querySelectorAll("input").forEach((input) => { input.checked = false; });
+      invalidatePreview();
+    };
+    form.onsubmit = async (event) => {
+      event.preventDefault();
+      if (submitting) return;
+      const version = ++previewVersion;
+      current = [];
+      render([]);
+      submit.disabled = true;
+      const keys = selected();
+      if (!keys.length) { say("Select at least one report.", "danger"); return; }
+      if (!from.value || !to.value || !from.checkValidity() || !to.checkValidity() || from.value > to.value) { say('Choose valid dates with From date on or before To date.','danger'); return; }
+      submit.disabled = true;
+      current = [];
+      render([]);
+      say("Loading previews…", "info");
+      try {
+        const expandedKeys = [...new Set(keys.flatMap((reportKey) => reportPackages[reportKey] || [reportKey]))];
+        const results = await Promise.all(expandedKeys.map((reportKey) => window.kumakhApi.getReportPreview({ reportKey, dateFrom: from.value, dateTo: to.value })));
+        if (version !== previewVersion) return;
+        const failed = results.filter((result) => !result || !result.success);
+        if (failed.length) {
+          const details = failed.map((result) => result?.message || "Unknown preview error").join("; ");
+          throw new Error(details);
+        }
+        current = results.map((result) => result.data).filter(Boolean);
+        render(current);
+        submit.disabled = !endpointConfigured || current.length === 0;
+        say(`${keys.length === 1 && reportPackages[keys[0]]?.length > 1 ? "Complete report package" : `${current.length} report preview(s)`} ready.`, "success");
+      } catch (error) {
+        if (version !== previewVersion) return;
+        current = [];
+        render([]);
+        submit.disabled = true;
+        say(`Preview failed: ${error.message}`, "danger");
+      }
+    };
+    submit.onclick = async () => {
+      if (submitting || submit.disabled || !current.length) return;
+      if (!endpointConfigured) {
+        say("Configure REPORTS_APPS_SCRIPT_URL before submitting selected reports.", "warning");
+        return;
+      }
+      const reports = current.slice();
+      setSubmissionBusy(true);
+      let session = {}; try { session = JSON.parse(window.sessionStorage.getItem("kumakhSession") || "{}"); } catch (_) {}
+      const results = [];
+      showSubmissionPopup(reports.length);
+      try {
+        if (!(await readyToSubmit())) {
+          submissionAnimation.stopBeforeSubmission(reportAuthenticationError);
+          setSubmissionBusy(false);
+          return;
+        }
+        for (const report of reports) {
+          let result;
+          try { result = await submitWithSession("submitReport", { ...report, userId: session.userId || "", username: session.username || "", role: session.role || "" }); }
+          catch (error) { result = {success:false,message:error.message || 'Submission request failed.'}; }
+          results.push({ report: report.report.name, result });
+          if (result.code === "ACCESS_DENIED" || result.code === "REPORT_AUTH_REQUIRED") {
+            authenticatedReportSession = null;
+            say(result.message || "Reporting session expired. Reopen the Reports page and sign in again.", "warning");
+            break;
+          }
+          updateSubmissionPopup(results.length, reports.length, report.report.name);
+        }
+      } catch (error) {
+        results.push({ report: "Submission request", result: { success: false, message: error.message } });
+      }
+      finishSubmissionPopup(results);
+      const failed = results.filter((item) => !item.result.success);
+      try { await loadResults(); }
+      catch (error) { say(`Submission finished, but history could not refresh: ${error.message}`, "warning"); setSubmissionBusy(false); return; }
+      if (failed.length) {
+        say(`${failed.length} report(s) failed. Check Submission results below for details.`, "danger");
+      } else {
+        say(`${results.length} report(s) submitted successfully. Check Submission results below for confirmation.`, "success");
+      }
+      setSubmissionBusy(false);
+    };
+  };
+})();
+</script>

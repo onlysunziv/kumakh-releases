@@ -1,0 +1,1410 @@
+{
+  "Courses": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "course_name": {
+      "type": "VARCHAR(255)"
+    },
+    "duration": {
+      "type": "VARCHAR(100)"
+    },
+    "total_fee": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "status": {
+      "type": "VARCHAR(30)"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    },
+    "updated_at": {
+      "type": "DATETIME"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "Students": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "registration_number": {
+      "type": "VARCHAR(100)"
+    },
+    "joining_date": {
+      "type": "DATE"
+    },
+    "full_name": {
+      "type": "VARCHAR(255)"
+    },
+    "student_contact": {
+      "type": "VARCHAR(50)"
+    },
+    "date_of_birth": {
+      "type": "DATE"
+    },
+    "gender": {
+      "type": "VARCHAR(30)"
+    },
+    "marital_status": {
+      "type": "VARCHAR(30)"
+    },
+    "address": {
+      "type": "TEXT"
+    },
+    "parents_name": {
+      "type": "VARCHAR(255)"
+    },
+    "relationship": {
+      "type": "VARCHAR(100)"
+    },
+    "parents_contact": {
+      "type": "VARCHAR(50)"
+    },
+    "course_id": {
+      "type": "VARCHAR(100)"
+    },
+    "course_name": {
+      "type": "VARCHAR(255)"
+    },
+    "course_duration": {
+      "type": "VARCHAR(100)"
+    },
+    "registration_fee": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "training_course_fee": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "discount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "passport_photo": {
+      "type": "MEDIUMTEXT"
+    },
+    "documents": {
+      "type": "JSON"
+    },
+    "student_folder": {
+      "type": "TEXT"
+    },
+    "status": {
+      "type": "VARCHAR(30)"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    },
+    "updated_at": {
+      "type": "DATETIME"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "StudentDocuments": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "student_id": {
+      "type": "VARCHAR(100)"
+    },
+    "name": {
+      "type": "VARCHAR(255)"
+    },
+    "path": {
+      "type": "TEXT"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    }
+  },
+  "StudentMedia": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "entity_table": {
+      "type": "VARCHAR(30)"
+    },
+    "entity_id": {
+      "type": "VARCHAR(100)"
+    },
+    "media_type": {
+      "type": "VARCHAR(30)"
+    },
+    "file_name": {
+      "type": "VARCHAR(255)"
+    },
+    "mime_type": {
+      "type": "VARCHAR(150)"
+    },
+    "total_chunks": {
+      "type": "INT"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    },
+    "local_path": {
+      "type": "TEXT"
+    },
+    "file_hash": {
+      "type": "TEXT"
+    },
+    "uploaded_hash": {
+      "type": "TEXT"
+    },
+    "drive_file_id": {
+      "type": "TEXT"
+    },
+    "drive_url": {
+      "type": "TEXT"
+    },
+    "drive_folder_id": {
+      "type": "TEXT"
+    },
+    "upload_status": {
+      "type": "TEXT"
+    },
+    "last_upload_date": {
+      "type": "TEXT"
+    },
+    "active": {
+      "type": "INT"
+    }
+  },
+  "StudentMediaChunks": {
+    "media_id": {
+      "type": "VARCHAR(100)"
+    },
+    "chunk_index": {
+      "type": "INT"
+    },
+    "chunk_data": {
+      "type": "MEDIUMTEXT"
+    }
+  },
+  "Staff": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "employee_id": {
+      "type": "VARCHAR(100)"
+    },
+    "full_name": {
+      "type": "VARCHAR(255)"
+    },
+    "passport_photo": {
+      "type": "MEDIUMTEXT"
+    },
+    "address": {
+      "type": "TEXT"
+    },
+    "gender": {
+      "type": "VARCHAR(30)"
+    },
+    "blood_group": {
+      "type": "VARCHAR(10)"
+    },
+    "mobile_number": {
+      "type": "VARCHAR(50)"
+    },
+    "email": {
+      "type": "VARCHAR(255)"
+    },
+    "citizenship_number": {
+      "type": "VARCHAR(100)"
+    },
+    "personal_pan_no": {
+      "type": "VARCHAR(100)"
+    },
+    "marital_status": {
+      "type": "VARCHAR(30)"
+    },
+    "home_number": {
+      "type": "VARCHAR(50)"
+    },
+    "alternative_number": {
+      "type": "VARCHAR(50)"
+    },
+    "date_of_birth": {
+      "type": "DATE"
+    },
+    "father_name": {
+      "type": "VARCHAR(255)"
+    },
+    "mother_name": {
+      "type": "VARCHAR(255)"
+    },
+    "grandfather_name": {
+      "type": "VARCHAR(255)"
+    },
+    "grandmother_name": {
+      "type": "VARCHAR(255)"
+    },
+    "spouse_name": {
+      "type": "VARCHAR(255)"
+    },
+    "account_number": {
+      "type": "VARCHAR(100)"
+    },
+    "account_name": {
+      "type": "VARCHAR(255)"
+    },
+    "bank_name": {
+      "type": "VARCHAR(255)"
+    },
+    "swift_code": {
+      "type": "VARCHAR(50)"
+    },
+    "job_title": {
+      "type": "VARCHAR(255)"
+    },
+    "report_to": {
+      "type": "VARCHAR(255)"
+    },
+    "department": {
+      "type": "VARCHAR(255)"
+    },
+    "company_name": {
+      "type": "VARCHAR(255)"
+    },
+    "company_address": {
+      "type": "TEXT"
+    },
+    "company_contact_no": {
+      "type": "VARCHAR(50)"
+    },
+    "joining_date": {
+      "type": "DATE"
+    },
+    "basic_salary": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "documents": {
+      "type": "JSON"
+    },
+    "staff_folder": {
+      "type": "TEXT"
+    },
+    "status": {
+      "type": "VARCHAR(30)"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    },
+    "updated_at": {
+      "type": "DATETIME"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "StaffDocuments": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "staff_id": {
+      "type": "VARCHAR(100)"
+    },
+    "name": {
+      "type": "VARCHAR(255)"
+    },
+    "path": {
+      "type": "TEXT"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    }
+  },
+  "Vendors": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "name": {
+      "type": "VARCHAR(255)"
+    },
+    "pan_vat_no": {
+      "type": "VARCHAR(100)"
+    },
+    "address": {
+      "type": "TEXT"
+    },
+    "contact_no": {
+      "type": "VARCHAR(50)"
+    },
+    "email": {
+      "type": "VARCHAR(255)"
+    },
+    "status": {
+      "type": "VARCHAR(30)"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    },
+    "updated_at": {
+      "type": "DATETIME"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "Expenses": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "name": {
+      "type": "VARCHAR(255)"
+    },
+    "category": {
+      "type": "VARCHAR(100)"
+    },
+    "amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "expense_date": {
+      "type": "DATE"
+    },
+    "notes": {
+      "type": "TEXT"
+    },
+    "payment_method": {
+      "type": "VARCHAR(50)"
+    },
+    "reference": {
+      "type": "VARCHAR(255)"
+    },
+    "remarks": {
+      "type": "TEXT"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "Purchases": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "invoice_no": {
+      "type": "VARCHAR(100)"
+    },
+    "vendor_id": {
+      "type": "VARCHAR(100)"
+    },
+    "purchase_date": {
+      "type": "DATE"
+    },
+    "grand_total": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "paid_amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "due_amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "payment_status": {
+      "type": "VARCHAR(30)"
+    },
+    "payment_method": {
+      "type": "VARCHAR(50)"
+    },
+    "discount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "tax": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "remarks": {
+      "type": "TEXT"
+    },
+    "bill_file_id": {
+      "type": "VARCHAR(255)"
+    },
+    "bill_file_url": {
+      "type": "TEXT"
+    },
+    "digital_bill_url": {
+      "type": "TEXT"
+    },
+    "created_by": {
+      "type": "VARCHAR(100)"
+    },
+    "updated_at": {
+      "type": "DATETIME"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "PurchaseItems": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "purchase_id": {
+      "type": "VARCHAR(100)"
+    },
+    "item_name": {
+      "type": "VARCHAR(255)"
+    },
+    "quantity": {
+      "type": "DECIMAL(12,3)",
+      "precision": 12,
+      "scale": 3
+    },
+    "unit_price": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "PurchasePayments": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "purchase_id": {
+      "type": "VARCHAR(100)"
+    },
+    "amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "payment_date": {
+      "type": "DATE"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "Payroll": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "employee_id": {
+      "type": "VARCHAR(100)"
+    },
+    "payroll_month": {
+      "type": "CHAR(7)"
+    },
+    "designation": {
+      "type": "VARCHAR(255)"
+    },
+    "basic_salary": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "normal_working_days": {
+      "type": "DECIMAL(6,2)",
+      "precision": 6,
+      "scale": 2
+    },
+    "days_worked": {
+      "type": "DECIMAL(6,2)",
+      "precision": 6,
+      "scale": 2
+    },
+    "earned_salary": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "bonus": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "allowance": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "total_earning": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "deduction": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "tds": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "net_salary": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "total_paid": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "due_salary": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "payment_status": {
+      "type": "VARCHAR(30)"
+    },
+    "payment_method": {
+      "type": "VARCHAR(50)"
+    },
+    "payment_date": {
+      "type": "DATE"
+    },
+    "remarks": {
+      "type": "TEXT"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "Inventory": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "item_name": {
+      "type": "VARCHAR(255)"
+    },
+    "quantity": {
+      "type": "DECIMAL(12,3)",
+      "precision": 12,
+      "scale": 3
+    },
+    "unit": {
+      "type": "VARCHAR(50)"
+    },
+    "status": {
+      "type": "VARCHAR(30)"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "InventoryTransactions": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "inventory_id": {
+      "type": "VARCHAR(100)"
+    },
+    "quantity": {
+      "type": "DECIMAL(12,3)",
+      "precision": 12,
+      "scale": 3
+    },
+    "transaction_type": {
+      "type": "VARCHAR(50)"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "CafeCategories": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "name": {
+      "type": "VARCHAR(255)"
+    },
+    "status": {
+      "type": "VARCHAR(30)"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "CafeMenu": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "name": {
+      "type": "VARCHAR(255)"
+    },
+    "category_id": {
+      "type": "VARCHAR(100)"
+    },
+    "price": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "quantity": {
+      "type": "DECIMAL(12,3)",
+      "precision": 12,
+      "scale": 3
+    },
+    "unit": {
+      "type": "VARCHAR(50)"
+    },
+    "cost_price": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "description": {
+      "type": "TEXT"
+    },
+    "status": {
+      "type": "VARCHAR(30)"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "CafeTables": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "table_no": {
+      "type": "VARCHAR(50)"
+    },
+    "status": {
+      "type": "VARCHAR(30)"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "CafeCustomers": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "name": {
+      "type": "VARCHAR(255)"
+    },
+    "phone": {
+      "type": "VARCHAR(50)"
+    },
+    "credit_limit": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "address": {
+      "type": "TEXT"
+    },
+    "status": {
+      "type": "VARCHAR(30)"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "CafeSales": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "sale_date": {
+      "type": "DATETIME"
+    },
+    "total_bill": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "payment_status": {
+      "type": "VARCHAR(30)"
+    },
+    "table_no": {
+      "type": "VARCHAR(50)"
+    },
+    "customer_id": {
+      "type": "VARCHAR(100)"
+    },
+    "customer_name": {
+      "type": "VARCHAR(255)"
+    },
+    "customer_phone": {
+      "type": "VARCHAR(50)"
+    },
+    "discount_amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "vat_amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "tendered_amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "paid_amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "change_amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "due_amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "payment_method": {
+      "type": "VARCHAR(50)"
+    },
+    "items_ordered": {
+      "type": "JSON"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "CafeSaleItems": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "sale_id": {
+      "type": "VARCHAR(100)"
+    },
+    "menu_id": {
+      "type": "VARCHAR(100)"
+    },
+    "quantity": {
+      "type": "DECIMAL(12,3)",
+      "precision": 12,
+      "scale": 3
+    },
+    "amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "CafePayments": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "sale_id": {
+      "type": "VARCHAR(100)"
+    },
+    "amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "method": {
+      "type": "VARCHAR(50)"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "CafeRecipes": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "name": {
+      "type": "VARCHAR(255)"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "CafeRecipeItems": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "recipe_id": {
+      "type": "VARCHAR(100)"
+    },
+    "inventory_id": {
+      "type": "VARCHAR(100)"
+    },
+    "quantity": {
+      "type": "DECIMAL(12,3)",
+      "precision": 12,
+      "scale": 3
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "Roles": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "name": {
+      "type": "VARCHAR(100)"
+    },
+    "description": {
+      "type": "VARCHAR(500)"
+    },
+    "status": {
+      "type": "VARCHAR(30)"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    },
+    "updated_at": {
+      "type": "DATETIME"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "Users": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "username": {
+      "type": "VARCHAR(100)"
+    },
+    "password_hash": {
+      "type": "CHAR(64)"
+    },
+    "full_name": {
+      "type": "VARCHAR(255)"
+    },
+    "employee_id": {
+      "type": "VARCHAR(100)"
+    },
+    "role_id": {
+      "type": "VARCHAR(100)"
+    },
+    "status": {
+      "type": "VARCHAR(30)"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    },
+    "updated_at": {
+      "type": "DATETIME"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "Permissions": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "permission_key": {
+      "type": "VARCHAR(150)"
+    },
+    "name": {
+      "type": "VARCHAR(255)"
+    },
+    "description": {
+      "type": "VARCHAR(500)"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    },
+    "updated_at": {
+      "type": "DATETIME"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "RolePermissions": {
+    "role_id": {
+      "type": "VARCHAR(100)"
+    },
+    "permission_id": {
+      "type": "VARCHAR(100)"
+    },
+    "allowed": {
+      "type": "TINYINT(1)"
+    }
+  },
+  "UserPermissions": {
+    "user_id": {
+      "type": "VARCHAR(100)"
+    },
+    "permission_id": {
+      "type": "VARCHAR(100)"
+    },
+    "allowed": {
+      "type": "TINYINT(1)"
+    }
+  },
+  "StudentPayments": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "student_id": {
+      "type": "VARCHAR(100)"
+    },
+    "student_name": {
+      "type": "VARCHAR(255)"
+    },
+    "payment_date": {
+      "type": "DATE"
+    },
+    "course": {
+      "type": "VARCHAR(255)"
+    },
+    "course_fee": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "total_paid": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "payment_mode": {
+      "type": "VARCHAR(50)"
+    },
+    "payment_type": {
+      "type": "VARCHAR(100)"
+    },
+    "remarks": {
+      "type": "TEXT"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "VendorPayments": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "vendor_id": {
+      "type": "VARCHAR(100)"
+    },
+    "vendor_name": {
+      "type": "VARCHAR(255)"
+    },
+    "payment_date": {
+      "type": "DATE"
+    },
+    "paid_amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "payment_method": {
+      "type": "VARCHAR(50)"
+    },
+    "notes": {
+      "type": "TEXT"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "StaffPayments": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "employee_id": {
+      "type": "VARCHAR(100)"
+    },
+    "employee_name": {
+      "type": "VARCHAR(255)"
+    },
+    "payment_date": {
+      "type": "DATE"
+    },
+    "paid_amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "payment_method": {
+      "type": "VARCHAR(50)"
+    },
+    "notes": {
+      "type": "TEXT"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "CreditSales": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "customer_id": {
+      "type": "VARCHAR(100)"
+    },
+    "customer_name": {
+      "type": "VARCHAR(255)"
+    },
+    "customer_phone": {
+      "type": "VARCHAR(50)"
+    },
+    "sale_date": {
+      "type": "DATETIME"
+    },
+    "table_no": {
+      "type": "VARCHAR(50)"
+    },
+    "total_bill": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "paid_amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "due_amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "payment_method": {
+      "type": "VARCHAR(50)"
+    },
+    "items_ordered": {
+      "type": "JSON"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "DueReceived": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "customer_id": {
+      "type": "VARCHAR(100)"
+    },
+    "customer_name": {
+      "type": "VARCHAR(255)"
+    },
+    "receipt_date": {
+      "type": "DATE"
+    },
+    "previous_due_amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "received_amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "remaining_due_amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "payment_mode": {
+      "type": "VARCHAR(50)"
+    },
+    "remarks": {
+      "type": "TEXT"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "CustomerPayments": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "customer_id": {
+      "type": "VARCHAR(100)"
+    },
+    "customer_name": {
+      "type": "VARCHAR(255)"
+    },
+    "payment_date": {
+      "type": "DATE"
+    },
+    "amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "payment_method": {
+      "type": "VARCHAR(50)"
+    },
+    "previous_due_amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "remaining_due_amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "remarks": {
+      "type": "TEXT"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "CustomerLedger": {
+    "customer_id": {
+      "type": "VARCHAR(100)"
+    },
+    "customer_name": {
+      "type": "VARCHAR(255)"
+    },
+    "total_credit_amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "total_received_amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "total_due_amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "last_transaction_date": {
+      "type": "DATETIME"
+    },
+    "updated_at": {
+      "type": "DATETIME"
+    }
+  },
+  "VendorLedger": {
+    "vendor_id": {
+      "type": "VARCHAR(100)"
+    },
+    "vendor_name": {
+      "type": "VARCHAR(255)"
+    },
+    "total_purchased_amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "total_paid_amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "total_due_amount": {
+      "type": "DECIMAL(12,2)",
+      "precision": 12,
+      "scale": 2
+    },
+    "last_transaction_date": {
+      "type": "DATETIME"
+    },
+    "updated_at": {
+      "type": "DATETIME"
+    }
+  },
+  "DayClosings": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "closing_date": {
+      "type": "DATE"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "AuditLog": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "user_id": {
+      "type": "VARCHAR(100)"
+    },
+    "action": {
+      "type": "VARCHAR(100)"
+    },
+    "entity": {
+      "type": "VARCHAR(100)"
+    },
+    "entity_id": {
+      "type": "VARCHAR(100)"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  },
+  "SyncQueue": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "entity": {
+      "type": "VARCHAR(100)"
+    },
+    "entity_id": {
+      "type": "VARCHAR(100)"
+    },
+    "operation": {
+      "type": "VARCHAR(50)"
+    },
+    "payload_json": {
+      "type": "JSON"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    }
+  },
+  "SystemSettings": {
+    "key": {
+      "type": "VARCHAR(150)"
+    },
+    "value": {
+      "type": "TEXT"
+    },
+    "updated_at": {
+      "type": "DATETIME"
+    }
+  },
+  "ReportSubmissions": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "report_key": {
+      "type": "VARCHAR(100)"
+    },
+    "report_name": {
+      "type": "VARCHAR(255)"
+    },
+    "date_from": {
+      "type": "DATE"
+    },
+    "date_to": {
+      "type": "DATE"
+    },
+    "status": {
+      "type": "VARCHAR(30)"
+    },
+    "rows_json": {
+      "type": "JSON"
+    },
+    "remote_id": {
+      "type": "VARCHAR(255)"
+    },
+    "error_message": {
+      "type": "TEXT"
+    },
+    "submitted_by": {
+      "type": "VARCHAR(100)"
+    },
+    "submitted_at": {
+      "type": "DATETIME"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    },
+    "updated_at": {
+      "type": "DATETIME"
+    }
+  },
+  "FileAttachments": {
+    "id": {
+      "type": "VARCHAR(100)"
+    },
+    "entity": {
+      "type": "VARCHAR(100)"
+    },
+    "entity_id": {
+      "type": "VARCHAR(100)"
+    },
+    "file_name": {
+      "type": "VARCHAR(255)"
+    },
+    "file_path": {
+      "type": "TEXT"
+    },
+    "created_at": {
+      "type": "DATETIME"
+    },
+    "updated_at": {
+      "type": "DATETIME"
+    },
+    "data_json": {
+      "type": "JSON"
+    }
+  }
+}

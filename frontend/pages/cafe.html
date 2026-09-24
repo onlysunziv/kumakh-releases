@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://drive.google.com https://*.googleusercontent.com; font-src 'self'; connect-src 'self' https://script.google.com https://script.googleusercontent.com;">
+<meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="light dark">
+<title>KCMT Cafe - Point of Sale</title>
+<link rel="stylesheet" href="../css/vouchers.css">
+<style>
+:root {
+  --brand-blue: #173d6b;
+  --brand-blue-hover: #1e5aa8;
+  --brand-red: #e31d25;
+  --surface-glass: rgba(255, 255, 255, 0.85);
+  --surface-card: rgba(255, 255, 255, 0.7);
+  --border-light: rgba(23, 61, 107, 0.15);
+  --text-main: #173d6b;
+  --text-muted: #5d6878;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: var(--text-main); }
+body { background: url("../assets/login-background.jpe") center/cover fixed no-repeat #eef1f5; }
+body::before { content: ""; position: fixed; inset: 0; background: rgba(255, 255, 255, 0.08); pointer-events: none; z-index: -1; }
+.app-splash { position: fixed; inset: 0; z-index: 9999; display: grid; place-content: center; color: #fff; background: rgba(23,61,107,.72); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: opacity .3s ease, visibility .3s ease; }
+dialog.app-splash { width: 100vw; max-width: none; height: 100dvh; max-height: none; margin: 0; padding: 0; border: 0; border-radius: 0; }
+dialog.app-splash::backdrop { background: transparent; }
+.app-splash.is-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.kcmt-loader {
+  position: relative;
+  z-index: 1;
+  width: min(38vw, 190px);
+  height: min(43vw, 220px);
+  min-width: 150px;
+  min-height: 175px;
+  display: grid;
+  place-items: center;
+}
+.kcmt-loader-ring {
+  position: absolute;
+  width: min(34vw, 170px);
+  height: min(34vw, 170px);
+  min-width: 135px;
+  min-height: 135px;
+  border-radius: 50%;
+  background: conic-gradient(#ed1c24 0deg 180deg, #1268c4 180deg 360deg);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  animation: cafe-loader-rotate 2.2s linear infinite, cafe-loader-pulse 1.8s ease-in-out infinite;
+}
+.kcmt-loader-logo {
+  position: relative;
+  width: min(27vw, 132px);
+  height: min(27vw, 132px);
+  min-width: 108px;
+  min-height: 108px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(3, 37, 78, 0.28);
+  animation: cafe-logo-appear 1.2s ease-out both, cafe-logo-float 3s ease-in-out 1.2s infinite;
+}
+.kcmt-loader-logo img { width: 82%; height: 82%; object-fit: contain; }
+.kcmt-loader-text {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-align: center;
+  text-shadow: 0 1px 5px rgba(3, 37, 78, 0.35);
+}
+.kcmt-loader-dots i {
+  display: inline-block;
+  font-style: normal;
+  opacity: 0;
+  animation: cafe-loader-dots 1.5s infinite;
+}
+.kcmt-loader-dots i:nth-child(2) { animation-delay: .2s; }
+.kcmt-loader-dots i:nth-child(3) { animation-delay: .4s; }
+@keyframes cafe-loader-rotate { to { transform: rotate(360deg); } }
+@keyframes cafe-loader-pulse { 50% { transform: scale(1.025); } }
+@keyframes cafe-logo-appear {
+  0% { opacity: 0; transform: scale(.65); }
+  60% { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes cafe-logo-float { 50% { transform: translateY(-5px); } }
+@keyframes cafe-loader-dots {
+  0%, 20%, 60%, 100% { opacity: 0; transform: translateY(0); }
+  40% { opacity: 1; transform: translateY(-3px); }
+}
+
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; border: none; outline: none; }
+input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--brand-blue-hover); outline-offset: 2px; }
+
+.app { height: 100dvh; display: grid; grid-template-rows: 62px 1fr 28px; }
+
+/* Top Bar */
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 0 18px; background: rgba(255, 255, 255, 0.18); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255,255,255,.38); }
+.nav-branding { display: flex; align-items: center; gap: 12px; }
+.nav-logo { width: 40px; height: 40px; object-fit: contain; background: #fff; border-radius: 50%; padding: 2px; border: 2px solid var(--brand-red); flex-shrink: 0; }
+.nav-branding-copy strong { display: block; font-size: 14px; font-weight: 800; letter-spacing: 0.5px; }
+.nav-branding-copy span { display: block; color: var(--text-muted); font-size: 10px; font-style: italic; }
+.header-actions { display: flex; gap: 8px; }
+.header-btn { background: rgba(255, 255, 255, 0.42); border: 1px solid rgba(255,255,255,.65); color: var(--brand-blue); padding: 7px 14px; border-radius: 10px; font-weight: 700; font-size: 12px; transition: all 0.2s ease; }
+.header-btn:hover { background: var(--brand-red); color: #fff; border-color: var(--brand-red); }
+.header-btn:disabled, .complete-btn:disabled { opacity: .55; cursor: wait; }
+
+/* Main Content Grid */
+.content { min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 12px; padding: 12px; }
+.left-section { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+
+.menu-container { flex: 1; display: flex; flex-direction: column; background: rgba(255, 255, 255, 0.36); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,.48); border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(23, 61, 107, 0.08); min-height: 0; }
+.menu-header { padding: 12px; border-bottom: 1px solid var(--border-light); }
+.menu-title-row { display: grid; grid-template-columns: auto minmax(160px, 1fr) auto; gap: 12px; align-items: center; }
+.menu-title { font-size: 18px; font-weight: 800; }
+.search-box { position: relative; height: 36px; }
+.search-box span { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 16px; }
+.search-box input { width: 100%; height: 100%; padding: 0 12px 0 36px; background: rgba(255, 255, 255, 0.58); border: 1px solid rgba(255,255,255,.7); border-radius: 18px; font-size: 12px; }
+.items-count { padding: 6px 12px; background: rgba(23, 61, 107, 0.08); border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+
+.categories { display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; scrollbar-width: none; }
+.categories::-webkit-scrollbar { display: none; }
+.category-btn { background: rgba(255, 255, 255, 0.6); border: 1px solid var(--border-light); padding: 6px 14px; border-radius: 16px; font-size: 11px; font-weight: 700; white-space: nowrap; transition: all 0.2s; }
+.category-btn:hover { border-color: var(--brand-blue-hover); }
+.category-btn.active { background: var(--brand-red); color: #fff; border-color: var(--brand-red); box-shadow: 0 4px 12px rgba(227, 29, 37, 0.25); }
+
+.menu-scroll { flex: 1; overflow-y: auto; padding: 12px; min-height: 0; }
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 10px; }
+.menu-card { display: flex; flex-direction: column; background: rgba(255,255,255,.30); border: 1px solid rgba(255,255,255,.52); border-radius: 12px; padding: 10px; transition: transform 0.2s, box-shadow 0.2s; }
+.menu-card:hover { transform: translateY(-2px); border-color: var(--brand-blue-hover); box-shadow: 0 6px 16px rgba(23, 61, 107, 0.1); }
+.item-icon { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: #fff; border: 1px solid var(--border-light); font-size: 16px; margin-bottom: 8px; flex-shrink: 0; }
+.item-name { font-size: 12px; font-weight: 800; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-description { font-size: 10px; color: var(--text-muted); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 8px; flex: 1; }
+.item-bottom { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+.item-price { font-size: 12px; font-weight: 800; color: var(--brand-red); }
+.add-btn { background: var(--brand-blue); color: #fff; border-radius: 12px; padding: 4px 10px; font-size: 10px; font-weight: 800; transition: background 0.2s; }
+.add-btn:hover { background: var(--brand-red); }
+.add-btn:disabled { opacity: 0.5; cursor: not-allowed; background: #ccc; }
+
+.shortcuts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; height: 48px; }
+.shortcut { background: rgba(255,255,255,.48); border: 1px solid rgba(255,255,255,.62); border-radius: 12px; padding: 6px 10px; display: flex; align-items: center; gap: 8px; transition: background 0.2s; }
+.shortcut:hover { background: rgba(255,255,255,.72); }
+.shortcut-icon { width: 28px; height: 28px; border-radius: 50%; background: rgba(23, 61, 107, 0.08); display: grid; place-items: center; font-size: 12px; flex-shrink: 0; }
+.shortcut-text { flex: 1; min-width: 0; text-align: left; }
+.shortcut-title { font-size: 11px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.shortcut-subtitle { font-size: 9px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Right Section - Order Panel */
+.order-panel { background: rgba(255,255,255,.34); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,.52); border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 24px rgba(23, 61, 107, 0.08); min-height: 0; }
+.order-header { height: 48px; padding: 0 12px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border-light); flex-shrink: 0; }
+.order-title { font-size: 14px; font-weight: 800; flex: 1; }
+.table-select-wrap { position: relative; margin-left: auto; }
+.table-select { display: none; }
+.table-picker-trigger { min-width: 112px; height: 34px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 12px; background: #eef5ff; color: #173d6b; border: 1px solid #b9cde5; border-radius: 8px; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+.table-picker-trigger:hover, .table-picker-trigger[aria-expanded="true"] { background: #dfeeff; border-color: #3775b7; }
+.table-picker-trigger:focus-visible, .table-picker-option:focus-visible { outline: 2px solid #2875c7; outline-offset: 2px; }
+.table-picker-menu { position: absolute; right: 0; top: calc(100% + 10px); width: 248px; max-width: 75vw; padding: 14px; background: #fff; border: 1px solid #d7e1ed; border-radius: 8px; box-shadow: 0 12px 30px #173d6b26; z-index: 20; }
+.table-picker-heading { color: #64748b; font-size: 11px; font-weight: 700; margin-bottom: 10px; }
+.table-picker-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.table-picker-option { min-height: 42px; padding: 8px 4px; border: 1px solid #dce5ef; border-radius: 6px; background: #f7f9fc; color: #173d6b; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; overflow-wrap: anywhere; }
+.table-picker-option:hover { background: #e9f3ff; border-color: #82acd8; }
+.table-picker-option[aria-pressed="true"] { background: #173d6b; color: white; border-color: #173d6b; }
+.clear-btn { background: rgba(227, 29, 37, 0.1); color: var(--brand-red); padding: 5px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+.clear-btn:hover { background: var(--brand-red); color: #fff; }
+
+.customer-section { padding: 8px 12px; border-bottom: 1px solid var(--border-light); flex-shrink: 0; }
+.customer-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.customer-input { height: 30px; background: rgba(255, 255, 255, 0.58); border: 1px solid rgba(255,255,255,.7); border-radius: 8px; padding: 0 8px; font-size: 11px; }
+
+.order-items { flex: 1; overflow-y: auto; padding: 8px 12px; min-height: 0; }
+.order-table-header, .order-item { display: grid; grid-template-columns: minmax(0, 1fr) 35px 45px 55px 20px; align-items: center; gap: 4px; }
+.order-table-header { padding-bottom: 6px; font-size: 10px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border-light); }
+.order-item { padding: 6px 0; border-bottom: 1px solid rgba(23, 61, 107, 0.08); font-size: 11px; }
+.order-item-name { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.plate-options { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 5px; margin-top: 8px; }
+.portion-select { min-width: 0; height: 30px; padding: 0 8px; border: 1px solid #b9cde5; border-radius: 8px; background: #eef5ff; color: #173d6b; font: inherit; font-size: 10px; font-weight: 700; cursor: pointer; }
+.portion-select:focus-visible { outline: 2px solid #2875c7; outline-offset: 2px; }
+.plate-options .add-btn { min-width: 48px; padding: 7px 8px; font-size: 10px; white-space: nowrap; }
+.order-quantity { text-align: center; font-weight: 700; }
+.table-picker-option[data-state="available"] { color: #16844a; background: #e4f8ed; }
+.table-picker-option[data-state="occupied"] { color: #b42318; background: #fee4e2; }
+.table-status-card[data-state="occupied"] .table-status-card__state strong { color: #b42318; background: #fee4e2; }
+.remove-btn { width: 20px; height: 20px; border-radius: 50%; background: transparent; color: var(--text-muted); font-size: 14px; }
+.remove-btn:hover { background: rgba(227, 29, 37, 0.1); color: var(--brand-red); }
+
+.empty-order { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-align: center; gap: 4px; }
+.empty-icon { font-size: 32px; margin-bottom: 4px; }
+
+.checkout { padding: 10px 12px; border-top: 1px solid rgba(255,255,255,.55); background: rgba(255, 255, 255, 0.26); flex-shrink: 0; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.summary-row, .discount-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; margin-bottom: 4px; color: var(--text-muted); }
+.summary-row strong { color: var(--text-main); }
+.discount-input { width: 50px; height: 24px; background: #fff; border: 1px solid var(--border-light); border-radius: 6px; text-align: center; font-size: 11px; }
+.total-row { display: flex; justify-content: space-between; align-items: center; padding-top: 6px; margin-top: 4px; border-top: 1px solid var(--border-light); font-weight: 800; }
+.total-amount { font-size: 18px; color: var(--brand-red); }
+
+.payment-title { font-size: 10px; font-weight: 700; color: var(--text-muted); margin: 6px 0 4px; }
+.payment-methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; }
+.payment-btn { height: 30px; background: rgba(255, 255, 255, 0.8); border: 1px solid var(--border-light); border-radius: 8px; font-size: 10px; font-weight: 700; }
+.payment-btn.active { background: var(--brand-blue); color: #fff; border-color: var(--brand-blue); }
+.payment-print-summary { display: grid; gap: 8px; margin: 8px 0 16px; padding: 12px; border-radius: 10px; background: rgba(23,61,107,.07); }
+.payment-print-summary div { display: flex; justify-content: space-between; gap: 14px; }.payment-print-summary strong { color: var(--brand-blue); }.payment-print-summary .payment-print-total { padding-top: 8px; border-top: 1px solid rgba(23,61,107,.16); font-size: 15px; }
+dialog.payment-print-dialog { width: min(590px, 94vw); max-height: 92dvh; padding: 0; overflow: auto; border: 1px solid rgba(255,255,255,.82); background: #f6f9fc; box-shadow: 0 26px 72px rgba(9,35,66,.32); }
+.payment-dialog-header { margin: 0; padding: 17px 20px; color: #fff; background: linear-gradient(120deg, var(--brand-blue), #245a92); border-bottom: 3px solid var(--brand-red); }
+.payment-dialog-header h2 { font-size: 17px; letter-spacing: .01em; }
+.payment-dialog-title { display: grid; gap: 2px; }
+.payment-dialog-title p { color: rgba(255,255,255,.74); font-size: 10px; font-weight: 600; }
+.payment-dialog-header .dialog-close { color: var(--brand-blue); background: rgba(255,255,255,.88); }
+.payment-dialog-header .dialog-close:hover { color: #fff; background: var(--brand-red); }
+.payment-dialog-body { padding: 18px 20px 0; }
+.payment-print-dialog .payment-print-summary { grid-template-columns: 1fr 1fr; gap: 0; margin: 0 0 16px; padding: 0; overflow: hidden; border: 1px solid rgba(23,61,107,.12); border-radius: 12px; background: #fff; box-shadow: 0 7px 18px rgba(23,61,107,.08); }
+.payment-print-dialog .payment-print-summary:has(.payment-print-customer:not([hidden])) { grid-template-columns: repeat(3, 1fr); }
+.payment-print-dialog .payment-print-summary div { display: grid; align-content: center; gap: 5px; min-height: 74px; padding: 14px 16px; color: var(--text-muted); font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.payment-print-dialog .payment-print-summary strong { justify-self: start; color: var(--brand-blue); font-size: 15px; font-weight: 800; letter-spacing: 0; text-transform: none; }
+.payment-print-dialog .payment-print-summary .payment-print-method { border-right: 1px solid rgba(23,61,107,.1); background: linear-gradient(135deg, rgba(23,61,107,.06), rgba(23,61,107,.015)); }
+.payment-print-dialog .payment-print-method strong { display: inline-flex; align-items: center; min-height: 25px; padding: 4px 10px; border-radius: 999px; color: #fff; background: var(--brand-blue); font-size: 11px; }
+.payment-print-dialog .payment-print-summary .payment-print-total { padding-top: 14px; border: 0; color: var(--text-main); font-size: 10px; }
+.payment-print-dialog .payment-print-total strong { color: var(--brand-red); font-size: 23px; letter-spacing: -.02em; }
+.payment-print-dialog .payment-print-summary .payment-print-customer { border-right: 1px solid rgba(23,61,107,.1); background: #fff; }
+.payment-print-dialog .payment-print-customer strong { max-width: 100%; overflow: hidden; color: var(--brand-blue); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.payment-tender-form { display: grid; gap: 14px; }
+.payment-tender-input { display: grid; gap: 7px; padding: 14px; border: 1px solid rgba(23,61,107,.18); border-radius: 12px; background: #fff; box-shadow: 0 5px 14px rgba(23,61,107,.06); }
+.payment-tender-input label { color: var(--brand-blue); font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.payment-tender-input input { height: 48px; padding: 0 14px; border: 2px solid rgba(23,61,107,.34); border-radius: 9px; color: var(--brand-blue); font-size: 22px; font-weight: 800; }
+.payment-tender-input input:focus { border-color: var(--brand-blue); box-shadow: 0 0 0 3px rgba(23,61,107,.12); outline: 0; }
+.payment-tender-input input:disabled { color: var(--text-muted); background: #f1f4f7; }
+.payment-tender-note { color: var(--text-muted); font-size: 10px; font-weight: 600; }
+.payment-calculation { display: grid; grid-template-columns: repeat(2, 1fr); overflow: hidden; border: 1px solid rgba(23,61,107,.13); border-radius: 12px; background: #fff; }
+.payment-calculation__item { display: grid; gap: 4px; min-height: 65px; padding: 12px 14px; border-right: 1px solid rgba(23,61,107,.1); border-bottom: 1px solid rgba(23,61,107,.1); }
+.payment-calculation__item:nth-child(2n) { border-right: 0; }.payment-calculation__item:nth-last-child(-n+2) { border-bottom: 0; }
+.payment-calculation__item span { color: var(--text-muted); font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.payment-calculation__item strong { color: var(--brand-blue); font-size: 16px; }.payment-calculation__item--status { background: rgba(23,61,107,.055); }
+.payment-status { display: inline-flex; align-items: center; justify-content: center; width: max-content; min-height: 24px; padding: 3px 9px; border-radius: 999px; color: #fff !important; background: var(--brand-blue); font-size: 11px !important; letter-spacing: .04em; }.payment-status.partial { background: #a86b00; }.payment-status.credit { background: #6b3fa0; }.payment-status.invalid { background: var(--brand-red); }
+.payment-fields-heading { display: flex; align-items: center; justify-content: space-between; margin: 0 0 9px; }
+.payment-fields-heading strong { color: var(--brand-blue); font-size: 12px; }
+.payment-fields-heading span { color: var(--text-muted); font-size: 10px; }
+.payment-print-dialog .settings-actions { position: sticky; bottom: 0; z-index: 2; margin-top: 18px; padding: 14px 20px 18px; border-top: 1px solid rgba(23,61,107,.1); background: #fff; box-shadow: 0 -6px 14px rgba(23,61,107,.06); }
+.payment-print-dialog .settings-btn { min-width: 190px; padding: 12px 18px; border-radius: 10px; background: var(--brand-red); box-shadow: 0 5px 12px rgba(227,29,37,.22); font-size: 12px; }
+.payment-print-dialog .settings-btn:hover { background: var(--brand-blue); box-shadow: 0 5px 12px rgba(23,61,107,.22); }
+.payment-cancel-btn { padding: 10px 14px; border-radius: 9px; color: var(--brand-blue); background: transparent; font-weight: 800; font-size: 12px; }
+.payment-cancel-btn:hover { background: rgba(23,61,107,.08); }
+.payment-print-dialog .settings-message { min-height: 0; margin: 12px 0 0; font-size: 11px; }
+
+.complete-btn { width: 100%; height: 36px; background: var(--brand-red); color: #fff; border-radius: 18px; font-weight: 800; font-size: 12px; box-shadow: 0 4px 12px rgba(227, 29, 37, 0.25); transition: background 0.2s; }
+.complete-btn:hover { background: var(--brand-blue); }
+
+/* Footer */
+.footer { height: 28px; padding: 0 18px; background: var(--brand-blue); color: #d7e1ef; display: flex; align-items: center; justify-content: space-between; font-size: 10px; }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: #2bd673; display: inline-block; margin-right: 4px; }
+
+/* Dialog Scaffolding */
+dialog { border: none; border-radius: 16px; padding: 20px; background: #fff; box-shadow: 0 20px 60px rgba(0,0,0,0.2); margin: auto; max-width: 90vw; }
+dialog::backdrop { background: rgba(23, 61, 107, 0.4); backdrop-filter: blur(4px); }
+.cafe-dialog { width: min(760px, 94vw); max-height: 88vh; overflow: auto; color: var(--text-main); background: rgba(255,255,255,.88); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid rgba(255,255,255,.75); }
+.dialog-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.dialog-header h2 { flex: 1; font-size: 18px; }
+.dialog-close { width: 30px; height: 30px; border-radius: 50%; background: rgba(23,61,107,.08); font-size: 18px; }
+.dialog-close:hover { background: var(--brand-red); color: #fff; }
+.settings-form { display: grid; gap: 10px; }
+.settings-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.settings-field { display: grid; gap: 4px; }
+.settings-field label { font-size: 11px; font-weight: 700; color: var(--text-muted); }
+.settings-field input, .settings-field select, .settings-field textarea { width: 100%; min-height: 34px; border: 1px solid rgba(23,61,107,.15); border-radius: 8px; padding: 7px 9px; background: rgba(255,255,255,.72); }
+.settings-inline-field, .settings-inline-panel { display: flex; gap: 6px; align-items: center; }
+.settings-inline-field input, .settings-inline-panel input { flex: 1; }
+.settings-inline-btn { min-height: 34px; padding: 6px 9px; border: 1px solid rgba(23,61,107,.2); border-radius: 8px; color: var(--brand-blue); background: #fff; font-size: 10px; font-weight: 800; white-space: nowrap; }
+.settings-inline-panel { margin-top: 6px; }
+.settings-field textarea { resize: vertical; }
+.settings-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.settings-btn { padding: 8px 14px; border-radius: 9px; background: var(--brand-blue); color: #fff; font-size: 11px; font-weight: 800; }
+.settings-btn:hover { background: var(--brand-red); }
+.settings-message { min-height: 16px; font-size: 11px; font-weight: 700; }
+.settings-message.error { color: var(--brand-red); }
+.settings-message.success { color: #16844a; }
+#settingsDialog { width: min(720px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); padding: 0; background: #fff; border-radius: 8px; }
+#settingsDialog .dialog-header { position: sticky; top: 0; z-index: 2; margin: 0; padding: 18px 24px; background: #f4f7fb; border-bottom: 1px solid #dce4ee; }
+#settingsDialog .dialog-header h2 { margin: 0; font-size: 19px; }
+#settingsDialog .settings-section { padding: 20px 24px; }
+#settingsDialog .settings-section + .settings-section { border-top: 1px solid #dce4ee; }
+#settingsDialog .settings-section h3 { margin: 0 0 16px; font-size: 16px; }
+#settingsDialog .settings-form { gap: 14px; }
+#settingsDialog .settings-form-grid { gap: 14px 18px; align-items: start; }
+#settingsDialog .settings-field { min-width: 0; align-content: start; gap: 6px; }
+#settingsDialog .settings-field label { font-size: 12px; }
+#settingsDialog .settings-field input, #settingsDialog .settings-field select { height: 38px; min-height: 38px; padding: 8px 10px; background: #fff; border-color: #cfd9e5; border-radius: 6px; font-size: 13px; }
+#settingsDialog .settings-field input:focus, #settingsDialog .settings-field select:focus { outline: 2px solid #bad5f3; outline-offset: 1px; border-color: #3775b7; }
+#settingsDialog .settings-inline-field input, #settingsDialog .settings-inline-panel input { min-width: 0; }
+#settingsDialog .settings-inline-btn { height: 38px; border-radius: 6px; font-size: 11px; }
+#settingsDialog .settings-inline-panel[hidden] { display: none; }
+#settingsDialog .settings-description { grid-column: 1 / -1; }
+#settingsDialog .settings-actions { margin: 0; }
+#settingsDialog .settings-btn { min-height: 36px; border-radius: 6px; }
+#settingsDialog .settings-message:empty { display: none; }
+.settings-section-tabs { display: flex; gap: 8px; padding: 14px 24px 0; border-bottom: 1px solid #dce4ee; }
+.settings-section-tab { flex: 1; min-height: 38px; border: 1px solid #cfd9e5; border-bottom: 0; border-radius: 8px 8px 0 0; background: #eef3f8; color: var(--brand-blue); font-size: 12px; font-weight: 800; }
+.settings-section-tab.active { background: var(--brand-blue); color: #fff; border-color: var(--brand-blue); }
+.settings-section[hidden] { display: none !important; }
+@media (max-width: 560px) {
+  #settingsDialog .settings-form-grid { grid-template-columns: 1fr; }
+  #settingsDialog .settings-section { padding: 18px; }
+  #settingsDialog .dialog-header { padding: 16px 18px; }
+  .settings-section-tabs { padding-inline: 18px; gap: 5px; }
+  .settings-section-tab { font-size: 10px; padding-inline: 4px; }
+}
+.record-list { display: grid; gap: 10px; max-height: 60vh; overflow: auto; padding: 2px; }
+.record-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid rgba(255,255,255,.58); border-radius: 12px; background: rgba(255,255,255,.34); box-shadow: 0 5px 14px rgba(23,61,107,.06); font-size: 11px; }
+.record-row:hover { background: rgba(255,255,255,.5); }
+.record-row strong { flex: 1; color: var(--text-main); }
+.record-row > span { color: var(--brand-blue); font-weight: 800; }
+.report-summary .record-row:first-child { background: linear-gradient(120deg, rgba(23,61,107,.12), rgba(33,126,145,.12)); }
+.report-summary .record-row:first-child > span { color: var(--brand-red); font-size: 13px; }
+.table-status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; border-radius: 999px; background: rgba(43,214,115,.12); color: #16844a !important; font-size: 9px; }
+.table-status-badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.record-row button { padding: 4px 8px; border-radius: 6px; background: rgba(227,29,37,.1); color: var(--brand-red); font-size: 10px; font-weight: 700; }
+.report-list { max-height: 60vh; overflow: auto; padding: 2px; }
+.report-list table { width: 100%; border-collapse: separate; border-spacing: 0; overflow: hidden; border: 1px solid rgba(255,255,255,.62); border-radius: 12px; background: rgba(255,255,255,.34); font-size: 11px; }
+.report-list th, .report-list td { padding: 10px 11px; text-align: left; border-bottom: 1px solid rgba(23,61,107,.1); }
+.report-list th { position: sticky; top: 0; z-index: 1; color: var(--text-main); background: rgba(255,255,255,.7); font-size: 10px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; backdrop-filter: blur(10px); }
+.report-list tbody tr { transition: background .18s ease; }
+.report-list tbody tr:hover { background: rgba(255,255,255,.42); }
+.report-list tbody tr:last-child td { border-bottom: 0; }
+.report-list td:nth-child(3) { color: var(--brand-red); font-weight: 800; }
+.report-payment { display: inline-flex; align-items: center; min-width: 52px; justify-content: center; padding: 4px 7px; border-radius: 999px; background: rgba(23,61,107,.08); color: var(--brand-blue); font-size: 9px; font-weight: 800; }
+.report-payment--credit { background: rgba(227,29,37,.1); color: var(--brand-red); }
+.report-payment--cash { background: rgba(43,214,115,.12); color: #16844a; }
+.report-empty { padding: 18px; text-align: center; color: var(--text-muted); background: rgba(255,255,255,.3); border: 1px dashed rgba(23,61,107,.18); border-radius: 12px; font-size: 11px; }
+dialog.report-dialog { width: min(650px, 94vw); overflow: hidden; padding: 0; background: #f5f8fc; border: 1px solid rgba(255,255,255,.82); box-shadow: 0 26px 72px rgba(9,35,66,.3); }
+.report-dialog .dialog-header { margin: 0; padding: 18px 20px; background: linear-gradient(120deg, var(--brand-blue), #245a92); border-bottom: 3px solid var(--brand-red); color: #fff; }
+.report-dialog .dialog-header h2 { font-size: 17px; }
+.report-dialog .dialog-close { color: var(--brand-blue); background: rgba(255,255,255,.9); }
+.report-dialog .dialog-close:hover { color: #fff; background: var(--brand-red); }
+.report-dialog #reportContent { max-height: none; padding: 18px 20px 20px; }
+.closing-report { display: grid; gap: 14px; }
+.closing-report__hero { position: relative; display: grid; gap: 5px; padding: 18px 20px; overflow: hidden; border-radius: 14px; color: #fff; background: linear-gradient(125deg, var(--brand-blue), #286498); box-shadow: 0 9px 20px rgba(23,61,107,.18); }
+.closing-report__hero::after { content: ""; position: absolute; width: 135px; height: 135px; right: -42px; top: -62px; border: 24px solid rgba(255,255,255,.1); border-radius: 50%; }
+.closing-report__eyebrow { position: relative; color: rgba(255,255,255,.72); font-size: 10px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
+.closing-report__total { position: relative; font-size: 28px; font-weight: 800; letter-spacing: -.03em; }
+.closing-report__caption { position: relative; color: rgba(255,255,255,.8); font-size: 11px; }
+.closing-report__metrics { display: grid; grid-template-columns: 1fr 1.5fr; gap: 12px; }
+.closing-report__metric { display: grid; gap: 5px; min-height: 82px; padding: 14px 16px; border: 1px solid rgba(23,61,107,.1); border-radius: 12px; background: #fff; box-shadow: 0 5px 14px rgba(23,61,107,.06); }
+.closing-report__metric span { color: var(--text-muted); font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.closing-report__metric strong { color: var(--brand-blue); font-size: 21px; }
+.closing-report__payments { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.closing-payment-card { display: grid; gap: 7px; min-height: 105px; padding: 14px; border: 1px solid rgba(23,61,107,.1); border-radius: 12px; background: #fff; box-shadow: 0 5px 14px rgba(23,61,107,.06); }
+.closing-payment-card__icon { width: 29px; height: 29px; display: grid; place-items: center; border-radius: 9px; font-size: 14px; }
+.closing-payment-card span { color: var(--text-muted); font-size: 10px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+.closing-payment-card strong { color: var(--brand-blue); font-size: 15px; }
+.closing-payment-card--cash .closing-payment-card__icon { background: rgba(43,214,115,.14); color: #16844a; }
+.closing-payment-card--qr .closing-payment-card__icon { background: rgba(30,90,168,.12); color: var(--brand-blue-hover); }
+.closing-payment-card--credit .closing-payment-card__icon { background: rgba(227,29,37,.11); color: var(--brand-red); }
+.closing-report__actions { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 14px; border: 1px solid rgba(23,61,107,.1); border-radius: 12px; background: #fff; }
+.closing-report__submit-status { flex: 1; min-height: 16px; color: var(--text-muted); font-size: 10px; font-weight: 700; }
+.closing-report__submit-status.is-success { color: #16844a; }
+.closing-report__submit-status.is-error { color: var(--brand-red); }
+.closing-report__submit { min-width: 158px; padding: 10px 14px; border-radius: 9px; color: #fff; background: var(--brand-red); box-shadow: 0 5px 12px rgba(227,29,37,.2); font-size: 11px; font-weight: 800; transition: background .18s, transform .18s; }
+.closing-report__submit:hover:not(:disabled) { background: var(--brand-blue); transform: translateY(-1px); }
+.closing-report__submit:disabled { cursor: wait; opacity: .7; }
+.sales-history { display: grid; gap: 14px; }
+.sales-history__summary { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 16px; padding: 14px 16px; border: 1px solid rgba(23,61,107,.1); border-radius: 12px; background: linear-gradient(115deg, rgba(23,61,107,.09), rgba(255,255,255,.94)); }
+.sales-history__summary-copy { display: grid; gap: 3px; }
+.sales-history__summary-copy span { color: var(--text-muted); font-size: 10px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+.sales-history__summary-copy strong { color: var(--brand-blue); font-size: 16px; }
+.sales-history__summary-total { display: grid; gap: 3px; justify-items: end; }
+.sales-history__summary-total span { color: var(--text-muted); font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.sales-history__summary-total strong { color: var(--brand-red); font-size: 20px; }
+.sales-history__filters { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.sales-history__filters label { color: var(--text-muted); font-size: 11px; font-weight: 700; }
+.sales-history__filters select, .sales-history__filters input { min-height: 34px; padding: 6px 10px; border: 1px solid rgba(23,61,107,.18); border-radius: 7px; background: #fff; color: var(--brand-blue); font: inherit; font-size: 11px; }
+.sales-history__filters input[hidden] { display: none; }
+.sales-history-table { max-height: min(48vh, 430px); padding: 0 !important; border: 1px solid rgba(23,61,107,.12); border-radius: 12px; background: #fff; box-shadow: 0 5px 14px rgba(23,61,107,.06); scrollbar-color: rgba(23,61,107,.55) transparent; scrollbar-width: thin; }
+.sales-history-table table { border: 0; border-radius: 0; background: transparent; }
+.sales-history-table th { padding: 12px 14px; background: rgba(23,61,107,.06); color: var(--brand-blue); }
+.sales-history-table td { padding: 13px 14px; color: var(--brand-blue); }
+.sales-history-table tbody tr:hover { background: rgba(23,61,107,.035); }
+.sales-history-table td:first-child { font-size: 11px; color: var(--text-muted); }
+.sales-history-table td:nth-child(2) { font-weight: 800; }
+.sales-history-table td:nth-child(3) { color: var(--brand-red); font-size: 12px; }
+.sales-history-table .report-payment { min-width: 62px; padding: 5px 8px; }
+.table-status-report { display: grid; gap: 14px; }
+.table-status-report__summary { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 16px; border-radius: 12px; color: #fff; background: linear-gradient(125deg, var(--brand-blue), #286498); box-shadow: 0 8px 18px rgba(23,61,107,.16); }
+.table-status-report__summary-copy { display: grid; gap: 3px; }
+.table-status-report__summary-copy span { color: rgba(255,255,255,.72); font-size: 10px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+.table-status-report__summary-copy strong { font-size: 16px; }
+.table-status-report__summary-badge { padding: 6px 10px; border-radius: 999px; color: #16844a; background: #e4f8ed; font-size: 10px; font-weight: 800; white-space: nowrap; }
+.table-status-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.table-status-card { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 11px; padding: 13px; border: 1px solid rgba(23,61,107,.1); border-radius: 12px; background: #fff; box-shadow: 0 5px 14px rgba(23,61,107,.06); }
+.table-status-card__icon { width: 37px; height: 37px; display: grid; place-items: center; border-radius: 11px; color: var(--brand-blue); background: rgba(23,61,107,.08); font-size: 16px; }
+.table-status-card__details { display: grid; gap: 3px; min-width: 0; }
+.table-status-card__details strong { color: var(--brand-blue); font-size: 13px; }
+.table-status-card__details span { overflow: hidden; color: var(--text-muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.table-status-card__state { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid rgba(23,61,107,.08); }
+.table-status-card__state span { color: var(--text-muted); font-size: 10px; font-weight: 700; }
+.table-status-card__state strong { display: inline-flex; align-items: center; gap: 5px; padding: 5px 8px; border-radius: 999px; color: #16844a; background: rgba(43,214,115,.12); font-size: 9px; }
+.table-status-card__state strong::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+@media (max-width: 560px) {
+  .cafe-dialog { padding: 14px; }
+  .payment-print-dialog { width: min(440px, 94vw); padding: 0; }
+  .payment-dialog-body { padding: 14px 14px 0; }
+  .payment-print-dialog .payment-print-summary, .payment-print-dialog .payment-print-summary:has(.payment-print-customer:not([hidden])) { grid-template-columns: 1fr; }
+  .payment-print-dialog .payment-print-summary .payment-print-method, .payment-print-dialog .payment-print-summary .payment-print-customer { border-right: 0; border-bottom: 1px solid rgba(23,61,107,.1); }
+  .payment-calculation { grid-template-columns: 1fr; }.payment-calculation__item, .payment-calculation__item:nth-child(2n), .payment-calculation__item:nth-last-child(-n+2) { border-right: 0; border-bottom: 1px solid rgba(23,61,107,.1); }.payment-calculation__item:last-child { border-bottom: 0; }
+  .payment-print-dialog .settings-actions { padding: 12px 14px 14px; }
+  .report-dialog #reportContent { padding: 14px; }
+  .closing-report__metrics, .closing-report__payments { grid-template-columns: 1fr; }
+  .closing-payment-card { min-height: auto; grid-template-columns: auto 1fr; align-items: center; }
+  .closing-payment-card strong { justify-self: end; }
+  .closing-report__actions { align-items: stretch; flex-direction: column; }
+  .closing-report__submit { width: 100%; }
+  .sales-history__summary { grid-template-columns: 1fr; }
+  .sales-history__summary-total { justify-items: start; }
+  .sales-history-table th, .sales-history-table td { padding: 10px 9px; }
+  .table-status-grid { grid-template-columns: 1fr; }
+  .report-list th, .report-list td { padding: 8px 7px; }
+  .report-list th:first-child, .report-list td:first-child { min-width: 118px; }
+}
+
+/* Thermal Receipt Styling */
+.cafe-receipt { width: 80mm; max-width: 100%; background: #fff; color: #000; padding: 10px; font-family: monospace; font-size: 11px; }
+.cafe-receipt .receipt-header { text-align: center; margin-bottom: 10px; }
+.cafe-receipt .brand-row { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.cafe-receipt .logo { width: 36px; height: 36px; }
+.cafe-receipt .divider { border-top: 1px dashed #000; margin: 6px 0; }
+.cafe-receipt table { width: 100%; border-collapse: collapse; }
+.cafe-receipt th, .cafe-receipt td { text-align: left; padding: 2px 0; }
+.cafe-receipt th:last-child, .cafe-receipt td:last-child { text-align: right; }
+.cafe-payment-summary { display: grid; gap: 6px; margin: 10px 0; padding: 10px; border: 1px solid rgba(23,61,107,.18); border-radius: 10px; background: rgba(227,240,250,.75); font-family: Inter, Arial, sans-serif; }
+.cafe-payment-summary div { display: flex; justify-content: space-between; gap: 12px; }
+.cafe-payment-summary strong { color: var(--brand-blue); }
+.cafe-payment-summary .change-line { padding-top: 6px; border-top: 1px solid rgba(23,61,107,.18); font-size: 14px; }
+
+@media print {
+  body > *:not(.kumakh-voucher-overlay) { display: none !important; }
+  .kumakh-voucher-overlay, .kumakh-voucher-overlay * { visibility: visible !important; }
+}
+
+@media (max-width: 900px) {
+  html, body { overflow: auto; }
+  .app { height: auto; min-height: 100dvh; grid-template-rows: auto 1fr auto; }
+  .content { grid-template-columns: 1fr; }
+  .order-panel { min-height: 450px; }
+}
+</style>
+<link rel="stylesheet" href="../css/ui-polish.css">
+</head>
+<body class="cafe-ui">
+
+<div class="app-splash" id="appSplash" aria-label="Loading KCMT Cafe" role="status">
+  <div class="kcmt-loader">
+    <div class="kcmt-loader-ring"></div>
+    <div class="kcmt-loader-logo">
+      <img src="../assets/kumakh-logo.png" alt="KCMT logo">
+    </div>
+    <div class="kcmt-loader-text">
+      LOADING<span class="kcmt-loader-dots"><i>.</i><i>.</i><i>.</i></span>
+    </div>
+  </div>
+</div>
+
+<div class="app">
+  <header class="topbar">
+    <div class="nav-branding">
+      <img class="nav-logo" src="../assets/kumakh-logo.png" alt="KCMT Logo">
+      <div class="nav-branding-copy">
+        <strong>KCMT CAFE SERVICE</strong>
+        <span>Good Food • Great Mood</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="header-btn" id="backBtn" type="button">← Back</button>
+      <button class="header-btn" id="settingsBtn" type="button">⚙ Settings</button>
+    </div>
+  </header>
+
+  <main class="content">
+    <section class="left-section">
+      <div class="menu-container">
+        <div class="menu-header">
+          <div class="menu-title-row">
+            <div class="menu-title">Menu</div>
+            <label class="search-box" for="searchInput">
+              <span aria-hidden="true">⌕</span>
+              <input id="searchInput" type="search" maxlength="80" autocomplete="off" placeholder="Search items...">
+            </label>
+            <div class="items-count"><span id="itemCount">0</span> items</div>
+          </div>
+          <div class="categories" id="categories" role="tablist"></div>
+        </div>
+        <div class="menu-scroll">
+          <div class="menu-grid" id="menuGrid"></div>
+        </div>
+      </div>
+
+      <div class="shortcuts">
+        <button class="shortcut" type="button" data-shortcut="closing">
+          <div class="shortcut-icon">▥</div>
+          <div class="shortcut-text">
+            <div class="shortcut-title">Closing report</div>
+            <div class="shortcut-subtitle">Today's totals</div>
+          </div>
+        </button>
+        <button class="shortcut" type="button" data-shortcut="history">
+          <div class="shortcut-icon">▤</div>
+          <div class="shortcut-text">
+            <div class="shortcut-title">Sales history</div>
+            <div class="shortcut-subtitle">Transactions</div>
+          </div>
+        </button>
+        <button class="shortcut" type="button" data-shortcut="tables">
+          <div class="shortcut-icon">▣</div>
+          <div class="shortcut-text">
+            <div class="shortcut-title">Table status</div>
+            <div class="shortcut-subtitle" id="tableStatusSummary">Overview</div>
+          </div>
+        </button>
+      </div>
+    </section>
+
+    <aside class="order-panel">
+      <div class="order-header">
+        <span aria-hidden="true">🛍</span>
+        <div class="order-title">Current Order</div>
+        <div class="table-select-wrap">
+          <select class="table-select" id="tableSelect"></select>
+          <button class="table-picker-trigger" id="tablePickerTrigger" type="button" aria-expanded="false" aria-controls="tablePickerMenu"><span id="tablePickerLabel">Select table</span><span aria-hidden="true">&#9662;</span></button>
+          <div class="table-picker-menu" id="tablePickerMenu" hidden>
+            <div class="table-picker-heading">Select table</div>
+            <div class="table-picker-options" id="tablePickerOptions"></div>
+          </div>
+        </div>
+        <button class="clear-btn" id="clearBtn" type="button">Clear</button>
+      </div>
+
+      <div class="customer-section">
+        <div class="customer-row">
+          <input id="customerName" class="customer-input" list="customerOptions" type="text" placeholder="Customer name">
+          <datalist id="customerOptions"></datalist>
+          <input id="customerPhone" class="customer-input" type="tel" placeholder="Phone">
+        </div>
+      </div>
+
+      <div class="order-items" id="orderItems" aria-live="polite"></div>
+
+      <div class="checkout">
+        <div class="summary-row"><span>Subtotal</span><strong id="subtotal">Rs. 0</strong></div>
+        <div class="summary-row"><span>VAT (13% incl.)</span><strong id="vat">Rs. 0</strong></div>
+        <div class="discount-row">
+          <span>Discount</span>
+          <div><input id="discount" class="discount-input" type="number" value="0" min="0" max="100">%</div>
+        </div>
+        <div class="total-row"><span>Total</span><span class="total-amount" id="total">Rs. 0</span></div>
+
+        <div class="payment-title">Payment Method</div>
+        <div class="payment-methods" role="group">
+          <button class="payment-btn active" type="button" data-payment="Cash">💵 Cash</button>
+          <button class="payment-btn" type="button" data-payment="QR">▦ QR</button>
+          <button class="payment-btn" type="button" data-payment="Credit">▣ Credit</button>
+        </div>
+        <button class="complete-btn" id="completeBtn" type="button">✓ Complete & Print</button>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <div><strong>KCMT Cafe POS</strong></div>
+    <div><span class="status-dot"></span>System Ready · <span id="footerTime"></span></div>
+    <div>© <span id="footerYear"></span> KCMT</div>
+  </footer>
+</div>
+
+<!-- Modal Dialogs -->
+<dialog id="paymentPrintDialog" class="cafe-dialog payment-print-dialog">
+  <div class="dialog-header payment-dialog-header"><div class="payment-dialog-title"><h2>Payment &amp; Print Bill</h2><p>Confirm the amount before completing this order.</p></div><button class="dialog-close" type="button" id="cancelPaymentPrint" aria-label="Close payment dialog">×</button></div>
+  <div class="payment-dialog-body">
+    <div class="payment-print-summary">
+      <div class="payment-print-method"><span>Payment method</span><strong id="paymentPrintMethod">Cash</strong></div>
+      <div id="paymentPrintCustomer" class="payment-print-customer" hidden><span>Customer</span><strong id="paymentPrintCustomerName"></strong></div>
+      <div class="payment-print-total"><span>Total bill</span><strong id="paymentPrintTotal">Rs. 0.00</strong></div>
+    </div>
+    <div class="payment-fields-heading"><strong>Payment calculation</strong><span>Only tender amount is entered manually</span></div>
+    <section class="payment-tender-form" aria-label="Payment calculation">
+      <div class="payment-tender-input"><label for="printTenderAmount">Tender amount</label><input id="printTenderAmount" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" autocomplete="off"><span id="paymentTenderNote" class="payment-tender-note">Enter the amount received from the customer.</span></div>
+      <div class="payment-calculation">
+        <div class="payment-calculation__item"><span>Bill total</span><strong id="paymentCalculatedTotal">Rs. 0.00</strong></div>
+        <div class="payment-calculation__item"><span>Paid amount</span><strong id="paymentCalculatedPaid">Rs. 0.00</strong></div>
+        <div class="payment-calculation__item"><span>Credit amount</span><strong id="paymentCalculatedCredit">Rs. 0.00</strong></div>
+        <div class="payment-calculation__item"><span>Change amount</span><strong id="paymentCalculatedChange">Rs. 0.00</strong></div>
+        <div class="payment-calculation__item payment-calculation__item--status"><span>Payment status</span><strong id="paymentCalculatedStatus" class="payment-status invalid">PENDING</strong></div>
+      </div>
+    </section>
+    <p id="paymentPrintError" class="settings-message error" role="alert"></p>
+  </div>
+  <div class="settings-actions"><button type="button" class="payment-cancel-btn" id="cancelPaymentPrintButton">Cancel</button><button type="button" class="settings-btn" id="confirmPaymentPrint">Save Sale &amp; Print Bill</button></div>
+</dialog>
+
+<dialog id="reportDialog" class="cafe-dialog report-dialog">
+  <div class="dialog-header"><h2 id="reportTitle">Report</h2><button class="dialog-close" type="button" data-close-dialog="reportDialog">×</button></div>
+  <div id="reportContent" class="report-list"></div>
+</dialog>
+
+<dialog id="settingsDialog" class="cafe-dialog">
+  <div class="dialog-header">
+    <h2>Café Settings</h2>
+    <button class="dialog-close" type="button" data-close-dialog="settingsDialog">×</button>
+  </div>
+  <div class="settings-section-tabs" role="tablist" aria-label="Café settings sections">
+    <button class="settings-section-tab active" type="button" role="tab" aria-selected="true" aria-controls="cafeTablesSettings" data-settings-tab="cafeTablesSettings">Tables</button>
+    <button class="settings-section-tab" type="button" role="tab" aria-selected="false" aria-controls="cafeMenuSettings" data-settings-tab="cafeMenuSettings">Menu Items</button>
+    <button class="settings-section-tab" type="button" role="tab" aria-selected="false" aria-controls="cafeCustomersSettings" data-settings-tab="cafeCustomersSettings">Credit Customers</button>
+  </div>
+  <section class="settings-section" id="cafeTablesSettings" data-settings-section>
+    <h3>Manage café tables</h3>
+    <form id="cafeTableForm" class="settings-form">
+      <div class="settings-form-grid">
+        <div class="settings-field"><label for="cafeTableNumber">Table number</label><input id="cafeTableNumber" maxlength="30" required></div>
+        <div class="settings-field"><label for="cafeTableName">Table name</label><input id="cafeTableName" maxlength="80" placeholder="Optional"></div>
+        <div class="settings-field"><label for="cafeTableCapacity">Capacity</label><input id="cafeTableCapacity" type="number" min="1" max="200" step="1" value="4" required></div>
+      </div>
+      <div class="settings-actions"><button class="settings-btn" type="submit">Add table</button></div>
+      <div id="cafeTableMessage" class="settings-message"></div>
+    </form>
+    <div class="settings-inline-panel" id="cafeTableListPanel">
+      <select id="cafeTableList" class="form-select" aria-label="Existing café tables"></select>
+      <button type="button" class="settings-inline-btn" id="removeSelectedCafeTable">Remove</button>
+    </div>
+    <div id="cafeTableDetails" class="settings-message" aria-live="polite"></div>
+  </section>
+  <section class="settings-section" id="cafeMenuSettings" data-settings-section hidden>
+    <h3>Add menu item</h3>
+    <form id="cafeMenuForm" class="settings-form">
+      <div class="settings-form-grid">
+        <div class="settings-field"><label for="cafeMenuItemName">Item name</label><input id="cafeMenuItemName" required></div>
+        <div class="settings-field"><label for="cafeMenuCategory">Category</label><div class="settings-inline-field"><input id="cafeMenuCategory" list="cafeCategoryOptions" autocomplete="off" required><button class="settings-inline-btn" id="addCafeCategoryButton" type="button">+ New</button></div><datalist id="cafeCategoryOptions"></datalist><div id="newCafeCategoryPanel" class="settings-inline-panel" hidden><input id="newCafeCategoryName" type="text" maxlength="80" placeholder="New category name"><button class="settings-inline-btn" id="saveCafeCategoryButton" type="button">Add category</button></div></div>
+        <div class="settings-field"><label for="cafeMenuQuantity">Quantity</label><input id="cafeMenuQuantity" type="number" min="0.01" step="0.01" required></div>
+        <div class="settings-field"><label for="cafeMenuUnit">Unit</label><select id="cafeMenuUnit" required><option value="Plate">Plate</option><option value="Piece">Piece</option><option value="Glass">Glass</option><option value="Pack">Pack</option></select></div>
+        <div class="settings-field"><label for="cafeMenuPrice">Selling price</label><input id="cafeMenuPrice" type="number" min="0" step="0.01" required></div>
+        <div class="settings-field"><label for="cafeMenuCostPrice">Cost price</label><input id="cafeMenuCostPrice" type="number" min="0" step="0.01" required></div>
+        <div class="settings-field settings-description"><label for="cafeMenuDescription">Description</label><input id="cafeMenuDescription"></div>
+      </div>
+      <div class="settings-actions"><button class="settings-btn" type="submit">Save menu item</button></div>
+      <div id="cafeMenuMessage" class="settings-message"></div>
+    </form>
+  </section>
+  <section class="settings-section" id="cafeCustomersSettings" data-settings-section hidden>
+    <h3>Add credit customer</h3>
+    <form id="cafeCustomerForm" class="settings-form">
+      <div class="settings-form-grid">
+        <div class="settings-field"><label for="cafeCustomerName">Customer name</label><input id="cafeCustomerName" required></div>
+        <div class="settings-field"><label for="cafeCustomerPhone">Phone number</label><input id="cafeCustomerPhone" type="tel" required></div>
+        <div class="settings-field"><label for="cafeCustomerCreditLimit">Credit limit</label><input id="cafeCustomerCreditLimit" type="number" min="0" step="0.01" value="0" required></div>
+        <div class="settings-field"><label for="cafeCustomerAddress">Address</label><input id="cafeCustomerAddress"></div>
+      </div>
+      <div class="settings-actions"><button class="settings-btn" type="submit">Save credit customer</button></div>
+      <div id="cafeCustomerMessage" class="settings-message"></div>
+    </form>
+  </section>
+</dialog>
+
+<script src="../js/api.js"></script>
+<script src="../js/vouchers.js"></script>
+<script>
+'use strict';
+
+const cafeSession = JSON.parse(window.sessionStorage.getItem('kumakhSession') || 'null');
+const cafePermissions = Array.isArray(cafeSession?.permissions) ? cafeSession.permissions : [];
+if (
+  !cafeSession ||
+  !cafeSession.isAuthenticated ||
+  (String(cafeSession.role || '').toUpperCase() !== 'ADMIN' &&
+    !cafePermissions.includes('cafe.view'))
+) {
+  window.location.href = '../index.html';
+}
+
+let menuItems = [];
+let cafeTables = [];
+let cafeCustomers = [];
+let order = [];
+const tableOrders = new Map();
+const tableCheckoutDetails = new Map();
+const CAFE_TABLE_ORDERS_KEY = 'kumakhCafeTableOrders';
+let activeTableKey = '';
+let selectedCategory = 'all';
+let selectedPayment = 'Cash';
+let databaseReady = false;
+const cafeIsAdmin = String(cafeSession?.role || '').toUpperCase() === 'ADMIN';
+
+const $ = (id) => document.getElementById(id);
+const money = (val) => `Rs. ${Math.max(0, Number(val) || 0).toFixed(2)}`;
+const moneyExact = (val) => `Rs. ${Math.max(0, Number(val) || 0).toFixed(2)}`;
+const normalize = (value) => String(value || '').trim().toLowerCase();
+const escapeHtml = (value) => String(value || '').replace(/[&<>"']/g, (character) => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+}[character]));
+
+function selectSettingsSection(sectionId) {
+  document.querySelectorAll('[data-settings-section]').forEach((section) => {
+    section.hidden = section.id !== sectionId;
+  });
+  document.querySelectorAll('[data-settings-tab]').forEach((tab) => {
+    const active = tab.dataset.settingsTab === sectionId;
+    tab.classList.toggle('active', active);
+    tab.setAttribute('aria-selected', String(active));
+  });
+}
+
+function recordValue(record, ...keys) {
+  for (const key of keys) {
+    if (record && record[key] != null && record[key] !== '') return record[key];
+  }
+  return '';
+}
+
+function normalizeCafeTable(record) {
+  let stored = {};
+  if (record && record.data_json) {
+    try {
+      stored = typeof record.data_json === 'string'
+        ? JSON.parse(record.data_json)
+        : record.data_json;
+    } catch (_) {
+      stored = {};
+    }
+  }
+  const merged = { ...stored, ...(record || {}) };
+  const tableNo = recordValue(merged, 'Table No', 'tableNo', 'table_no');
+  const tableName = recordValue(merged, 'Table Name', 'tableName', 'table_name') || tableNo;
+  return {
+    ...merged,
+    'Table No': tableNo,
+    tableNo,
+    table_no: tableNo,
+    'Table Name': tableName,
+    tableName,
+    table_name: tableName,
+    Capacity: recordValue(merged, 'Capacity', 'capacity') || 1,
+    capacity: recordValue(merged, 'Capacity', 'capacity') || 1,
+  };
+}
+
+function setSelectedPayment(paymentMethod) {
+  selectedPayment = paymentMethod || 'Cash';
+  document.querySelectorAll('.payment-btn').forEach((button) => {
+    button.classList.toggle('active', button.dataset.payment === selectedPayment);
+  });
+}
+
+function saveActiveTableCheckoutDetails() {
+  if (!activeTableKey) return;
+  const customerName = $('customerName').value.trim();
+  const customerPhone = $('customerPhone').value.trim();
+  const discount = Math.min(100, Math.max(0, Number($('discount').value) || 0));
+  if (customerName || customerPhone || selectedPayment !== 'Cash' || discount) {
+    tableCheckoutDetails.set(activeTableKey, { customerName, customerPhone, paymentMethod: selectedPayment, discount });
+  } else {
+    tableCheckoutDetails.delete(activeTableKey);
+  }
+  persistTableOrders();
+  syncTablePicker();
+}
+
+function restoreActiveTableCheckoutDetails() {
+  const details = tableCheckoutDetails.get(activeTableKey);
+  $('customerName').value = details?.customerName || '';
+  $('customerPhone').value = details?.customerPhone || '';
+  $('discount').value = details?.discount || 0;
+  setSelectedPayment(details?.paymentMethod || 'Cash');
+}
+
+function restoreTableOrders() {
+  try {
+    const savedState = JSON.parse(window.localStorage.getItem(CAFE_TABLE_ORDERS_KEY) || '{}');
+    if (!savedState || typeof savedState !== 'object' || Array.isArray(savedState)) return;
+    // Older sessions saved only table items. Preserve them while new sessions
+    // also persist the selected customer and payment method for each table.
+    const savedOrders = savedState.orders || savedState;
+    Object.entries(savedOrders).forEach(([tableNo, items]) => {
+      if (!Array.isArray(items) || !items.length) return;
+      tableOrders.set(tableNo, items.filter((item) => item && item.id && Number(item.qty) > 0));
+    });
+    if (savedState.checkoutDetails && typeof savedState.checkoutDetails === 'object') {
+      Object.entries(savedState.checkoutDetails).forEach(([tableNo, details]) => {
+        if (!details || typeof details !== 'object') return;
+        const customerName = String(details.customerName || '').trim();
+        const customerPhone = String(details.customerPhone || '').trim();
+        const paymentMethod = ['Cash', 'QR', 'Credit'].includes(details.paymentMethod)
+          ? details.paymentMethod
+          : 'Cash';
+        const discount = Math.min(100, Math.max(0, Number(details.discount) || 0));
+        if (customerName || customerPhone || paymentMethod !== 'Cash' || discount) {
+          tableCheckoutDetails.set(tableNo, { customerName, customerPhone, paymentMethod, discount });
+        }
+      });
+    }
+  } catch (_) {
+    window.localStorage.removeItem(CAFE_TABLE_ORDERS_KEY);
+  }
+}
+
+function persistTableOrders() {
+  const savedOrders = {};
+  const savedCheckoutDetails = {};
+  tableOrders.forEach((items, tableNo) => {
+    if (Array.isArray(items) && items.length) {
+      savedOrders[tableNo] = items.map((item) => ({ ...item }));
+    }
+  });
+  tableCheckoutDetails.forEach((details, tableNo) => {
+    if (details && (details.customerName || details.customerPhone || details.paymentMethod !== 'Cash' || details.discount)) {
+      savedCheckoutDetails[tableNo] = { ...details };
+    }
+  });
+  window.localStorage.setItem(CAFE_TABLE_ORDERS_KEY, JSON.stringify({
+    orders: savedOrders,
+    checkoutDetails: savedCheckoutDetails,
+  }));
+}
+
+function saveActiveTableOrder() {
+  if (!activeTableKey) return;
+  if (order.length) tableOrders.set(activeTableKey, order.map((item) => ({ ...item })));
+  else tableOrders.delete(activeTableKey);
+  persistTableOrders();
+  syncTablePicker();
+}
+
+restoreTableOrders();
+
+function allowsPartialQuantity(item) {
+  return normalize(item && item.unit) === 'plate';
+}
+
+function syncTablePicker() {
+  const select = $('tableSelect');
+  $('tablePickerLabel').textContent = select.value ? select.selectedOptions[0].textContent : 'Select table';
+  $('tablePickerOptions').innerHTML = [...select.options].filter(option => option.value).map(option =>
+    `<button type="button" class="table-picker-option" data-table="${escapeHtml(option.value)}" data-state="${tableOrders.get(option.value)?.length ? 'occupied' : 'available'}" aria-pressed="${option.value === select.value}">${escapeHtml(option.textContent)} · ${tableOrders.get(option.value)?.length ? 'Occupied' : 'Available'}</button>`
+  ).join('');
+  $('tablePickerTrigger').disabled = ![...select.options].some(option => option.value);
+}
+
+function closeTablePicker() {
+  $('tablePickerMenu').hidden = true;
+  $('tablePickerTrigger').setAttribute('aria-expanded', 'false');
+}
+
+function renderTables() {
+  const select = $('tableSelect');
+  const previouslySelectedTable = activeTableKey;
+  const activeTables = cafeTables.filter((table) => normalize(recordValue(table, 'Status')) !== 'disabled')
+    .sort((a, b) => String(recordValue(a, 'Table No', 'tableNo')).localeCompare(String(recordValue(b, 'Table No', 'tableNo')), undefined, { numeric: true }));
+  select.innerHTML = '<option value="" disabled selected>Select table</option>' + activeTables.map((table) => {
+    const number = String(recordValue(table, 'Table No', 'tableNo', 'table_no'));
+    const name = String(recordValue(table, 'Table Name', 'tableName', 'table_name') || number);
+    return `<option value="${escapeHtml(number)}">${escapeHtml(name)}</option>`;
+  }).join('');
+  if (!activeTables.length) {
+    select.innerHTML = '<option value="">No tables available</option>';
+    activeTableKey = '';
+    order = [];
+    restoreActiveTableCheckoutDetails();
+    $('tableStatusSummary').textContent = '0 active tables';
+    syncTablePicker();
+    return;
+  }
+  if (previouslySelectedTable && [...select.options].some((option) => option.value === previouslySelectedTable)) {
+    select.value = previouslySelectedTable;
+  }
+  activeTableKey = select.value;
+  syncTablePicker();
+  order = (tableOrders.get(activeTableKey) || []).map((item) => ({ ...item }));
+  restoreActiveTableCheckoutDetails();
+  $('tableStatusSummary').textContent = `${activeTables.length} active table${activeTables.length === 1 ? '' : 's'}`;
+}
+
+function renderCustomers() {
+  $('customerOptions').innerHTML = cafeCustomers
+    .filter((customer) => normalize(recordValue(customer, 'Status')) !== 'disabled')
+    .map((customer) => `<option value="${escapeHtml(recordValue(customer, 'Customer Name', 'customerName'))}">`)
+    .join('');
+}
+
+function showDialog(id) {
+  const dialog = $(id);
+  if (dialog && !dialog.open) dialog.showModal();
+}
+
+function closeDialog(id) {
+  const dialog = $(id);
+  if (dialog && dialog.open) dialog.close();
+}
+
+async function loadReport(type) {
+  window.kumakhLoading?.begin?.();
+  try {
+    const response = type === 'closing'
+      ? await window.kumakhApi.getCafeTodaySummary()
+      : await window.kumakhApi.getCafeSales();
+    if (!response || !response.success) throw new Error(response?.message || 'Report could not be loaded.');
+    const data = response.data;
+    $('reportDialog').classList.toggle('closing-report-dialog', type === 'closing');
+    $('reportDialog').classList.remove('table-status-dialog');
+    showDialog('reportDialog');
+    $('reportTitle').textContent = type === 'closing' ? "Today's closing report" : 'Sales history';
+    if (type === 'closing') {
+      const summary = data || {};
+      const transactions = Number(summary.transactionCount || 0);
+      $('reportContent').innerHTML = `<section class="closing-report">
+        <div class="closing-report__hero">
+          <span class="closing-report__eyebrow">Today's café sales</span>
+          <strong class="closing-report__total">${money(summary.total || 0)}</strong>
+          <span class="closing-report__caption">Sales recorded for the current business day</span>
+        </div>
+        <div class="closing-report__payments">
+          <div class="closing-payment-card closing-payment-card--cash"><span class="closing-payment-card__icon">₹</span><span>Cash</span><strong>${money(summary.cash || 0)}</strong></div>
+          <div class="closing-payment-card closing-payment-card--qr"><span class="closing-payment-card__icon">▦</span><span>QR</span><strong>${money(summary.qr || 0)}</strong></div>
+          <div class="closing-payment-card closing-payment-card--credit"><span class="closing-payment-card__icon">◫</span><span>Credit</span><strong>${money(summary.credit || 0)}</strong></div>
+        </div>
+        <div class="closing-report__actions">
+          <span class="closing-report__submit-status" id="closingSubmitStatus">${escapeHtml(String(transactions))} sale${transactions === 1 ? '' : 's'} counted so far.</span>
+        </div>
+      </section>`;
+      return;
+    }
+    const rows = Array.isArray(data) ? data : [];
+    const parseSaleDate = (value) => {
+    if (value instanceof Date) return value;
+    const raw = String(value || '').trim();
+    const dayFirst = raw.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})(.*)$/);
+    if (dayFirst) {
+      const [, day, month, year, time] = dayFirst;
+      const parsed = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}${time || ''}`);
+      if (!Number.isNaN(parsed.valueOf())) return parsed;
+    }
+    const parsed = new Date(raw);
+    return Number.isNaN(parsed.valueOf()) ? null : parsed;
+    };
+    const saleDateKey = (sale) => {
+    const parsed = parseSaleDate(recordValue(sale, 'Sale Date', 'saleDate', 'Date'));
+    if (!parsed) return '';
+    return `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, '0')}-${String(parsed.getDate()).padStart(2, '0')}`;
+    };
+    const today = new Date();
+    const dateKey = (value) => `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}`;
+    const todayKey = dateKey(today);
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayKey = dateKey(yesterday);
+    const formatSaleDate = (value) => {
+    const parsed = parseSaleDate(value);
+    if (!parsed) return String(value || '—');
+    return `${parsed.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} · ${parsed.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true })}`;
+    };
+    const renderHistory = (filter, selectedDate) => {
+    const filteredRows = rows.filter((sale) => {
+      const key = saleDateKey(sale);
+      if (filter === 'today') return key === todayKey;
+      if (filter === 'yesterday') return key === yesterdayKey;
+      if (filter === 'last7') {
+        const parsed = parseSaleDate(recordValue(sale, 'Sale Date', 'saleDate', 'Date'));
+        return parsed && parsed >= new Date(today.getFullYear(), today.getMonth(), today.getDate() - 6)
+          && parsed < new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+      }
+      if (filter === 'date') return key === selectedDate;
+      return true;
+    });
+    const historyTotal = filteredRows.reduce((total, sale) => total + Number(recordValue(sale, 'Total Bill', 'totalBill') || 0), 0);
+    const tableRows = filteredRows.map((sale) => {
+      const payment = String(recordValue(sale, 'Payment Method', 'paymentMethod') || 'Unknown');
+      const paymentClass = normalize(payment) === 'credit'
+        ? 'report-payment--credit'
+        : normalize(payment) === 'cash' ? 'report-payment--cash' : '';
+      return `<tr><td>${escapeHtml(formatSaleDate(recordValue(sale, 'Sale Date', 'saleDate', 'Date')))}</td><td>${escapeHtml(String(recordValue(sale, 'Table No', 'tableNo')))}</td><td>${money(recordValue(sale, 'Total Bill', 'totalBill'))}</td><td><span class="report-payment ${paymentClass}">${escapeHtml(payment)}</span></td></tr>`;
+    }).join('');
+    $('reportContent').innerHTML = `<section class="sales-history">
+      <div class="sales-history__filters"><label for="salesHistoryFilter">Show</label><select id="salesHistoryFilter"><option value="all">All sales</option><option value="today">Today</option><option value="yesterday">Yesterday</option><option value="last7">Last 7 days</option><option value="date">Specific date</option></select><input id="salesHistoryDate" type="date" value="${todayKey}" hidden></div>
+      <div class="sales-history__summary">
+        <div class="sales-history__summary-copy"><span>Transaction activity</span><strong>${escapeHtml(String(filteredRows.length))} sale${filteredRows.length === 1 ? '' : 's'} recorded</strong></div>
+        <div class="sales-history__summary-total"><span>Total sales</span><strong>${money(historyTotal)}</strong></div>
+      </div>
+      <div class="report-list sales-history-table"><table><thead><tr><th>Date &amp; time</th><th>Table</th><th>Total</th><th>Payment</th></tr></thead><tbody>${tableRows || '<tr><td colspan="4" class="report-empty">No sales found for this period.</td></tr>'}</tbody></table></div>
+    </section>`;
+    const filterSelect = $('salesHistoryFilter');
+    const dateInput = $('salesHistoryDate');
+    filterSelect.value = filter;
+    dateInput.hidden = filter !== 'date';
+    filterSelect.addEventListener('change', () => renderHistory(filterSelect.value, dateInput.value));
+    dateInput.addEventListener('change', () => renderHistory('date', dateInput.value));
+    };
+    renderHistory('all', todayKey);
+  } catch (error) {
+    window.kumakhDialogs.alert(error.message);
+  } finally {
+    window.kumakhLoading?.end?.();
+  }
+}
+
+async function loadCafeData() {
+  // Keep the splash visible until all requests have completed and the UI
+  // has rendered the returned records.
+  window.kumakhLoading?.begin?.();
+  try {
+    const responses = await Promise.all([
+      window.kumakhApi.getCafeMenu(),
+      window.kumakhApi.getCafeTables(),
+      window.kumakhApi.getCafeCustomers(),
+    ]);
+    if (responses.some((response) => !response || !response.success)) {
+      throw new Error(responses.find((response) => response && !response.success)?.message || 'Café database data could not be loaded.');
+    }
+    const [menuResponse, tablesResponse, customersResponse] = responses;
+    cafeTables = Array.isArray(tablesResponse.data)
+      ? tablesResponse.data.map(normalizeCafeTable).filter((table) => table.tableNo)
+      : [];
+    cafeCustomers = Array.isArray(customersResponse.data) ? customersResponse.data : [];
+    menuItems = (Array.isArray(menuResponse.data) ? menuResponse.data : []).map((item, index) => {
+      const categoryName = String(recordValue(item, 'Category Name', 'categoryName') || 'Other');
+      return {
+        id: String(recordValue(item, 'Item ID', 'itemId') || `menu-${index}`),
+        name: String(recordValue(item, 'Item Name', 'itemName')),
+        description: String(recordValue(item, 'Description', 'description') || 'Freshly prepared'),
+        price: Number(recordValue(item, 'Selling Price', 'sellingPrice')) || 0,
+        unit: String(recordValue(item, 'Unit', 'unit') || 'Piece'),
+        category: normalize(categoryName),
+        categoryName,
+        icon: categoryName.toLowerCase().includes('coffee') ? '☕' : '🍽',
+        available: !['no', 'disabled', 'inactive'].includes(normalize(recordValue(item, 'Status', 'status', 'Available', 'available'))),
+      };
+    }).filter((item) => item.name);
+    renderTables();
+    renderCustomers();
+    renderCategories();
+    renderMenu();
+    renderOrder();
+    databaseReady = true;
+  } finally {
+    window.kumakhLoading?.end?.();
+  }
+}
+
+function renderEmptyOrder() {
+  $('orderItems').innerHTML = `
+    <div class="empty-order">
+      <div class="empty-icon">☕</div>
+      <strong>Order is empty</strong>
+      <span>Select items to add</span>
+    </div>`;
+}
+
+function renderCategories() {
+  const categories = [{ key: 'all', name: 'All', icon: '▦' }, 
+    ...Array.from(new Set(menuItems.map(i => i.categoryName)))
+      .map(cat => ({ key: cat.toLowerCase(), name: cat, icon: '🍽' }))];
+
+  const container = $('categories');
+  container.innerHTML = categories.map(c => `
+    <button class="category-btn ${c.key === selectedCategory ? 'active' : ''}" 
+            data-category="${c.key}">${c.icon} ${c.name}</button>
+  `).join('');
+}
+
+function renderMenu() {
+  const search = $('searchInput').value.toLowerCase();
+  const filtered = menuItems.filter(item => 
+    (selectedCategory === 'all' || item.category === selectedCategory) &&
+    (item.name.toLowerCase().includes(search) || item.description.toLowerCase().includes(search))
+  );
+
+  $('itemCount').textContent = filtered.length;
+  $('menuGrid').innerHTML = filtered.map(item => `
+    <article class="menu-card">
+      <div class="item-icon">${item.icon}</div>
+      <div class="item-name">${item.name}</div>
+      <div class="item-description">${item.description || 'Freshly prepared'}</div>
+      <div class="item-bottom">
+        <div class="item-price">${money(item.price)}</div>
+        ${allowsPartialQuantity(item) ? '' : `<button class="add-btn" data-item="${escapeHtml(item.id)}" ${!item.available ? 'disabled' : ''}>+ Add</button>`}
+      </div>
+      ${allowsPartialQuantity(item) ? `<div class="plate-options"><select class="portion-select" data-portion-select data-item="${escapeHtml(item.id)}" aria-label="Select portion for ${escapeHtml(item.name)}" ${!item.available ? 'disabled' : ''}><option value="full">Full Plate — ${money(item.price)}</option><option value="half">Half Plate — ${money(item.price / 2)}</option></select><button class="add-btn" data-item="${escapeHtml(item.id)}" data-portion="full" ${!item.available ? 'disabled' : ''}>Add</button></div>` : ''}
+    </article>
+  `).join('');
+}
+
+function renderOrder() {
+  if (!order.length) {
+    renderEmptyOrder();
+    updateTotals();
+    return;
+  }
+
+  let html = `
+    <div class="order-table-header">
+      <span>Item</span><span>Qty</span><span>Price</span><span>Total</span><span></span>
+    </div>`;
+
+  order.forEach(item => {
+    html += `
+      <div class="order-item">
+        <div class="order-item-name">${item.name}</div>
+        <span class="order-quantity">${item.qty}</span>
+        <div>${money(item.price)}</div>
+        <div>${money(item.price * item.qty)}</div>
+        <button class="remove-btn" data-remove-item="${item.id}">×</button>
+      </div>`;
+  });
+
+  $('orderItems').innerHTML = html;
+  updateTotals();
+}
+
+function updateTotals() {
+  const subtotal = order.reduce((sum, i) => sum + (i.price * i.qty), 0);
+  const discount = Math.min(100, Math.max(0, parseFloat($('discount').value) || 0));
+  const total = Math.max(0, subtotal * (1 - discount / 100));
+  const vat = total - (total / 1.13);
+
+  $('subtotal').textContent = money(subtotal);
+  $('vat').textContent = money(vat);
+  $('total').textContent = money(total);
+}
+
+// Event Bindings
+$('categories').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-category]');
+  if (btn) {
+    selectedCategory = btn.dataset.category;
+    renderCategories();
+    renderMenu();
+  }
+});
+
+document.addEventListener('click', event => {
+  document.querySelectorAll('.plate-picker[open]').forEach(picker => { if (!picker.contains(event.target)) picker.open = false; });
+});
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') document.querySelectorAll('.plate-picker[open]').forEach(picker => { picker.open = false; picker.querySelector('summary').focus(); });
+});
+$('menuGrid').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-item]');
+  if (btn && btn.matches('button')) {
+    if (!activeTableKey) return window.kumakhDialogs.alert('Select a table before adding items.');
+    const itemId = btn.dataset.item;
+    const item = menuItems.find(i => i.id === itemId);
+    if (item && item.available) {
+      const portionSelect = btn.parentElement?.querySelector('[data-portion-select]');
+      const portion = allowsPartialQuantity(item)
+        ? (portionSelect ? portionSelect.value : btn.dataset.portion) === 'half' ? 'half' : 'full'
+        : '';
+      const lineId = portion ? `${itemId}:${portion}` : itemId;
+      const existing = order.find(i => i.id === lineId);
+      if (existing) existing.qty++;
+      else order.push({ ...item, id: lineId, menuItemId: itemId, portion,
+        name: portion ? `${item.name} (${portion === 'half' ? 'Half' : 'Full'} Plate)` : item.name,
+        price: portion === 'half' ? item.price / 2 : item.price, qty: 1 });
+      btn.closest('.plate-picker')?.removeAttribute('open');
+      saveActiveTableOrder();
+      renderOrder();
+    }
+  }
+});
+
+$('orderItems').addEventListener('click', (e) => {
+  const removeBtn = e.target.closest('[data-remove-item]');
+  if (removeBtn) {
+    order = order.filter(i => i.id !== removeBtn.dataset.removeItem);
+    saveActiveTableOrder();
+    renderOrder();
+  }
+});
+
+$('clearBtn').addEventListener('click', () => {
+  order = [];
+  saveActiveTableOrder();
+  tableCheckoutDetails.delete(activeTableKey);
+  persistTableOrders();
+  restoreActiveTableCheckoutDetails();
+  renderOrder();
+});
+$('tablePickerTrigger').addEventListener('click', () => {
+  const opening = $('tablePickerMenu').hidden;
+  $('tablePickerMenu').hidden = !opening;
+  $('tablePickerTrigger').setAttribute('aria-expanded', String(opening));
+  if (opening) $('tablePickerOptions').querySelector('[aria-pressed="true"], button')?.focus();
+});
+$('tablePickerOptions').addEventListener('click', (event) => {
+  const button = event.target.closest('[data-table]');
+  if (!button) return;
+  $('tableSelect').value = button.dataset.table;
+  $('tableSelect').dispatchEvent(new Event('change'));
+  closeTablePicker();
+  $('tablePickerTrigger').focus();
+});
+document.addEventListener('click', (event) => {
+  if (!event.target.closest('.table-select-wrap')) closeTablePicker();
+});
+$('tablePickerMenu').addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') { closeTablePicker(); $('tablePickerTrigger').focus(); }
+});
+$('tableSelect').addEventListener('change', (event) => {
+  saveActiveTableCheckoutDetails();
+  activeTableKey = event.target.value;
+  syncTablePicker();
+  order = (tableOrders.get(activeTableKey) || []).map((item) => ({ ...item }));
+  restoreActiveTableCheckoutDetails();
+  renderOrder();
+});
+$('searchInput').addEventListener('input', renderMenu);
+$('discount').addEventListener('input', () => { updateTotals(); saveActiveTableCheckoutDetails(); });
+$('customerPhone').addEventListener('input', saveActiveTableCheckoutDetails);
+
+document.querySelectorAll('.payment-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    setSelectedPayment(btn.dataset.payment);
+    saveActiveTableCheckoutDetails();
+  });
+
+});
+
+$('backBtn').addEventListener('click', () => {
+  window.location.href = '../index.html';
+});
+async function openCafeSettings() {
+  $('settingsDialog').showModal();
+  selectSettingsSection(cafeIsAdmin ? 'cafeTablesSettings' : 'cafeMenuSettings');
+  $('cafeTableForm').closest('.settings-section').hidden = !cafeIsAdmin;
+  if (cafeIsAdmin) renderCafeTableManager();
+  const response = await window.kumakhApi.getCafeCategories();
+  let categories = response && response.success && Array.isArray(response.data)
+    ? response.data
+    : [];
+  if (!categories.length) {
+    categories = Array.from(new Set(menuItems.map((item) => item.categoryName).filter(Boolean)))
+      .map((name) => ({ 'Category Name': name, 'Category ID': name }));
+  }
+  [...document.querySelectorAll('[data-settings-tab]')].forEach((tab) => {
+    tab.addEventListener('click', () => {
+      if (tab.dataset.settingsTab === 'cafeTablesSettings' && !cafeIsAdmin) return;
+      selectSettingsSection(tab.dataset.settingsTab);
+    });
+  });
+  function renderCafeTableManager() {
+    const active = cafeTables
+      .filter((table) => normalize(recordValue(table, 'Status')) !== 'disabled')
+      .sort((a, b) => String(recordValue(a, 'Table No', 'tableNo')).localeCompare(String(recordValue(b, 'Table No', 'tableNo')), undefined, { numeric: true }));
+    $('cafeTableList').innerHTML = active.length
+      ? `<option value="" selected disabled>Select an existing table</option>${active.map((table) => {
+        const number = String(recordValue(table, 'Table No', 'tableNo', 'table_no'));
+        const name = String(recordValue(table, 'Table Name', 'tableName', 'table_name') || number);
+        return `<option value="${escapeHtml(number)}">${escapeHtml(name)} (${escapeHtml(number)})</option>`;
+      }).join('')}`
+      : '<option value="">No tables available</option>';
+    $('removeSelectedCafeTable').disabled = !active.length;
+    updateSelectedCafeTableDetails();
+  }
+
+  function updateSelectedCafeTableDetails() {
+    const number = $('cafeTableList').value;
+    const table = cafeTables.find((item) =>
+      String(recordValue(item, 'Table No', 'tableNo', 'table_no')) === number,
+    );
+    if (!table) {
+      $('cafeTableDetails').textContent = '';
+      return;
+    }
+    const name = String(recordValue(table, 'Table Name', 'tableName', 'table_name') || number);
+    const capacity = Number(recordValue(table, 'Capacity', 'capacity') || 1);
+    $('cafeTableDetails').textContent = `${name} · Table ${number} · ${capacity} seat${capacity === 1 ? '' : 's'}`;
+  }
+
+  $('cafeTableList').addEventListener('change', updateSelectedCafeTableDetails);
+  $('removeSelectedCafeTable').addEventListener('click', () => {
+    if ($('cafeTableList').value) removeCafeTable($('cafeTableList').value);
+  });
+  async function removeCafeTable(tableNo) {
+    if (!cafeIsAdmin || !await window.kumakhDialogs.confirm(`Remove table ${tableNo} from the café? Existing sales will be preserved.`)) return;
+    try {
+      const response = await window.kumakhApi.disableCafeTable({ tableNo });
+      if (!response || !response.success) throw new Error(response?.message || 'Table could not be removed.');
+      await loadCafeData();
+      renderCafeTableManager();
+      $('cafeTableMessage').textContent = 'Table removed. Existing sales were preserved.';
+      $('cafeTableMessage').className = 'settings-message success';
+    } catch (error) {
+      $('cafeTableMessage').textContent = error.message;
+      $('cafeTableMessage').className = 'settings-message error';
+    }
+  }
+  $('cafeCategoryOptions').innerHTML = categories
+    .filter((category) => normalize(recordValue(category, 'Status')) !== 'disabled')
+    .map((category) => {
+      const name = String(recordValue(category, 'Category Name', 'categoryName'));
+      const id = String(recordValue(category, 'Category ID', 'categoryId') || category.id || name);
+      return `<option value="${escapeHtml(name)}" data-category-id="${escapeHtml(id)}">`;
+    }).join('');
+}
+$('addCafeCategoryButton').addEventListener('click', () => {
+  const panel = $('newCafeCategoryPanel');
+  panel.hidden = !panel.hidden;
+  if (!panel.hidden) $('newCafeCategoryName').focus();
+});
+$('saveCafeCategoryButton').addEventListener('click', async (event) => {
+  const button = event.currentTarget;
+  const name = $('newCafeCategoryName').value.trim();
+  if (!name) {
+    $('newCafeCategoryName').focus();
+    return;
+  }
+  button.disabled = true;
+  try {
+    const response = await window.kumakhApi.saveCafeCategory({ categoryName: name });
+    if (!response || !response.success) throw new Error(response?.message || 'Category could not be saved.');
+    const saved = response.data || {};
+    const categoryInput = $('cafeMenuCategory');
+    const savedName = String(saved['Category Name'] || saved.categoryName || name);
+    const savedId = String(saved['Category ID'] || saved.categoryId || savedName);
+    categoryInput.value = savedName;
+    categoryInput.dataset.categoryId = savedId;
+    const option = document.createElement('option');
+    option.value = savedName;
+    option.dataset.categoryId = savedId;
+    $('cafeCategoryOptions').appendChild(option);
+    $('newCafeCategoryName').value = '';
+    $('newCafeCategoryPanel').hidden = true;
+  } catch (error) {
+    $('cafeMenuMessage').textContent = error.message;
+    $('cafeMenuMessage').className = 'settings-message error';
+  } finally {
+    button.disabled = false;
+  }
+});
+$('newCafeCategoryName').addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    $('saveCafeCategoryButton').click();
+  }
+});
+$('settingsBtn').addEventListener('click', () => {
+  openCafeSettings().catch((error) => {
+    if ($('settingsDialog').open) $('settingsDialog').close();
+    $('menuGrid').setAttribute('aria-label', error.message);
+    window.kumakhDialogs.alert(error.message);
+  });
+});
+document.querySelectorAll('[data-close-dialog]').forEach((button) => {
+  button.addEventListener('click', () => $(button.dataset.closeDialog).close());
+});
+$('cafeMenuForm').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const button = event.submitter;
+  if (button) button.disabled = true;
+  try {
+    const categoryName = $('cafeMenuCategory').value.trim();
+    let categoryOption = Array.from($('cafeCategoryOptions').options).find(
+      (option) => normalize(option.value) === normalize(categoryName),
+    );
+    if (!categoryOption) {
+      const categoryInput = $('cafeMenuCategory');
+      if (normalize(categoryInput.value) !== normalize(categoryName) || !categoryInput.dataset.categoryId) {
+        throw new Error('Select an existing category or click + New to add one.');
+      }
+      categoryOption = {
+        value: categoryName,
+        dataset: { categoryId: categoryInput.dataset.categoryId },
+      };
+    }
+    const selectedCategoryName = categoryOption.value;
+    const response = await window.kumakhApi.saveCafeMenu({
+      itemName: $('cafeMenuItemName').value.trim(),
+      categoryId: categoryOption.dataset.categoryId || categoryName,
+      categoryName: selectedCategoryName,
+      quantity: Number($('cafeMenuQuantity').value),
+      unit: $('cafeMenuUnit').value,
+      sellingPrice: Number($('cafeMenuPrice').value),
+      costPrice: Number($('cafeMenuCostPrice').value),
+      description: $('cafeMenuDescription').value.trim(),
+      available: 'Yes',
+    });
+    $('cafeTableForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!cafeIsAdmin) return;
+      const button = event.submitter;
+      if (button) button.disabled = true;
+      try {
+        const tableNo = $('cafeTableNumber').value.trim();
+        const tableName = $('cafeTableName').value.trim() || tableNo;
+        const capacity = Number($('cafeTableCapacity').value);
+        if (!tableNo || !Number.isInteger(capacity) || capacity < 1) throw new Error('Enter a valid table number and capacity.');
+        const response = await window.kumakhApi.saveCafeTable({ tableNo, tableName, capacity, status: 'Active' });
+        if (!response || !response.success) throw new Error(response?.message || 'Table could not be added.');
+        $('cafeTableForm').reset();
+        $('cafeTableCapacity').value = '4';
+        $('cafeTableMessage').textContent = response.message || 'Table added successfully.';
+        $('cafeTableMessage').className = 'settings-message success';
+        await loadCafeData();
+        renderCafeTableManager();
+      } catch (error) {
+        $('cafeTableMessage').textContent = error.message;
+        $('cafeTableMessage').className = 'settings-message error';
+      } finally {
+        if (button) button.disabled = false;
+      }
+    });
+    if (!response || !response.success) throw new Error(response?.message || 'Menu item could not be saved.');
+    $('cafeMenuMessage').textContent = response.message || 'Menu item saved successfully.';
+    $('cafeMenuMessage').className = 'settings-message success';
+    $('cafeMenuForm').reset();
+    await loadCafeData();
+  } catch (error) {
+    $('cafeMenuMessage').textContent = error.message;
+    $('cafeMenuMessage').className = 'settings-message error';
+  } finally {
+    if (button) button.disabled = false;
+  }
+});
+$('cafeCustomerForm').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const button = event.submitter;
+  if (button) button.disabled = true;
+  try {
+    const response = await window.kumakhApi.saveCafeCustomer({
+      customerName: $('cafeCustomerName').value.trim(),
+      phoneNumber: $('cafeCustomerPhone').value.trim(),
+      creditLimit: Number($('cafeCustomerCreditLimit').value),
+      address: $('cafeCustomerAddress').value.trim(),
+    });
+    if (!response || !response.success) throw new Error(response?.message || 'Credit customer could not be saved.');
+    $('cafeCustomerMessage').textContent = response.message || 'Credit customer saved successfully.';
+    $('cafeCustomerMessage').className = 'settings-message success';
+    $('cafeCustomerForm').reset();
+    $('cafeCustomerCreditLimit').value = '0';
+    const refreshed = await window.kumakhApi.getCafeCustomers();
+    if (refreshed && refreshed.success && Array.isArray(refreshed.data)) {
+      cafeCustomers = refreshed.data;
+      renderCustomers();
+    }
+  } catch (error) {
+    $('cafeCustomerMessage').textContent = error.message;
+    $('cafeCustomerMessage').className = 'settings-message error';
+  } finally {
+    if (button) button.disabled = false;
+  }
+});
+document.querySelectorAll('[data-shortcut]').forEach((button) => {
+  button.addEventListener('click', () => {
+    const type = button.dataset.shortcut;
+    if (type === 'closing') loadReport('closing');
+    else if (type === 'history') loadReport('history');
+    else if (type === 'tables') {
+      $('reportDialog').classList.remove('closing-report-dialog');
+      $('reportDialog').classList.add('table-status-dialog');
+      showDialog('reportDialog');
+      $('reportTitle').textContent = 'Table status';
+      const tables = cafeTables.filter((table) => normalize(recordValue(table, 'Status')) !== 'disabled');
+      $('reportContent').innerHTML = tables.length
+        ? `<section class="table-status-report">
+          <div class="table-status-report__summary">
+            <div class="table-status-report__summary-copy"><span>Café floor overview</span><strong>${tables.length} active table${tables.length === 1 ? '' : 's'}</strong></div>
+            <span class="table-status-report__summary-badge">All available</span>
+          </div>
+          <div class="table-status-grid">${tables.map((table) => {
+            const number = String(recordValue(table, 'Table No', 'tableNo', 'table_no'));
+            const tableName = String(recordValue(table, 'Table Name', 'tableName', 'table_name') || number);
+            const displayName = normalize(tableName) === normalize(number) ? `Table ${number}` : tableName;
+            const capacity = String(recordValue(table, 'Capacity', 'capacity') || 1);
+            return `<article class="table-status-card"><span class="table-status-card__icon">▦</span><div class="table-status-card__details"><strong>${escapeHtml(displayName)}</strong><span>Table no. ${escapeHtml(number)}</span></div><div class="table-status-card__state"><span>${escapeHtml(capacity)} seat${capacity === '1' ? '' : 's'}</span><strong>Available</strong></div></article>`;
+          }).join('')}</div>
+        </section>`
+        : '<div class="report-empty">No active tables found.</div>';
+      const occupied = tables.filter(table => tableOrders.get(String(recordValue(table, 'Table No', 'tableNo', 'table_no')))?.length).length;
+      const badge = $('reportContent').querySelector('.table-status-report__summary-badge');
+      if (badge) badge.textContent = `${occupied} occupied / ${tables.length - occupied} available`;
+      $('reportContent').querySelectorAll('.table-status-card').forEach((card, index) => {
+        const number = String(recordValue(tables[index], 'Table No', 'tableNo', 'table_no'));
+        const isOccupied = Boolean(tableOrders.get(number)?.length);
+        card.dataset.state = isOccupied ? 'occupied' : 'available';
+        if (isOccupied) card.querySelector('.table-status-card__state strong').textContent = 'Occupied';
+      });
+    }
+  });
+});
+$('customerName').addEventListener('change', () => {
+  const customer = cafeCustomers.find((record) => normalize(recordValue(record, 'Customer Name', 'customerName')) === normalize($('customerName').value));
+  if (customer) {
+    $('customerPhone').value = recordValue(customer, 'Phone Number', 'phoneNumber', 'Customer Phone');
+  }
+  saveActiveTableCheckoutDetails();
+});
+
+let pendingSale = null;
+
+function closePaymentPrintDialog() {
+  pendingSale = null;
+  if ($('paymentPrintDialog').open) $('paymentPrintDialog').close();
+}
+
+function calculatePayment(sale, tenderedInput) {
+  const billTotal = Math.round((Math.max(0, Number(sale.total) || 0) + Number.EPSILON) * 100) / 100;
+  const rawTender = String(tenderedInput ?? '').trim();
+  const enteredTender = rawTender === '' ? 0 : Number(rawTender);
+  const result = {
+    billTotal,
+    tenderAmount: 0,
+    paidAmount: 0,
+    creditAmount: 0,
+    changeAmount: 0,
+    paymentStatus: 'INVALID',
+    valid: false,
+  };
+  if (!Number.isFinite(enteredTender) || enteredTender < 0) {
+    return { ...result, message: 'Tender amount must be a valid non-negative number.' };
+  }
+  const amount = Math.round((enteredTender + Number.EPSILON) * 100) / 100;
+  result.tenderAmount = amount;
+  const isCreditCustomer = Boolean(sale.customer);
+  const method = normalize(sale.paymentMethod);
+  if (method === 'credit' && !isCreditCustomer) {
+    return { ...result, message: 'Credit payment requires a registered credit customer.' };
+  }
+  if (method === 'credit') {
+    return { ...result, tenderAmount: 0, creditAmount: billTotal, paymentStatus: 'CREDIT', valid: true };
+  }
+  if (!isCreditCustomer && amount < billTotal) {
+    return {
+      ...result,
+      tenderAmount: amount,
+      message: `Full payment is required for walk-in customers.\nRemaining amount: ${moneyExact(billTotal - amount)}.`,
+    };
+  }
+  if (method === 'qr' && amount > billTotal) {
+    return { ...result, tenderAmount: amount, message: 'QR payment cannot exceed the total bill.' };
+  }
+  const paidAmount = Math.min(amount, billTotal);
+  const creditAmount = isCreditCustomer ? Math.max(billTotal - paidAmount, 0) : 0;
+  return {
+    ...result,
+    valid: true,
+    tenderAmount: amount,
+    paidAmount,
+    creditAmount,
+    changeAmount: method === 'cash' ? Math.max(amount - billTotal, 0) : 0,
+    paymentStatus: creditAmount > 0 ? 'PARTIAL' : 'PAID',
+  };
+}
+
+function refreshPaymentPrintForm(showValidation = false) {
+  if (!pendingSale) return null;
+  const payment = calculatePayment(pendingSale, $('printTenderAmount').value);
+  $('paymentCalculatedTotal').textContent = moneyExact(payment.billTotal);
+  $('paymentCalculatedPaid').textContent = moneyExact(payment.paidAmount);
+  $('paymentCalculatedCredit').textContent = moneyExact(payment.creditAmount);
+  $('paymentCalculatedChange').textContent = moneyExact(payment.changeAmount);
+  const status = $('paymentCalculatedStatus');
+  status.textContent = payment.valid ? payment.paymentStatus : 'PENDING';
+  status.className = `payment-status ${(payment.valid ? payment.paymentStatus : 'invalid').toLowerCase()}`;
+  $('paymentPrintError').textContent = showValidation && !payment.valid ? payment.message : '';
+  return payment;
+}
+
+$('completeBtn').addEventListener('click', () => {
+  if (!databaseReady) return window.kumakhDialogs.alert('Café data is still loading. Please try again.');
+  if (!order.length) return window.kumakhDialogs.alert('Order is empty');
+  if (!activeTableKey) return window.kumakhDialogs.alert('Select a table before saving the sale.');
+  
+  const subtotal = order.reduce((sum, i) => sum + (i.price * i.qty), 0);
+  const discountPercent = Math.min(100, Math.max(0, parseFloat($('discount').value) || 0));
+  const discountAmount = subtotal * discountPercent / 100;
+  const total = Math.max(0, subtotal - discountAmount);
+  const customerName = $('customerName').value.trim();
+  const customerPhone = $('customerPhone').value.trim();
+  const customer = cafeCustomers.find((record) =>
+    normalize(recordValue(record, 'Status', 'status')) !== 'disabled' &&
+    normalize(recordValue(record, 'Customer Name', 'customerName')) === normalize(customerName)
+    && (!customerPhone || String(recordValue(record, 'Phone Number', 'phoneNumber', 'Customer Phone')).trim() === customerPhone)
+  );
+  const paymentMethod = selectedPayment;
+
+  pendingSale = {
+    tableNo: activeTableKey, customer, customerName, customerPhone,
+    items: order.map((item) => ({ ...item })), subtotal, discountAmount, total,
+    paymentMethod,
+  };
+  const isCreditSale = paymentMethod === 'Credit';
+  $('paymentPrintMethod').textContent = paymentMethod;
+  const selectedCustomerName = customer
+    ? String(recordValue(customer, 'Customer Name', 'customerName')).trim()
+    : '';
+  $('paymentPrintCustomer').hidden = !selectedCustomerName;
+  $('paymentPrintCustomerName').textContent = selectedCustomerName;
+  $('paymentPrintTotal').textContent = money(total);
+  $('paymentPrintError').textContent = '';
+  $('printTenderAmount').disabled = isCreditSale;
+  $('printTenderAmount').value = isCreditSale ? '0' : '';
+  $('paymentTenderNote').textContent = isCreditSale
+    ? 'Credit payment places the complete bill on the selected customer account.'
+    : 'Enter the amount received from the customer.';
+  refreshPaymentPrintForm();
+  $('paymentPrintDialog').showModal();
+  if (!isCreditSale) $('printTenderAmount').focus();
+});
+
+$('printTenderAmount').addEventListener('input', () => refreshPaymentPrintForm(true));
+$('cancelPaymentPrint').addEventListener('click', closePaymentPrintDialog);
+$('cancelPaymentPrintButton').addEventListener('click', closePaymentPrintDialog);
+$('paymentPrintDialog').addEventListener('close', () => { pendingSale = null; });
+
+$('confirmPaymentPrint').addEventListener('click', () => {
+  if (!pendingSale) return;
+  const payment = refreshPaymentPrintForm(true);
+  if (!payment.valid) {
+    return;
+  }
+  const sale = pendingSale;
+  if ($('confirmPaymentPrint').disabled) return;
+  const confirmButton = $('confirmPaymentPrint');
+  confirmButton.disabled = true;
+  confirmButton.textContent = 'Saving...';
+  const itemsOrdered = sale.items.map((item) => `${item.name} x${item.qty}`).join(', ');
+  window.kumakhApi.saveCafeSale({
+    tableNo: sale.tableNo,
+    customerId: sale.customer ? recordValue(sale.customer, 'Customer ID', 'customerId') : '',
+    customerName: sale.customerName,
+    customerPhone: sale.customerPhone,
+    itemsOrdered,
+    totalBill: sale.total,
+    discountAmount: sale.discountAmount,
+    vatAmount: sale.total - (sale.total / 1.13),
+    tenderedAmount: payment.tenderAmount,
+    paidAmount: payment.paidAmount,
+    changeAmount: payment.changeAmount,
+    dueAmount: payment.creditAmount,
+    paymentStatus: payment.paymentStatus,
+    paymentMethod: sale.paymentMethod,
+  }).then(async (response) => {
+    if (!response || !response.success) {
+      throw new Error((response && response.message) || 'The sale could not be saved.');
+    }
+
+    const receiptData = {
+      receiptId: response.data?.receiptId ||
+        response.data?.["Receipt ID"] ||
+        response.data?.saleId ||
+        response.data?.saleID || response.data?.id,
+      saleDate: response.data?.saleDate || new Date(),
+      tableNo: sale.tableNo,
+      customerName: sale.customerName,
+      items: sale.items.map((item) => ({ name: item.name, qty: item.qty, price: item.price })),
+      subtotal: sale.subtotal,
+      discountAmount: sale.discountAmount,
+      vatAmount: sale.total - (sale.total / 1.13),
+      total: sale.total,
+      tenderedAmount: payment.tenderAmount,
+      paidAmount: payment.paidAmount,
+      dueAmount: payment.creditAmount,
+      paymentMethod: sale.paymentMethod,
+      changeAmount: payment.changeAmount,
+      paymentStatus: payment.paymentStatus,
+    };
+    // Clear the committed order before printing so a print failure cannot resubmit it.
+    pendingSale = null;
+    if ($('paymentPrintDialog').open) $('paymentPrintDialog').close();
+    tableOrders.delete(sale.tableNo);
+    tableCheckoutDetails.delete(sale.tableNo);
+    persistTableOrders();
+    syncTablePicker();
+    if (activeTableKey === sale.tableNo) {
+      order = [];
+      restoreActiveTableCheckoutDetails();
+      renderOrder();
+    }
+    try {
+      if (typeof window.KumakhVouchers?.cafeReceipt !== 'function') throw new Error('Bill template unavailable.');
+      const receipt = await window.KumakhVouchers.cafeReceipt(receiptData);
+      if (!receipt || !document.body.contains(receipt)) throw new Error('Bill could not be displayed.');
+    } catch (error) {
+      window.kumakhDialogs.alert(`Sale saved (${receiptData.receiptId}). Printing failed: ${error.message} Do not enter this sale again.`);
+    }
+  }).catch((error) => {
+    $('paymentPrintError').textContent = error.message;
+  }).finally(() => {
+    confirmButton.disabled = false;
+    confirmButton.textContent = 'Save Sale & Print Bill';
+  });
+});
+
+// Clock Update
+function updateClock() {
+  $('footerTime').textContent = new Date().toLocaleTimeString();
+}
+setInterval(updateClock, 1000);
+updateClock();
+$('footerYear').textContent = new Date().getFullYear();
+
+renderEmptyOrder();
+loadCafeData().catch((error) => {
+  console.error('Café data could not be loaded:', error);
+  $('menuGrid').innerHTML = `<div class="empty-order"><strong>Unable to load café data</strong><span>${escapeHtml(error.message)}</span></div>`;
+});
+</script>
+</body>
+</html>

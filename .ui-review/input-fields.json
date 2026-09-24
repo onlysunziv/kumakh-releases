@@ -1,0 +1,167 @@
+[
+  {
+    "page": "dashboard",
+    "checked": 0,
+    "skipped": []
+  },
+  {
+    "page": "course",
+    "checked": 4,
+    "skipped": [
+      {
+        "id": "courseId",
+        "reason": "hidden"
+      }
+    ]
+  },
+  {
+    "page": "students",
+    "checked": 20,
+    "skipped": [
+      {
+        "id": "3",
+        "reason": "re-rendered"
+      },
+      {
+        "id": "studentCourseDuration",
+        "reason": "calculated/read-only"
+      },
+      {
+        "id": "studentTrainingFee",
+        "reason": "calculated/read-only"
+      }
+    ]
+  },
+  {
+    "page": "staff",
+    "checked": 35,
+    "skipped": []
+  },
+  {
+    "page": "payments",
+    "checked": 13,
+    "skipped": [
+      {
+        "id": "paymentCourse",
+        "reason": "calculated/read-only"
+      },
+      {
+        "id": "paymentCourseFee",
+        "reason": "calculated/read-only"
+      },
+      {
+        "id": "paymentTotalPaid",
+        "reason": "calculated/read-only"
+      }
+    ]
+  },
+  {
+    "page": "salary",
+    "checked": 11,
+    "skipped": [
+      {
+        "id": "salaryEmployeeId",
+        "reason": "calculated/read-only"
+      },
+      {
+        "id": "salaryEmployeeDesignation",
+        "reason": "calculated/read-only"
+      },
+      {
+        "id": "salaryBasicSalary",
+        "reason": "calculated/read-only"
+      },
+      {
+        "id": "salaryNormalWorkingDays",
+        "reason": "calculated/read-only"
+      },
+      {
+        "id": "salaryEarnedSalary",
+        "reason": "calculated/read-only"
+      },
+      {
+        "id": "salaryGrossSalary",
+        "reason": "calculated/read-only"
+      },
+      {
+        "id": "salaryTds",
+        "reason": "calculated/read-only"
+      },
+      {
+        "id": "salaryNetSalary",
+        "reason": "calculated/read-only"
+      },
+      {
+        "id": "salaryDueAmount",
+        "reason": "calculated/read-only"
+      },
+      {
+        "id": "salaryOutstandingSalary",
+        "reason": "calculated/read-only"
+      }
+    ]
+  },
+  {
+    "page": "payment-out",
+    "checked": 11,
+    "skipped": [
+      {
+        "id": "staff",
+        "reason": "no populated options"
+      }
+    ]
+  },
+  {
+    "page": "purchases",
+    "checked": 13,
+    "skipped": [
+      {
+        "id": "billId",
+        "reason": "calculated/read-only"
+      }
+    ]
+  },
+  {
+    "page": "expenses",
+    "checked": 7,
+    "skipped": []
+  },
+  {
+    "page": "vendors",
+    "checked": 6,
+    "skipped": []
+  },
+  {
+    "page": "reports",
+    "checked": 32,
+    "skipped": []
+  },
+  {
+    "page": "settings",
+    "checked": 26,
+    "skipped": [
+      {
+        "id": "systemUserId",
+        "reason": "hidden"
+      },
+      {
+        "id": "systemUserEmployeeId",
+        "reason": "hidden"
+      },
+      {
+        "id": "systemRoleId",
+        "reason": "hidden"
+      }
+    ]
+  },
+  {
+    "page": "cafe",
+    "checked": 18,
+    "skipped": []
+  },
+  {
+    "page": "login",
+    "checked": 3,
+    "skipped": []
+  }
+]

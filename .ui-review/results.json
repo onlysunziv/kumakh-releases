@@ -1,0 +1,86 @@
+[
+  {
+    "page": "dashboard",
+    "active": "dashboard",
+    "horizontalOverflow": false,
+    "error": false,
+    "busy": "false"
+  },
+  {
+    "page": "course",
+    "active": "course",
+    "horizontalOverflow": false,
+    "error": false,
+    "busy": "false"
+  },
+  {
+    "page": "students",
+    "active": "students",
+    "horizontalOverflow": false,
+    "error": false,
+    "busy": "false"
+  },
+  {
+    "page": "staff",
+    "active": "staff",
+    "horizontalOverflow": false,
+    "error": false,
+    "busy": "false"
+  },
+  {
+    "page": "payments",
+    "active": "payments",
+    "horizontalOverflow": false,
+    "error": false,
+    "busy": "false"
+  },
+  {
+    "page": "salary",
+    "active": "salary",
+    "horizontalOverflow": false,
+    "error": false,
+    "busy": "false"
+  },
+  {
+    "page": "payment-out",
+    "active": "payment-out",
+    "horizontalOverflow": false,
+    "error": false,
+    "busy": "false"
+  },
+  {
+    "page": "purchases",
+    "active": "purchases",
+    "horizontalOverflow": false,
+    "error": false,
+    "busy": "false"
+  },
+  {
+    "page": "expenses",
+    "active": "expenses",
+    "horizontalOverflow": false,
+    "error": false,
+    "busy": "false"
+  },
+  {
+    "page": "vendors",
+    "active": "vendors",
+    "horizontalOverflow": false,
+    "error": false,
+    "busy": "false"
+  },
+  {
+    "page": "reports",
+    "active": "reports",
+    "horizontalOverflow": false,
+    "error": false,
+    "busy": "false"
+  },
+  {
+    "page": "settings",
+    "active": "settings",
+    "horizontalOverflow": false,
+    "error": false,
+    "busy": "false"
+  }
+]

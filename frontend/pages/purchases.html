@@ -1,0 +1,2241 @@
+<section class="page-section">
+  <style>
+    /* =========================================================
+       PURCHASE PAGE
+       ========================================================= */
+
+    .purchase-card {
+      background: #fff;
+      border: 1px solid #dbe4f0;
+      height: max-content;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .purchase-card h5 {
+      color: #102a56;
+      font-size: 0.9rem;
+      letter-spacing: 0.06em;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .purchase-card .part {
+      padding: 20px;
+      border-bottom: 1px solid #e5eaf1;
+    }
+
+    .vendor-box,
+    .totals {
+      background: #f5f8fc;
+      border: 1px solid #d8e2f0;
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .vendor-box {
+      min-height: 120px;
+      line-height: 1.7;
+    }
+
+    .purchase-table th {
+      background: #102a56;
+      color: #fff;
+      white-space: nowrap;
+      font-size: 0.8rem;
+    }
+
+    .purchase-table td {
+      vertical-align: middle;
+    }
+
+    .purchase-table input {
+      min-width: 80px;
+    }
+
+    .row-total {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #dde5ef;
+    }
+
+    .row-total:last-child {
+      border-bottom: none;
+    }
+
+    .row-total.grand {
+      font-size: 1.08rem;
+      font-weight: 800;
+      color: #102a56;
+    }
+
+    .badge-status {
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      display: inline-block;
+    }
+
+    .UNPAID {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .PARTIAL {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .PAID {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    /* =========================================================
+       PURCHASE FORM MODE
+       ========================================================= */
+
+    #purchaseForm {
+      display: none;
+    }
+
+    .purchase-form-open {
+      overflow-x: hidden;
+    }
+
+    .purchase-form-open
+      .page-section
+      > :not(style):not(#purchaseForm):not(#notice) {
+      display: none;
+    }
+
+    .purchase-form-open #purchaseForm {
+      display: block;
+      position: relative;
+      width: 100%;
+      min-height: calc(100vh - 48px);
+      overflow: visible;
+      box-shadow: none;
+    }
+
+    .purchase-form-open #purchaseForm .purchase-form-heading {
+      display: flex;
+    }
+
+    .purchase-form-heading {
+      display: none;
+      background: #102a56;
+      color: #fff;
+      padding: 17px 20px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .purchase-form-heading h4 {
+      margin: 0;
+      font-weight: 800;
+    }
+
+    .purchase-form-heading small {
+      color: #dbeafe;
+    }
+
+    /* =========================================================
+       PURCHASE HISTORY
+       ========================================================= */
+
+    .purchase-history-card {
+      min-height: calc(100vh - 160px);
+    }
+
+    .purchase-history-card .card-body {
+      display: flex;
+      flex-direction: column;
+      min-height: calc(100vh - 160px);
+    }
+
+    .purchase-history-card .table-responsive {
+      flex: 1;
+      min-height: 240px;
+      max-height: calc(100vh - 280px);
+      overflow-y: auto;
+      overflow-x: auto;
+      scrollbar-gutter: stable;
+      scrollbar-width: auto;
+      scrollbar-color: #64748b #e9eef5;
+    }
+
+    .purchase-history-card .table-responsive::-webkit-scrollbar {
+      width: 14px;
+      height: 14px;
+    }
+
+    .purchase-history-card .table-responsive::-webkit-scrollbar-track {
+      background: #e9eef5;
+      border: 1px solid #cbd5e1;
+    }
+
+    .purchase-history-card .table-responsive::-webkit-scrollbar-thumb {
+      background: #64748b;
+      border: 3px solid #e9eef5;
+      border-radius: 999px;
+    }
+
+    .purchase-history-card .table-responsive::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+
+    .purchase-history-card table {
+      min-width: 900px;
+    }
+
+    /* =========================================================
+       A4 PURCHASE BILL
+       ========================================================= */
+
+    .a4-bill {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 20px auto;
+      background: #fff;
+      padding: 11mm 12mm;
+      color: #172033;
+      font:
+        10pt Arial,
+        sans-serif;
+      box-shadow: 0 2px 16px #0003;
+    }
+
+    .bill-empty {
+      text-align: center;
+      color: #667085;
+      padding-top: 120px;
+    }
+
+    .bill-head {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 3px solid #0868c9;
+      padding-bottom: 6mm;
+    }
+
+    .brand {
+      display: flex;
+      gap: 4mm;
+    }
+
+    .brand img {
+      width: 23mm;
+      height: 23mm;
+      object-fit: contain;
+      border-radius: 50%;
+    }
+
+    .bill-title {
+      text-align: right;
+      color: #034b94;
+    }
+
+    .bill-title h1 {
+      font-size: 22pt;
+      margin: 0;
+    }
+
+    .bill-title small {
+      font-weight: 800;
+    }
+
+    .bill-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4mm;
+    }
+
+    .bill-box {
+      border: 1px solid #cbd6e5;
+      margin-top: 5mm;
+    }
+
+    .bill-box h4 {
+      margin: 0;
+      background: #034b94;
+      color: white;
+      padding: 2mm 3mm;
+      font-size: 8.5pt;
+      letter-spacing: 0.05em;
+    }
+
+    .bill-box > div {
+      padding: 3mm;
+    }
+
+    .bill-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .bill-table th,
+    .bill-table td {
+      border: 1px solid #cbd6e5;
+      padding: 2mm;
+    }
+
+    .bill-table th {
+      background: #0868c9;
+      color: #fff;
+    }
+
+    .number {
+      text-align: right;
+    }
+
+    .bill-bottom {
+      display: flex;
+      flex-direction: column;
+      gap: 6mm;
+    }
+
+    .bill-bottom > div:first-child {
+      order: 2;
+    }
+
+    .bill-bottom > div:last-child {
+      order: 1;
+      align-self: flex-end;
+      width: 60mm;
+    }
+
+    @media (max-width: 768px) {
+      .bill-grid,
+      .bill-bottom {
+        grid-template-columns: 1fr;
+      }
+
+      .a4-bill {
+        width: 100%;
+        min-height: auto;
+        margin: 10px 0;
+        padding: 20px;
+      }
+    }
+
+    /* =========================================================
+       PRINT
+       ========================================================= */
+
+    @media print {
+      @page {
+        size: A4;
+        margin: 0;
+      }
+
+      body * {
+        visibility: hidden !important;
+      }
+
+      .a4-bill,
+      .a4-bill * {
+        visibility: visible !important;
+      }
+
+      .a4-bill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        margin: 0;
+        box-shadow: none;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+
+  <!-- =========================================================
+       PAGE HEADER
+       ========================================================= -->
+
+  <div class="d-flex align-items-center gap-2 mb-3 no-print">
+    <div class="me-auto">
+      <h3 class="m-0">Purchase Bills</h3>
+
+      <small class="text-muted">
+        Create, store and retrieve supplier purchase bills.
+      </small>
+    </div>
+
+    <!-- ONLY HEADER BUTTON -->
+    <button id="openPurchaseForm" type="button" class="btn btn-primary">
+      + Add Purchase
+    </button>
+  </div>
+
+  <div id="notice" class="alert d-none mx-3" role="alert"></div>
+
+  <!-- =========================================================
+       PURCHASE FORM
+       ========================================================= -->
+
+  <form id="purchaseForm" class="purchase-card" autocomplete="off">
+    <!-- FORM HEADER -->
+
+    <div class="purchase-form-heading">
+      <div>
+        <h4>New Purchase</h4>
+
+        <small>
+          Enter supplier and item details before generating the official bill.
+        </small>
+      </div>
+
+      <button
+        type="button"
+        id="closePurchaseForm"
+        class="btn btn-sm btn-outline-light"
+      >
+        Close
+      </button>
+    </div>
+
+    <!-- =======================================================
+         BILL INFORMATION
+         ======================================================= -->
+
+    <div class="part">
+      <h5>BILL INFORMATION</h5>
+
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label"> Bill ID </label>
+
+          <input
+            id="billId"
+            readonly
+            class="form-control"
+            value="Generated on save"
+          />
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label"> Invoice No. </label>
+
+          <input
+            id="invoice"
+            required
+            class="form-control"
+            placeholder="Supplier invoice number"
+          />
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label"> Purchase Date </label>
+
+          <input id="date" required type="date" class="form-control" />
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label"> Payment Method </label>
+
+          <select id="method" class="form-select">
+            <option value="Cash">Cash</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Cheque">Cheque</option>
+            <option value="Online">Online</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- =======================================================
+         VENDOR
+         ======================================================= -->
+
+    <div class="part">
+      <h5>VENDOR</h5>
+
+      <div class="row g-3">
+        <div class="col-md-5">
+          <label class="form-label"> Select Vendor </label>
+
+          <select id="vendor" required class="form-select">
+            <option value="">Select vendor</option>
+          </select>
+
+          <div class="form-text">
+            Vendor information is loaded from the Vendors table.
+          </div>
+        </div>
+
+        <div class="col-md-7">
+          <div id="vendorInfo" class="vendor-box text-muted">
+            Select a vendor to load its registered details.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =======================================================
+         PURCHASE ITEMS
+         ======================================================= -->
+
+    <div class="part">
+      <div class="d-flex justify-content-between mb-2">
+        <h5 class="mb-0">PURCHASE DETAILS</h5>
+
+        <button
+          id="addItem"
+          type="button"
+          class="btn btn-outline-primary btn-sm"
+        >
+          + Add Item
+        </button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle purchase-table">
+          <thead>
+            <tr>
+              <th>S.N.</th>
+              <th>Item Description</th>
+              <th>Unit</th>
+              <th>Qty</th>
+              <th>Unit Price (NPR)</th>
+              <th>Amount (NPR)</th>
+              <th></th>
+            </tr>
+          </thead>
+
+          <tbody id="itemRows"></tbody>
+        </table>
+      </div>
+
+      <datalist id="inventory"></datalist>
+    </div>
+
+    <!-- =======================================================
+         PAYMENT / REMARKS / TOTALS
+         ======================================================= -->
+
+    <div class="part">
+      <div class="row g-3">
+        <!-- PAYMENT -->
+
+        <div class="col-lg-4">
+          <h5>PAYMENT DETAILS</h5>
+
+          <label class="form-label"> Discount </label>
+
+          <input
+            id="discount"
+            value="0"
+            min="0"
+            step="0.01"
+            type="number"
+            class="form-control mb-2"
+          />
+
+          <label class="form-label"> Tax </label>
+
+          <input
+            id="tax"
+            value="0"
+            min="0"
+            step="0.01"
+            type="number"
+            class="form-control mb-2"
+          />
+
+          <label class="form-label"> Paid Amount </label>
+
+          <input
+            id="paid"
+            value="0"
+            min="0"
+            step="0.01"
+            type="number"
+            class="form-control"
+          />
+        </div>
+
+        <!-- REMARKS -->
+
+        <div class="col-lg-4">
+          <h5>REMARKS</h5>
+
+          <textarea
+            id="remarks"
+            rows="6"
+            class="form-control"
+            placeholder="Optional notes"
+          ></textarea>
+        </div>
+
+        <!-- TOTALS -->
+
+        <div class="col-lg-4">
+          <h5>TOTALS</h5>
+
+          <div class="totals">
+            <div class="row-total">
+              <span>Subtotal</span>
+              <b id="subtotal"> NPR 0.00 </b>
+            </div>
+
+            <div class="row-total">
+              <span>Discount</span>
+              <b id="discountTotal"> NPR 0.00 </b>
+            </div>
+
+            <div class="row-total">
+              <span>Tax</span>
+              <b id="taxTotal"> NPR 0.00 </b>
+            </div>
+
+            <div class="row-total grand">
+              <span>Grand Total</span>
+              <span id="grand"> NPR 0.00 </span>
+            </div>
+
+            <div class="row-total">
+              <span>Paid Amount</span>
+              <b id="paidTotal"> NPR 0.00 </b>
+            </div>
+
+            <div class="row-total">
+              <span>Due Amount</span>
+              <b id="due"> NPR 0.00 </b>
+            </div>
+
+            <div class="pt-2">
+              Status:
+
+              <span id="status" class="badge-status UNPAID"> UNPAID </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTICE -->
+
+    <!-- =======================================================
+         FORM ACTIONS
+         ======================================================= -->
+
+    <div class="bg-light p-3 d-flex justify-content-end gap-2">
+      <button type="button" id="cancelPurchaseForm" class="btn btn-light">
+        Cancel
+      </button>
+
+      <button type="reset" class="btn btn-light">Clear</button>
+
+      <button
+        type="submit"
+        name="saveMode"
+        value="generate"
+        class="btn btn-primary"
+      >
+        Save & Generate Bill
+      </button>
+    </div>
+  </form>
+
+  <!-- =========================================================
+       PURCHASE HISTORY
+       ========================================================= -->
+
+  <div class="card mt-4 purchase-history-card">
+    <div class="card-body">
+      <div class="d-flex gap-3 align-items-center">
+        <h5 class="m-0 me-auto">Recent Purchase Bills</h5>
+
+        <select
+          id="historyVendor"
+          class="form-select form-select-sm"
+          style="max-width: 260px"
+        >
+          <option value="">All vendors</option>
+        </select>
+      </div>
+
+      <div id="account" class="small text-muted my-3"></div>
+
+      <div class="table-responsive">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>Bill ID</th>
+              <th>Date</th>
+              <th>Invoice</th>
+              <th>Vendor</th>
+              <th>Grand Total</th>
+              <th>Paid</th>
+              <th>Due</th>
+              <th>Status</th>
+              <th>View Bill</th>
+              <th>Open PDF</th>
+            </tr>
+          </thead>
+
+          <tbody id="history"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       JAVASCRIPT
+       ========================================================= -->
+
+  <script>
+    window.initializePurchasesPage = async () => {
+      /* =======================================================
+         HELPERS
+         ======================================================= */
+
+      const $ = (id) => document.getElementById(id);
+
+      const E = (value) =>
+        String(value ?? "").replace(
+          /[&<>"']/g,
+          (character) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[character],
+        );
+
+      const F = (object, ...keys) =>
+        keys
+          .map((key) => object?.[key])
+          .find(
+            (value) => value !== undefined && value !== null && value !== "",
+          )           || "";
+
+      const purchaseAmounts = (bill) => {
+        const grandTotal = Math.max(
+          0,
+          Number(F(bill, "Grand Total", "grandTotal")) || 0,
+        );
+        const paidAmount = Math.min(
+          grandTotal,
+          Math.max(0, Number(F(bill, "Paid Amount", "paidAmount")) || 0),
+        );
+        return {
+          grandTotal,
+          paidAmount,
+          dueAmount: Number((grandTotal - paidAmount).toFixed(2)),
+          paymentStatus:
+            paidAmount <= 0
+              ? "UNPAID"
+              : paidAmount >= grandTotal
+                ? "PAID"
+                : "PARTIAL",
+        };
+      };
+
+      const M = (value) =>
+        "NPR " +
+        new Intl.NumberFormat("en-NP", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(Number(value) || 0);
+
+      const D = (value) => {
+        const date = new Date(String(value || ""));
+        return Number.isNaN(date.getTime())
+          ? String(value || "")
+          : new Intl.DateTimeFormat("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            }).format(date);
+      };
+
+      /* =======================================================
+         DATA
+         ======================================================= */
+
+      let vendors = [];
+      let bills = [];
+      let lines = [];
+      let shown = [];
+      let current = null;
+      let saving = false;
+
+      const items = [];
+
+      /* =======================================================
+         MESSAGE
+         ======================================================= */
+
+      const tell = (message, type = "info") => {
+        const notice = $("notice");
+
+        notice.textContent = message;
+
+        notice.className = "alert alert-" + type + " mx-3";
+      };
+
+      /* =======================================================
+         TOTAL CALCULATION
+         ======================================================= */
+
+      const totals = () => {
+        const subtotal = items.reduce(
+          (sum, item) =>
+            sum + (Number(item.qty) || 0) * (Number(item.price) || 0),
+          0,
+        );
+
+        const discount = Math.max(0, Number($("discount").value) || 0);
+
+        const tax = Math.max(0, Number($("tax").value) || 0);
+
+        const grandTotal = Math.max(0, subtotal - discount + tax);
+
+        const paidAmount = Math.max(0, Number($("paid").value) || 0);
+
+        const dueAmount = Math.max(0, grandTotal - paidAmount);
+
+        const status =
+          paidAmount <= 0
+            ? "UNPAID"
+            : paidAmount >= grandTotal
+              ? "PAID"
+              : "PARTIAL";
+
+        $("subtotal").textContent = M(subtotal);
+
+        $("discountTotal").textContent = M(discount);
+
+        $("taxTotal").textContent = M(tax);
+
+        $("grand").textContent = M(grandTotal);
+
+        $("paidTotal").textContent = M(paidAmount);
+
+        $("due").textContent = M(dueAmount);
+
+        $("status").textContent = status;
+
+        $("status").className = "badge-status " + status;
+
+        return {
+          sub: subtotal,
+          d: discount,
+          t: tax,
+          g: grandTotal,
+          p: paidAmount,
+          due: dueAmount,
+          st: status,
+        };
+      };
+
+      /* =======================================================
+         RENDER PURCHASE ITEMS
+         ======================================================= */
+
+      const renderItems = () => {
+        const tbody = $("itemRows");
+
+        if (!items.length) {
+          tbody.innerHTML = `
+            <tr>
+              <td
+                colspan="7"
+                class="text-center text-muted"
+              >
+                Click "Add Item" to begin.
+              </td>
+            </tr>
+          `;
+
+          totals();
+
+          return;
+        }
+
+        tbody.innerHTML = items
+          .map((item, index) => {
+            const amount = (Number(item.qty) || 0) * (Number(item.price) || 0);
+
+            return `
+                  <tr>
+
+                    <td>
+                      ${index + 1}
+                    </td>
+
+                    <td>
+
+                      <input
+                        required
+                        class="form-control form-control-sm name"
+                        data-index="${index}"
+                        list="inventory"
+                        value="${E(item.name)}"
+                        placeholder="Item name"
+                      >
+
+                    </td>
+
+                    <td>
+
+                      <input
+                        class="form-control form-control-sm unit"
+                        data-index="${index}"
+                        value="${E(item.unit)}"
+                        placeholder="Unit"
+                      >
+
+                    </td>
+
+                    <td>
+
+                      <input
+                        type="number"
+                        min="0.01"
+                        step="0.01"
+                        class="form-control form-control-sm qty"
+                        data-index="${index}"
+                        value="${item.qty}"
+                      >
+
+                    </td>
+
+                    <td>
+
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        class="form-control form-control-sm price"
+                        data-index="${index}"
+                        value="${item.price}"
+                      >
+
+                    </td>
+
+                    <td
+                      class="text-end fw-bold amount"
+                    >
+                      ${M(amount)}
+                    </td>
+
+                    <td>
+
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-danger remove"
+                        data-index="${index}"
+                        title="Remove item"
+                      >
+                        ×
+                      </button>
+
+                    </td>
+
+                  </tr>
+                `;
+          })
+          .join("");
+
+        totals();
+      };
+
+      /* =======================================================
+         VENDOR INFORMATION
+         ======================================================= */
+
+      const showVendorInfo = (vendor) => {
+        if (!vendor) {
+          $("vendorInfo").innerHTML =
+            "Select a vendor to load its registered details.";
+
+          return;
+        }
+
+        const vendorName = F(vendor, "Vendor Name", "Name", "vendorName");
+
+        const panVat = F(
+          vendor,
+          "PAN/VAT No",
+          "PAN/VAT",
+          "PAN No",
+          "PAN",
+          "panNo",
+          "panVatNo",
+        );
+
+        const address = F(vendor, "Address", "address");
+
+        const contact = F(
+          vendor,
+          "Contact No",
+          "Contact Number",
+          "contactNumber",
+          "Phone",
+          "phone",
+        );
+
+        $("vendorInfo").innerHTML = `
+
+          <div class="fw-bold mb-1">
+            ${E(vendorName || "—")}
+          </div>
+
+          <div>
+            <strong>PAN/VAT No.:</strong>
+            ${E(panVat || "—")}
+          </div>
+
+          <div>
+            <strong>Address:</strong>
+            ${E(address || "—")}
+          </div>
+
+          <div>
+            <strong>Contact:</strong>
+            ${E(contact || "—")}
+          </div>
+
+        `;
+      };
+
+      /* =======================================================
+         FIND VENDOR BY ID
+         ======================================================= */
+
+      const getSelectedVendor = () => {
+        const vendorId = String($("vendor").value || "").trim();
+
+        if (!vendorId) {
+          return null;
+        }
+
+        const selected = vendors.find((vendor) => {
+          const id = String(F(vendor, "Vendor ID", "vendorId", "ID")).trim();
+          return id === vendorId;
+        });
+
+        return selected || null;
+      };
+
+      /* =======================================================
+         SHOW BILL
+         ======================================================= */
+
+      const showBill = (bill) => {
+        if (!bill) {
+          return;
+        }
+
+        const billId = F(bill, "Bill ID", "billId");
+
+        const vendorId = String(F(bill, "Vendor ID", "vendorId")).trim();
+
+        const vendor =
+          vendors.find((item) => {
+            const itemId = String(
+              F(item, "Vendor ID", "vendorId", "ID"),
+            ).trim();
+            const itemName = String(
+              F(item, "Vendor Name", "Name", "vendorName"),
+            ).trim();
+            return itemId === vendorId || itemName === vendorId;
+          }) || {};
+
+        const billItems = Array.isArray(bill.items) && bill.items.length
+          ? bill.items
+          : lines.filter(
+          (item) =>
+            String(
+              F(
+                item,
+                "Purchase Bill ID",
+                "purchaseBillId",
+                "Bill ID",
+                "billId",
+              ),
+            ).trim() === String(billId).trim(),
+            );
+
+        current = bill;
+        const amounts = purchaseAmounts(bill);
+        return;
+
+        const vendorName =
+          F(vendor, "Vendor Name", "Name", "vendorName") ||
+          F(bill, "Vendor Name", "vendorName");
+
+        const panVat =
+          F(
+            vendor,
+            "PAN/VAT No",
+            "PAN/VAT",
+            "PAN No",
+            "PAN",
+            "panNo",
+            "panVatNo",
+          ) || F(bill, "PAN/VAT No", "panVatNo");
+
+        const address =
+          F(vendor, "Address", "address") ||
+          F(bill, "Vendor Address", "vendorAddress", "Address");
+
+        const contact =
+          F(vendor, "Contact No", "Contact Number", "contactNumber", "Phone") ||
+          F(bill, "Contact No", "contactNumber");
+
+        $("bill").hidden = false;
+
+        $("bill").innerHTML = `
+
+          <div class="bill-head">
+
+            <div class="brand">
+
+              <img
+                src="./assets/kumakh-logo.png"
+                alt="Kumakh College"
+              >
+
+              <div>
+
+                <b>KUMAKH COLLEGE</b>
+
+                <br>
+
+                <small>
+                  Ghorahi Sub-Metropolitan City-15,
+                  Dang, Nepal
+                </small>
+
+                <br>
+
+                <small>
+                  Department of Administration
+                </small>
+
+              </div>
+
+            </div>
+
+
+            <div class="bill-title">
+
+              <h1>
+                PURCHASE BILL
+              </h1>
+
+
+            </div>
+
+          </div>
+
+
+          <div class="bill-grid">
+
+
+            <!-- VENDOR -->
+
+            <div class="bill-box">
+
+              <h4>
+                VENDOR
+              </h4>
+
+              <div>
+
+                <b>
+                  ${E(vendorName || "—")}
+                </b>
+
+                <br>
+
+                PAN/VAT No.:
+                ${E(panVat || "—")}
+
+                <br>
+
+                Address:
+                ${E(address || "—")}
+
+                <br>
+
+                Contact:
+                ${E(contact || "—")}
+
+              </div>
+
+            </div>
+
+
+            <!-- BILL INFORMATION -->
+
+            <div class="bill-box">
+
+              <h4>
+                BILL INFORMATION
+              </h4>
+
+              <div>
+
+                Invoice No.:
+                ${E(F(bill, "Invoice No", "invoiceNo"))}
+
+                <br>
+
+                Purchase Date:
+                ${E(D(F(bill, "Purchase Date", "purchaseDate")))}
+
+                <br>
+
+                Payment Mode:
+                ${E(F(bill, "Payment Method", "paymentMethod"))}
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- PURCHASE DETAILS -->
+
+          <div class="bill-box">
+
+            <h4>
+              PURCHASE DETAILS
+            </h4>
+
+            <table class="bill-table">
+
+              <thead>
+
+                <tr>
+                  <th>S.N.</th>
+                  <th>Item Description</th>
+                  <th>Unit</th>
+                  <th>Qty</th>
+                  <th>Unit Price (NPR)</th>
+                  <th>Amount (NPR)</th>
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                ${
+                  billItems.length
+                    ? billItems
+                        .map(
+                          (item, index) => `
+
+                            <tr>
+
+                              <td>
+                                ${index + 1}
+                              </td>
+
+                              <td>
+                                ${E(F(item, "Item Name", "itemName"))}
+                              </td>
+
+                              <td>
+                                ${E(F(item, "Unit", "unit"))}
+                              </td>
+
+                              <td class="number">
+                                ${E(F(item, "Quantity", "quantity"))}
+                              </td>
+
+                              <td class="number">
+                                ${M(F(item, "Unit Price", "unitPrice"))}
+                              </td>
+
+                              <td class="number">
+                                ${M(F(item, "Amount", "amount"))}
+                              </td>
+
+                            </tr>
+
+                          `,
+                        )
+                        .join("")
+                    : `
+                      <tr>
+                        <td
+                          colspan="6"
+                          style="text-align:center"
+                        >
+                          No purchase items found.
+                        </td>
+                      </tr>
+                    `
+                }
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+
+          <div class="bill-bottom">
+
+
+            <!-- LEFT -->
+
+            <div>
+
+              <div class="bill-box">
+
+                <h4>
+                  REMARKS
+                </h4>
+
+                <div>
+                  ${E(F(bill, "Remarks", "remarks") || "—")}
+                </div>
+
+              </div>
+
+
+            </div>
+
+
+            <!-- TOTALS -->
+
+            <div>
+
+              <div class="bill-box">
+
+                <h4>
+                  TOTALS
+                </h4>
+
+                <div>
+
+                  Subtotal:
+                  ${M(F(bill, "Subtotal", "subtotal"))}
+
+                  <br>
+
+                  Discount:
+                  ${M(F(bill, "Discount", "discount"))}
+
+                  <br>
+
+                  Tax:
+                  ${M(F(bill, "Tax", "tax"))}
+
+                  <br>
+
+                  <b>
+                    Grand Total:
+                    ${M(amounts.grandTotal)}
+                  </b>
+
+                  <br>
+
+                  Paid Amount:
+                  ${M(amounts.paidAmount)}
+
+                  <br>
+
+                  Due Amount:
+                  ${M(amounts.dueAmount)}
+
+                  <br>
+
+                  <b>
+                    Status:
+                    ${E(amounts.paymentStatus)}
+                  </b>
+
+                </div>
+
+              </div>
+
+
+            </div>
+
+          </div>
+
+
+        `;
+      };
+
+      const showPurchaseVoucher = async (bill) => {
+        if (!window.KumakhVouchers?.purchaseInvoice || !bill) return;
+        const amounts = purchaseAmounts(bill);
+        const billId = F(bill, "Bill ID", "billId");
+        const vendorId = String(F(bill, "Vendor ID", "vendorId")).trim();
+        const vendor = vendors.find((item) => String(F(item, "Vendor ID", "vendorId", "ID")).trim() === vendorId) || {};
+        const billItems = Array.isArray(bill.items) && bill.items.length
+          ? bill.items
+          : lines.filter((item) => String(F(item, "Purchase Bill ID", "purchaseBillId", "Bill ID", "billId")).trim() === String(billId).trim());
+        await window.KumakhVouchers.purchaseInvoice({
+          billId,
+          purchaseDate: F(bill, "Purchase Date", "purchaseDate"),
+          purchaseId: F(bill, "Purchase ID", "purchaseId", "Bill ID", "billId"),
+          vendorName: F(vendor, "Vendor Name", "Name", "vendorName") || F(bill, "Vendor Name", "vendorName"),
+          panVat: F(vendor, "PAN/VAT No", "PAN/VAT", "PAN No", "PAN", "panVatNo") || F(bill, "PAN/VAT No", "panVatNo"),
+          address: F(vendor, "Address", "address") || F(bill, "Vendor Address", "vendorAddress", "Address"),
+          contact: F(vendor, "Contact No", "contactNo", "contactNumber", "Phone"),
+          invoiceNo: F(bill, "Invoice No", "invoiceNo"),
+          paymentMethod: F(bill, "Payment Method", "paymentMethod"),
+          paymentStatus: amounts.paymentStatus,
+          items: billItems.map((item) => ({ name: F(item, "Item Name", "itemName"), quantity: F(item, "Quantity", "quantity"), unit: F(item, "Unit", "unit"), unitPrice: F(item, "Unit Price", "unitPrice"), discount: F(item, "Discount", "discount"), amount: F(item, "Amount", "amount") })),
+          subtotal: F(bill, "Subtotal", "subtotal"), discount: F(bill, "Discount", "discount"), tax: F(bill, "Tax", "tax"), grandTotal: amounts.grandTotal, paidAmount: amounts.paidAmount, dueAmount: amounts.dueAmount, remarks: F(bill, "Remarks", "remarks"),
+        });
+      };
+
+      /* =======================================================
+         HISTORY
+         ======================================================= */
+
+      const renderHistory = () => {
+        const vendorId = String($("historyVendor").value || "").trim();
+
+        shown = bills.filter(
+          (bill) =>
+            !vendorId ||
+            String(F(bill, "Vendor ID", "vendorId")).trim() === vendorId,
+        );
+
+        const sum = (key) =>
+          shown.reduce(
+            (total, bill) =>
+              total + (Number(F(bill, key, key.replaceAll(" ", ""))) || 0),
+            0,
+          );
+
+        $("account").textContent = `Total Purchase: ${M(
+          sum("Grand Total"),
+        )}  •  Total Paid: ${M(sum("Paid Amount"))}  •  Total Due: ${M(
+          sum("Due Amount"),
+        )}`;
+
+        $("history").innerHTML = shown.length
+          ? shown
+              .map((bill, index) => {
+                const status =
+                  F(bill, "Payment Status", "paymentStatus") || "UNPAID";
+
+                const billUrl = String(
+                  F(bill, "Bill File URL", "billFileUrl") || "",
+                ).trim();
+                const openPdf = /^https:\/\/drive\.google\.com\//i.test(billUrl)
+                  ? `<a href="${E(billUrl)}" target="_blank" rel="noopener">Open PDF</a>`
+                  : "PDF Not Available";
+
+                return `
+
+                      <tr>
+
+                        <td>
+                          ${E(F(bill, "Bill ID", "billId"))}
+                        </td>
+
+                        <td>
+                          ${E(F(bill, "Purchase Date", "purchaseDate"))}
+                        </td>
+
+                        <td>
+                          ${E(F(bill, "Invoice No", "invoiceNo"))}
+                        </td>
+
+                        <td>
+                          ${E(
+                            F(
+                              bill,
+                              "Vendor Name",
+                              "vendorName",
+                              "Vendor",
+                              "vendor",
+                            ) || "—",
+                          )}
+                        </td>
+
+                        <td>
+                          ${M(F(bill, "Grand Total", "grandTotal"))}
+                        </td>
+
+                        <td>
+                          ${M(F(bill, "Paid Amount", "paidAmount"))}
+                        </td>
+
+                        <td>
+                          ${M(F(bill, "Due Amount", "dueAmount"))}
+                        </td>
+
+                        <td>
+
+                          <span
+                            class="badge-status ${E(status)}"
+                          >
+                            ${E(status)}
+                          </span>
+
+                        </td>
+
+                        <td>
+
+                          <button
+                            type="button"
+                            class="btn btn-link btn-sm view"
+                            data-index="${index}"
+                          >
+                            View Bill
+                          </button>
+
+                        </td>
+
+                        <td>
+
+                          ${openPdf}
+
+                        </td>
+
+                      </tr>
+
+                    `;
+              })
+              .join("")
+          : `
+
+                <tr>
+
+                  <td
+                    colspan="10"
+                    class="text-center text-muted"
+                  >
+                    No purchase bills found.
+                  </td>
+
+                </tr>
+
+              `;
+      };
+
+      /* =======================================================
+         LOAD DATA
+         ======================================================= */
+
+      const load = async () => {
+        try {
+          tell("Loading vendors and purchase data...", "info");
+
+          const [vendorResponse, billResponse, inventoryResponse] =
+            await Promise.all([
+              getVendors(),
+
+              getPurchaseBills(),
+
+              getInventory().catch(() => null),
+            ]);
+
+          /* ============================
+             VENDORS
+             ============================ */
+
+          vendors = vendorResponse?.data || [];
+
+          /* ============================
+             PURCHASE BILLS
+             ============================ */
+
+          const purchaseData = billResponse?.data;
+          if (!billResponse?.success) {
+            throw new Error(
+              billResponse?.message || "Purchase history could not be loaded.",
+            );
+          }
+          bills = Array.isArray(purchaseData)
+            ? (Array.isArray(purchaseData.bills) ? purchaseData.bills : purchaseData)
+            : (Array.isArray(purchaseData?.bills)
+              ? purchaseData.bills
+              : Array.isArray(purchaseData?.purchases)
+                ? purchaseData.purchases
+                : []);
+
+          /* ============================
+             PURCHASE ITEMS
+             ============================ */
+
+          lines = Array.isArray(purchaseData?.items)
+            ? purchaseData.items
+            : bills.flatMap((bill) => (Array.isArray(bill.items) ? bill.items : []));
+
+          /* ============================
+             VENDOR OPTIONS
+             ============================ */
+
+          const vendorOptions = vendors
+            .map((vendor) => {
+              const id = F(vendor, "Vendor ID", "vendorId", "ID");
+
+              const name = F(
+                vendor,
+                "Vendor Name",
+                "Name",
+                "vendorName",
+                "vendor",
+              );
+
+              if (!id || !name) {
+                return "";
+              }
+
+              return `
+
+                  <option
+                    value="${E(id)}"
+                  >
+                    ${E(name)}
+                  </option>
+
+                `;
+            })
+            .join("");
+
+          $("vendor").innerHTML =
+            `
+              <option value="">
+                Select vendor
+              </option>
+            ` + vendorOptions;
+
+          $("historyVendor").innerHTML =
+            `
+              <option value="">
+                All vendors
+              </option>
+            ` + vendorOptions;
+
+          /* ============================
+             INVENTORY
+             ============================ */
+
+          $("inventory").innerHTML = (inventoryResponse?.data || [])
+            .map((item) => {
+              const name = F(item, "Item Name", "itemName", "name");
+
+              return name
+                ? `
+                    <option
+                      value="${E(name)}"
+                    ></option>
+                  `
+                : "";
+            })
+            .join("");
+
+          renderHistory();
+
+          $("account").textContent = $("account").textContent || "";
+
+          tell("", "info");
+
+          $("notice").className = "alert d-none mx-3";
+        } catch (error) {
+          console.error("Purchase page load error:", error);
+
+          tell(error.message || "Could not load purchase data.", "danger");
+        }
+      };
+
+      /* =======================================================
+         OPEN / CLOSE FORM
+         ======================================================= */
+
+      const openForm = () => {
+        document.body.classList.add("purchase-form-open");
+
+        $("invoice").focus();
+      };
+
+      const closeForm = () => {
+        document.body.classList.remove("purchase-form-open");
+      };
+
+      $("openPurchaseForm").onclick = openForm;
+
+      $("closePurchaseForm").onclick = closeForm;
+
+      $("cancelPurchaseForm").onclick = closeForm;
+
+      /* =======================================================
+         ADD ITEM
+         ======================================================= */
+
+      $("addItem").onclick = () => {
+        items.push({
+          name: "",
+          unit: "",
+          qty: 1,
+          price: 0,
+        });
+
+        renderItems();
+      };
+
+      /* =======================================================
+         ITEM INPUT
+         ======================================================= */
+
+      $("itemRows").addEventListener("input", (event) => {
+        const target = event.target;
+
+        const index = Number(target.dataset.index);
+
+        if (Number.isNaN(index) || !items[index]) {
+          return;
+        }
+
+        if (target.classList.contains("name")) {
+          items[index].name = target.value;
+        }
+
+        if (target.classList.contains("unit")) {
+          items[index].unit = target.value;
+        }
+
+        if (target.classList.contains("qty")) {
+          items[index].qty = target.value;
+        }
+
+        if (target.classList.contains("price")) {
+          items[index].price = target.value;
+        }
+
+        const row = target.closest("tr");
+
+        const amount = row?.querySelector(".amount");
+
+        if (amount) {
+          amount.textContent = M(
+            (Number(items[index].qty) || 0) * (Number(items[index].price) || 0),
+          );
+        }
+
+        totals();
+      });
+
+      /* =======================================================
+         REMOVE ITEM
+         ======================================================= */
+
+      $("itemRows").addEventListener("click", (event) => {
+        const button = event.target.closest(".remove");
+
+        if (!button) {
+          return;
+        }
+
+        const index = Number(button.dataset.index);
+
+        if (Number.isNaN(index)) {
+          return;
+        }
+
+        items.splice(index, 1);
+
+        renderItems();
+      });
+
+      /* =======================================================
+         VENDOR CHANGE
+         ======================================================= */
+
+      $("vendor").addEventListener("change", () => {
+        const vendor = getSelectedVendor();
+
+        showVendorInfo(vendor);
+      });
+
+      /* =======================================================
+         TOTAL INPUTS
+         ======================================================= */
+
+      ["discount", "tax", "paid"].forEach((id) => {
+        // Keep the cashier's entry intact; validate overpayment when saving.
+        $(id).addEventListener("input", totals);
+      });
+
+      /* =======================================================
+         HISTORY FILTER
+         ======================================================= */
+
+      $("historyVendor").addEventListener("change", renderHistory);
+
+      /* =======================================================
+         VIEW BILL
+         ======================================================= */
+
+      $("history").addEventListener("click", (event) => {
+        const button = event.target.closest(".view");
+
+        if (!button) {
+          return;
+        }
+
+        const index = Number(button.dataset.index);
+
+        if (Number.isNaN(index) || !shown[index]) {
+          return;
+        }
+
+        showPurchaseVoucher(shown[index]);
+      });
+
+      /* =======================================================
+         PRINT BILL
+         ======================================================= */
+
+      const printCurrentBill = () => {
+        if (!current) {
+          tell("Open a purchase bill first.", "warning");
+
+          return;
+        }
+
+        window.print();
+      };
+
+      /* =======================================================
+         CREATE HTML DOCUMENT FOR PDF
+         ======================================================= */
+
+      const billDocument = async (bill) => {
+        const amounts = purchaseAmounts(bill);
+        const billId = F(bill, "Bill ID", "billId");
+        const vendorId = String(F(bill, "Vendor ID", "vendorId")).trim();
+        const vendor = vendors.find((item) => String(F(item, "Vendor ID", "vendorId", "ID")).trim() === vendorId) || {};
+        const billItems = Array.isArray(bill.items) && bill.items.length
+          ? bill.items
+          : lines.filter((item) => String(F(item, "Purchase Bill ID", "purchaseBillId", "Bill ID", "billId")).trim() === String(billId).trim());
+        const voucher = await window.KumakhVouchers.purchaseInvoice({
+          billId,
+          purchaseId: F(bill, "Purchase ID", "purchaseId", "Bill ID", "billId"),
+          purchaseDate: F(bill, "Purchase Date", "purchaseDate"),
+          vendorName: F(vendor, "Vendor Name", "Name", "vendorName") || F(bill, "Vendor Name", "vendorName"),
+          panVat: F(vendor, "PAN/VAT No", "PAN/VAT", "PAN No", "PAN", "panVatNo") || F(bill, "PAN/VAT No", "panVatNo"),
+          address: F(vendor, "Address", "address") || F(bill, "Vendor Address", "vendorAddress", "Address"),
+          contact: F(vendor, "Contact No", "contactNo", "contactNumber", "Phone"),
+          invoiceNo: F(bill, "Invoice No", "invoiceNo"),
+          paymentMethod: F(bill, "Payment Method", "paymentMethod"),
+          paymentStatus: amounts.paymentStatus,
+          items: billItems.map((item) => ({ name: F(item, "Item Name", "itemName"), quantity: F(item, "Quantity", "quantity"), unit: F(item, "Unit", "unit"), unitPrice: F(item, "Unit Price", "unitPrice"), discount: F(item, "Discount", "discount"), amount: F(item, "Amount", "amount") })),
+          subtotal: F(bill, "Subtotal", "subtotal"),
+          discount: F(bill, "Discount", "discount"),
+          tax: F(bill, "Tax", "tax"),
+          grandTotal: amounts.grandTotal,
+          paidAmount: amounts.paidAmount,
+          dueAmount: amounts.dueAmount,
+          remarks: F(bill, "Remarks", "remarks"),
+        }, {
+          display: false,
+        });
+        voucher.querySelector("[data-print]")?.closest(".kumakh-voucher__actions")?.remove();
+        const logoResponse = await fetch("./assets/kumakh-logo.png");
+        const logoBlob = await logoResponse.blob();
+        const logoData = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(logoBlob);
+        });
+        const markup = voucher.innerHTML.replaceAll(
+          "./assets/kumakh-logo.png",
+          logoData,
+        );
+        return `
+            <!doctype html>
+            <html>
+              <head>
+                <meta charset="utf-8">
+                <style>
+                  @page {
+                    size: A4;
+                    margin: 0;
+                  }
+                </style>
+              </head>
+              <body>${markup}</body>
+            </html>
+          `;
+      };
+
+      /* =======================================================
+         GENERATE / UPLOAD PDF
+         ======================================================= */
+
+      const generateAndUploadPdf = async (billOrId) => {
+        let bill = billOrId && typeof billOrId === "object" ? billOrId : null;
+        const billId = bill
+          ? F(bill, "Purchase ID", "purchaseId", "Bill ID", "billId")
+          : billOrId;
+        if (!billId) {
+          throw new Error("Purchase ID is missing.");
+        }
+
+        if (!window.kumakhApp || !window.kumakhApp.createPurchaseBillPdf) {
+          throw new Error(
+            "PDF generation is available only in the Kumakh desktop application.",
+          );
+        }
+
+        if (!bill) {
+          const response = await getPurchaseBills();
+          const latestBills = response?.data?.bills || [];
+          bill = latestBills.find(
+            (entry) =>
+              String(F(entry, "Purchase ID", "purchaseId", "Bill ID", "billId")).trim() ===
+              String(billId).trim(),
+          );
+        }
+        if (!bill) {
+          throw new Error("Purchase bill was not found.");
+        }
+
+        showBill(bill);
+
+        const html = await billDocument(bill);
+
+        const base64 = await window.kumakhApp.createPurchaseBillPdf(html);
+
+        const vendorName = F(bill, "Vendor Name", "vendorName");
+
+        const uploaded = await uploadPurchaseBill({
+          billId,
+          purchaseId: billId,
+          invoiceNo: F(bill, "Invoice Number", "Invoice No", "invoiceNo"),
+          vendorName,
+
+          file: {
+            base64,
+            mimeType: "application/pdf",
+          },
+        });
+
+        if (!uploaded?.success) {
+          throw new Error(
+            uploaded?.message || "Could not upload the purchase bill PDF.",
+          );
+        }
+
+        return uploaded.data;
+      };
+
+      /* =======================================================
+         FORM RESET
+         ======================================================= */
+
+      $("purchaseForm").addEventListener("reset", () => {
+        setTimeout(() => {
+          items.length = 0;
+
+          $("billId").value = "Generated on save";
+
+          $("vendor").value = "";
+
+          $("invoice").value = "";
+
+          $("discount").value = "0";
+
+          $("tax").value = "0";
+
+          $("paid").value = "0";
+
+          $("remarks").value = "";
+
+          $("vendorInfo").innerHTML =
+            "Select a vendor to load its registered details.";
+
+          renderItems();
+
+          totals();
+
+          $("notice").className = "alert d-none mx-3";
+        }, 0);
+      });
+
+      /* =======================================================
+         MAIN PURCHASE SAVE
+         ======================================================= */
+
+      $("purchaseForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (saving) return;
+
+        /* ===============================================
+             VALIDATE VENDOR
+             =============================================== */
+
+        const vendor = getSelectedVendor();
+
+        if (!vendor) {
+          tell("Please select a valid vendor.", "warning");
+
+          $("vendor").focus();
+
+          return;
+        }
+
+        /* ===============================================
+             VENDOR ID
+             =============================================== */
+
+        const selectedVendorId = String(
+          F(vendor, "Vendor ID", "vendorId", "ID"),
+        ).trim();
+
+        const vendorId =
+          selectedVendorId ||
+          String(F(vendor, "Vendor Name", "Name", "vendorName")).trim();
+
+        if (!vendorId) {
+          tell("The selected vendor does not have a Vendor ID.", "danger");
+
+          return;
+        }
+
+        /* ===============================================
+             ITEMS
+             =============================================== */
+
+        const purchaseItems = items
+          .map((item) => ({
+            itemName: String(item.name || "").trim(),
+
+            unit: String(item.unit || "").trim(),
+
+            quantity: Number(item.qty || 0),
+
+            unitPrice: Number(item.price || 0),
+          }))
+          .filter((item) => item.itemName || item.quantity || item.unitPrice);
+
+        if (purchaseItems.length === 0) {
+          tell("Add at least one purchase item.", "warning");
+
+          return;
+        }
+
+        const invalidItem = purchaseItems.find(
+          (item) => !item.itemName || item.quantity <= 0 || item.unitPrice < 0,
+        );
+
+        if (invalidItem) {
+          tell("Complete every purchase item correctly.", "warning");
+
+          return;
+        }
+
+        /* ===============================================
+             TOTALS
+             =============================================== */
+
+        const calculated = totals();
+
+        if (calculated.p > calculated.g) {
+          tell(
+            "Paid amount cannot be greater than the grand total.",
+            "warning",
+          );
+
+          $("paid").focus();
+
+          return;
+        }
+
+        /* ===============================================
+             ACTUAL VENDOR DATA
+             =============================================== */
+
+        const vendorData = {
+          vendorId,
+
+          vendorName:
+            F(vendor, "Vendor Name", "Name", "vendorName", "vendor") ||
+            $("vendor").selectedOptions[0]?.textContent?.trim() ||
+            "",
+
+          panVatNo: F(
+            vendor,
+            "PAN/VAT No",
+            "PAN/VAT",
+            "PAN No",
+            "PAN",
+            "panNo",
+            "panVatNo",
+          ),
+
+          address: F(vendor, "Address", "address"),
+
+          contactNo: F(
+            vendor,
+            "Contact No",
+            "Contact Number",
+            "contactNumber",
+            "Phone",
+            "phone",
+          ),
+
+          email: F(vendor, "Email", "email"),
+        };
+
+        /* ===============================================
+             SAVE PAYLOAD
+             =============================================== */
+
+        const payload = {
+          /*
+           * IMPORTANT:
+           * Vendor ID is the primary relationship.
+           */
+          vendorId,
+
+          /*
+           * These are also sent so the backend has
+           * the current vendor details available.
+           */
+          vendorName:
+            vendorData.vendorName ||
+            $("vendor").selectedOptions[0]?.textContent?.trim() ||
+            "",
+
+          vendorDetails: vendorData,
+
+          invoiceNo: $("invoice").value.trim(),
+
+          purchaseDate: $("date").value,
+
+          paymentMethod: $("method").value,
+
+          items: purchaseItems,
+
+          discount: calculated.d,
+
+          tax: calculated.t,
+
+          paidAmount: calculated.p,
+
+          remarks: $("remarks").value.trim(),
+        };
+
+        /* ===============================================
+             SAVE
+             =============================================== */
+
+        try {
+          saving = true;
+          $("purchaseForm")
+            .querySelectorAll('button[type="submit"]')
+            .forEach((button) => {
+              button.disabled = true;
+            });
+
+          tell("Saving purchase...", "info");
+
+          const result = await savePurchase(payload);
+
+          if (!result?.success) {
+            throw new Error(result?.message || "Could not save the purchase.");
+          }
+
+          const billId = result.data?.purchaseId || result.data?.billId;
+
+          if (!billId) {
+            throw new Error("Purchase was saved but no Purchase ID was returned.");
+          }
+
+          $("billId").value = billId;
+
+          const savedBill = {
+            ...(result.data.purchase || {}),
+            purchaseId: billId,
+            billId,
+            "Purchase ID": billId,
+            "Bill ID": billId,
+            items: result.data.items || result.data.purchase?.items || [],
+          };
+          showBill(savedBill);
+
+          /* ============================================
+                 SAVE + GENERATE PDF
+               ============================================ */
+
+          tell("Purchase saved. Generating bill PDF...", "info");
+
+          try {
+            const uploaded = await generateAndUploadPdf(savedBill);
+
+            closeForm();
+            showPurchaseVoucher(savedBill);
+            tell(
+              "Purchase saved and bill PDF generated successfully.",
+              "success",
+            );
+          } catch (pdfError) {
+            console.error("PDF generation error:", pdfError);
+
+            showPurchaseVoucher(savedBill);
+
+            tell(
+              `Purchase saved, but bill PDF generation/upload failed: ${
+                pdfError?.message || "Unknown error"
+              }`,
+              "warning",
+            );
+          }
+        } catch (error) {
+          console.error("Purchase save error:", error);
+
+          tell(
+            `Purchase could not be saved: ${error?.message || "Unknown database error."}`,
+            "danger",
+          );
+        } finally {
+          saving = false;
+          $("purchaseForm")
+            .querySelectorAll('button[type="submit"]')
+            .forEach((button) => {
+              button.disabled = false;
+            });
+        }
+      });
+
+      /* =======================================================
+         DATE
+         ======================================================= */
+
+      $("date").value = new Date().toISOString().slice(0, 10);
+
+      /* =======================================================
+         INITIAL STATE
+         ======================================================= */
+
+      renderItems();
+
+      totals();
+
+      /* =======================================================
+         LOAD
+         ======================================================= */
+
+      await load();
+    };
+  </script>
+</section>

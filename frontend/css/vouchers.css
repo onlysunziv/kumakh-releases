@@ -1,0 +1,167 @@
+/* Printable documents used after a transaction is recorded. */
+.kumakh-voucher-overlay { position: fixed; inset: 0; z-index: 3000; overflow: auto; padding: 24px; background: rgba(12, 27, 50, .58); color: #172033; font-family: Inter, Arial, sans-serif; }
+.kumakh-voucher { width: min(148mm, 100%); min-height: 205mm; margin: 0 auto; padding: 12mm; background: #fff; border-top: 7px solid #0877d1; box-shadow: 0 12px 40px rgba(0,0,0,.25); font-size: 12px; }
+.kumakh-voucher__actions { width: min(148mm, 100%); margin: 0 auto 12px; display: flex; justify-content: flex-end; gap: 8px; }
+.kumakh-voucher__head { display: flex; justify-content: space-between; align-items: start; gap: 16px; padding-bottom: 10px; border-bottom: 1px solid #dfe5ee; }
+.kumakh-voucher__brand { display: flex; align-items: center; gap: 9px; color: #102a56; }
+.kumakh-voucher__brand img { width: 43px; height: 43px; object-fit: contain; }
+.kumakh-voucher__brand b { display: block; font-size: 16px; letter-spacing: .2px; }
+.kumakh-voucher__brand small { color: #667085; font-size: 9px; }
+.kumakh-voucher__number { text-align: right; color: #667085; font-size: 10px; }
+.kumakh-voucher__number b { display: block; color: #102a56; font-size: 11px; margin-top: 3px; }
+.kumakh-voucher__title { display: flex; align-items: center; gap: 8px; margin: 14px 0 11px; color: #102a56; }
+.kumakh-voucher__title::before { content: ''; width: 4px; height: 25px; background: #e21d2d; border-radius: 2px; }
+.kumakh-voucher__title h2 { margin: 0; font-size: 18px; font-weight: 800; }
+.kumakh-voucher__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 11px; }
+.kumakh-voucher__card { min-height: 72px; padding: 10px; border: 1px solid #dfe5ee; border-radius: 5px; background: #fbfdff; }
+.kumakh-voucher__label { margin-bottom: 5px; color: #0877d1; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; }
+.kumakh-voucher__card strong { color: #102a56; }
+.kumakh-voucher__card p { margin: 3px 0; color: #667085; font-size: 10px; }
+.kumakh-voucher table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+.kumakh-voucher th { padding: 7px; background: #102a56; color: #fff; font-size: 10px; text-align: left; }
+.kumakh-voucher td { padding: 7px; border-bottom: 1px solid #e6ebf1; vertical-align: top; }
+.kumakh-voucher .num { text-align: right; white-space: nowrap; }
+.kumakh-voucher__bottom { display: grid; grid-template-columns: 1.25fr .75fr; gap: 9px; }
+.kumakh-voucher__summary { padding: 10px; border: 1px solid #dfe5ee; border-radius: 5px; }
+.kumakh-voucher__summary div { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; }
+.kumakh-voucher__summary .total { margin-top: 4px; padding-top: 8px; border-top: 1px solid #c9d5e3; color: #102a56; font-size: 14px; font-weight: 800; }
+.kumakh-voucher__words { margin-top: 10px; padding: 9px; border-left: 3px solid #0877d1; background: #f1f8ff; font-size: 10px; }
+.kumakh-voucher__signatures { display: flex; justify-content: space-between; gap: 22px; margin-top: 24mm; text-align: center; color: #667085; font-size: 10px; }
+.kumakh-voucher__signatures span { display: block; width: 30%; padding-top: 5px; border-top: 1px solid #667085; }
+.kumakh-salary-voucher { border-top-color: #173d6b; }
+.kumakh-salary-voucher .kumakh-voucher__title { margin-bottom: 14px; }
+.kumakh-salary-voucher .kumakh-voucher__title h2 { letter-spacing: .02em; }
+.kumakh-salary-voucher .kumakh-voucher__card { min-height: 82px; background: linear-gradient(135deg, #f7fbff, #eef6ff); }
+.kumakh-salary-voucher .kumakh-voucher__card:first-child { border-left: 4px solid #0877d1; }
+.kumakh-salary-voucher .kumakh-voucher__card:last-child { border-left: 4px solid #e21d2d; }
+.kumakh-salary-voucher__section-title { margin-top: 15px; padding: 8px 10px; border-radius: 4px 4px 0 0; background: #eef6ff; color: #173d6b; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.kumakh-salary-voucher__table { margin-top: 0 !important; border: 1px solid #dfe5ee; }
+.kumakh-salary-voucher__table th { background: #173d6b; letter-spacing: .03em; text-transform: uppercase; }
+.kumakh-salary-voucher__table td:first-child { color: #536577; }
+.kumakh-salary-voucher__table tbody tr:nth-child(even) { background: #f8fbfe; }
+.kumakh-salary-voucher__table tbody tr:nth-last-child(3) td,
+.kumakh-salary-voucher__table tbody tr:nth-last-child(2) td { background: #f1f8ff; font-weight: 700; }
+.kumakh-salary-voucher__table tbody tr:last-child td { border-bottom: 2px solid #173d6b; color: #173d6b; font-size: 13px; font-weight: 800; }
+.kumakh-salary-voucher .kumakh-voucher__bottom { margin-top: 13px; }
+.kumakh-salary-voucher .kumakh-voucher__summary:last-child { background: #f7fbff; border-color: #b9d5ef; }
+.kumakh-voucher-overlay:has(.kumakh-cafe-receipt) { display: grid; place-items: start center; padding: 24px; }
+.kumakh-voucher-overlay:has(.kumakh-cafe-receipt) .kumakh-voucher__actions { width: min(80mm, 100%); margin-bottom: 10px; }
+.kumakh-voucher__actions button { border: 0; border-radius: 7px; padding: 8px 12px; font: 700 11px/1 Inter, Arial, sans-serif; cursor: pointer; transition: transform .15s ease, background .15s ease; }
+.kumakh-voucher__actions button:hover { transform: translateY(-1px); }
+.kumakh-voucher__actions [data-print] { color: #fff; background: #173d6b; box-shadow: 0 4px 10px rgba(23,61,107,.25); }
+.kumakh-voucher__actions [data-close] { color: #41556b; background: #fff; border: 1px solid #d7e1ea; }
+
+/* The café receipt is cloned from voucher.html, so these rules travel with it
+   and prevent the POS page styles from changing its printed dimensions. */
+.kumakh-cafe-receipt {
+  width: min(80mm, 100%); min-height: auto; margin: 0 auto; padding: 0;
+  overflow: hidden; border: 0; border-radius: 8px; background: #fff;
+  box-shadow: 0 14px 38px rgba(4,21,43,.28); color: #1f2937;
+  font-family: Inter, Arial, sans-serif; font-size: 10px;
+}
+.kumakh-cafe-receipt .kcmt-top-bar { display: none; }
+.kumakh-cafe-receipt .college-header { padding: 18px 15px 12px; border-top: 5px solid #0877d1; text-align: center; }
+.kumakh-cafe-receipt .college-brand { display: block; }
+.kumakh-cafe-receipt .college-logo { display: block; width: 58px !important; height: 58px !important; margin: 0 auto 7px !important; object-fit: contain; }
+.kumakh-cafe-receipt .college-name { margin: 0; color: #173d6b; font-size: 19px; font-weight: 800; letter-spacing: .03em; }
+.kumakh-cafe-receipt .college-tagline { margin-top: 3px; color: #e31d25; font-size: 8px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.kumakh-cafe-receipt .college-contact { margin-top: 8px; color: #607084; font-size: 8px; line-height: 1.55; }
+.kumakh-cafe-receipt .college-contact strong { display: block; color: #334a63; font-size: 9px; }
+.kumakh-cafe-receipt .document-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 15px; background: #173d6b; color: #fff; }
+.kumakh-cafe-receipt .document-header .row { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+.kumakh-cafe-receipt .document-header .col-7 { min-width: 0; flex: 1 1 auto; }
+.kumakh-cafe-receipt .document-header .col-5 { flex: 0 0 auto; }
+.kumakh-cafe-receipt .document-title h2 { margin: 0; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; }
+.kumakh-cafe-receipt .document-title span { display: none; }
+.kumakh-cafe-receipt .document-number { color: #dce9f8; font-size: 8px; text-align: right; }
+.kumakh-cafe-receipt .document-number strong { display: block; margin-top: 2px; color: #fff; font-size: 9px; }
+.kumakh-cafe-receipt .cafe-meta { padding: 10px 15px; border-bottom: 1px dashed #cbd5e1; background: #f8fafc; }
+.kumakh-cafe-receipt .cafe-meta-row { display: flex; justify-content: space-between; gap: 12px; margin: 4px 0; font-size: 9px; }
+.kumakh-cafe-receipt .cafe-meta-row span:first-child { color: #64748b; }
+.kumakh-cafe-receipt .cafe-meta-row span:last-child { color: #1e3a5f; font-weight: 700; text-align: right; }
+.kumakh-cafe-receipt .table-area { padding: 10px 15px 6px; }
+.kumakh-cafe-receipt .voucher-table { width: 100%; border-collapse: collapse; }
+.kumakh-cafe-receipt .voucher-table th { padding: 6px 3px; border-bottom: 1px solid #cbd5e1; color: #64748b; font-size: 8px; text-align: left; text-transform: uppercase; }
+.kumakh-cafe-receipt .voucher-table th.text-end, .kumakh-cafe-receipt .voucher-table td.text-end { text-align: right; }
+.kumakh-cafe-receipt .voucher-table td { padding: 7px 3px; border-bottom: 1px solid #edf2f7; font-size: 9px; vertical-align: top; }
+.kumakh-cafe-receipt .voucher-table td small { color: #718096; font-size: 8px; }
+.kumakh-cafe-receipt .lower-area { padding: 4px 15px 14px; }
+.kumakh-cafe-receipt .summary-box, .kumakh-cafe-receipt .payment-box { padding: 9px 0; border-top: 1px dashed #cbd5e1; }
+.kumakh-cafe-receipt .summary-row, .kumakh-cafe-receipt .payment-row { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; color: #536577; font-size: 9px; }
+.kumakh-cafe-receipt .summary-row > span:last-child, .kumakh-cafe-receipt .payment-value { color: #263d56; font-weight: 700; text-align: right; }
+.kumakh-cafe-receipt .grand-total { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; padding-top: 8px; border-top: 2px solid #173d6b; color: #173d6b; font-size: 12px; font-weight: 800; }
+.kumakh-cafe-receipt .grand-total strong { color: #e31d25; font-size: 15px; }
+.kumakh-cafe-receipt .cafe-footer { padding: 13px 15px 16px; border-top: 1px dashed #cbd5e1; color: #64748b; font-size: 8px; text-align: center; }
+.kumakh-cafe-receipt .cafe-footer strong { display: block; color: #173d6b; font-size: 10px; }
+.kumakh-cafe-receipt .cafe-footer p { margin: 4px 0 0; }
+@media print { @page { margin: 0; } @page cafe-receipt { size: 80mm auto; margin: 0; } html, body { width: 100%; min-width: 0; margin: 0 !important; padding: 0 !important; background: #fff !important; } html body > *:not(.kumakh-voucher-overlay) { display: none !important; } html body > .kumakh-voucher-overlay { display: block !important; visibility: visible !important; position: static !important; inset: auto !important; overflow: visible !important; width: 100% !important; padding: 0 !important; background: #fff !important; } .kumakh-voucher-overlay, .kumakh-voucher-overlay * { visibility: visible !important; } .kumakh-voucher-overlay .kumakh-voucher__actions { display: none !important; } .kumakh-voucher { display: block !important; visibility: visible !important; box-shadow: none !important; margin: 0 auto !important; } .kumakh-cafe-receipt { width: 80mm !important; max-width: 80mm !important; page: cafe-receipt; } }
+@media (max-width: 560px) { .kumakh-voucher-overlay { padding: 8px; } .kumakh-voucher { padding: 7mm; } .kumakh-voucher__grid, .kumakh-voucher__bottom { grid-template-columns: 1fr; } }
+
+/* Keep the application page out of saved/printed voucher PDFs. */
+@media print {
+  @page {
+    size: A5 portrait;
+    margin: 0;
+  }
+
+  html,
+  body {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    page-break-before: avoid !important;
+    break-before: avoid-page !important;
+  }
+
+  body > * {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  body > .kumakh-voucher-overlay {
+    display: block !important;
+    visibility: visible !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: #fff !important;
+    page-break-before: avoid !important;
+    page-break-after: avoid !important;
+    break-before: avoid-page !important;
+    break-after: avoid-page !important;
+  }
+
+  body > .kumakh-voucher-overlay .kumakh-voucher,
+  body > .kumakh-voucher-overlay .kumakh-voucher * {
+    visibility: visible !important;
+  }
+
+  body > .kumakh-voucher-overlay .kumakh-voucher {
+    width: 148mm !important;
+    max-width: 148mm !important;
+    min-height: 0 !important;
+    margin: 0 auto !important;
+    padding: 12mm !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    page-break-before: avoid !important;
+    page-break-after: avoid !important;
+    break-before: avoid-page !important;
+    break-after: avoid-page !important;
+  }
+
+  body > .kumakh-voucher-overlay .kumakh-cafe-receipt {
+    width: 80mm !important;
+    max-width: 80mm !important;
+    padding: 0 !important;
+  }
+
+  body > .kumakh-voucher-overlay .kumakh-voucher__actions {
+    display: none !important;
+  }
+}

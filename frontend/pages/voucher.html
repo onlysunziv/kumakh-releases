@@ -1,0 +1,2805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>KCMT College Vouchers</title>
+
+
+    <!-- =====================================================
+         BOOTSTRAP 5
+    ====================================================== -->
+
+    <link
+        href="../assets/vendor/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+
+    <!-- =====================================================
+         GOOGLE FONT
+    ====================================================== -->
+
+    
+
+
+    <!-- =====================================================
+         CUSTOM CSS
+    ====================================================== -->
+
+    <style>
+
+        /* =====================================================
+           KCMT COLOR SYSTEM
+        ====================================================== */
+
+        :root {
+
+            --kcmt-blue: #0877d1;
+
+            --kcmt-dark-blue: #102a56;
+
+            --kcmt-red: #e21d2d;
+
+            --kcmt-light-blue: #eaf5ff;
+
+            --kcmt-light-red: #fff0f2;
+
+            --text-dark: #172033;
+
+            --text-muted: #667085;
+
+            --border: #dfe5ee;
+
+            --page-bg: #eef2f7;
+
+            --success: #147a4b;
+
+        }
+
+
+        /* =====================================================
+           GLOBAL
+        ====================================================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+
+        body {
+
+            font-family: "Inter", Arial, sans-serif;
+
+            background:
+                linear-gradient(135deg, rgba(222, 237, 249, 0.88), rgba(242, 247, 251, 0.78)),
+                url("../assets/login-background.jpe") center / cover fixed;
+
+            color: var(--text-dark);
+
+            padding: 28px 15px 45px;
+        }
+
+
+        /* =====================================================
+           PREVIEW TITLE
+        ====================================================== */
+
+        .preview-title {
+
+            width: 100%;
+
+            text-align: center;
+
+            margin-bottom: 24px;
+        }
+
+
+        .preview-title h1 {
+
+            margin: 0;
+
+            color: var(--kcmt-dark-blue);
+
+            font-size: 26px;
+
+            font-weight: 800;
+
+        }
+
+
+        .preview-title p {
+
+            margin: 6px 0 0;
+
+            color: var(--text-muted);
+
+            font-size: 13px;
+
+        }
+
+        .preview-title p {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 13px;
+            border: 1px solid rgba(255, 255, 255, 0.72);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.48);
+            box-shadow: 0 8px 22px rgba(16, 42, 86, 0.08);
+            backdrop-filter: blur(10px);
+        }
+
+
+        /* =====================================================
+           COMMON VOUCHER
+        ====================================================== */
+
+        .voucher {
+
+            width: 148mm;
+
+            min-height: 210mm;
+
+            margin: 0 auto 45px;
+
+            background: #ffffff;
+
+            border: 1px solid var(--border);
+
+            border-radius: 16px;
+
+            overflow: hidden;
+
+            box-shadow:
+                0 20px 48px rgba(16, 42, 86, 0.16);
+
+            position: relative;
+
+        }
+
+
+        /* =====================================================
+           TOP KCMT COLOR BAR
+        ====================================================== */
+
+        .kcmt-top-bar {
+
+            height: 7px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--kcmt-red) 0%,
+                    var(--kcmt-red) 30%,
+                    var(--kcmt-blue) 30%,
+                    var(--kcmt-blue) 100%
+                );
+
+        }
+
+
+        /* =====================================================
+           COLLEGE HEADER
+        ====================================================== */
+
+        .college-header {
+
+            padding: 15px 20px 12px;
+
+        }
+
+
+        .college-brand {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+        }
+
+
+        .college-logo {
+
+            width: 62px;
+
+            height: 62px;
+
+            object-fit: contain;
+
+            flex-shrink: 0;
+
+        }
+
+
+        .college-name {
+
+            margin: 0;
+
+            color: var(--kcmt-dark-blue);
+
+            font-size: 19px;
+
+            font-weight: 800;
+
+            line-height: 1.2;
+
+        }
+
+
+        .college-tagline {
+
+            margin-top: 5px;
+
+            color: var(--kcmt-red);
+
+            font-size: 8px;
+
+            font-weight: 800;
+
+            letter-spacing: 1.5px;
+
+            text-transform: uppercase;
+
+        }
+
+
+        .college-contact {
+
+            text-align: right;
+
+            color: var(--text-muted);
+
+            font-size: 9px;
+
+            line-height: 1.5;
+
+        }
+
+
+        .college-contact strong {
+
+            display: block;
+
+            color: var(--kcmt-dark-blue);
+
+            font-size: 10px;
+
+        }
+
+
+        /* =====================================================
+           DOCUMENT HEADER
+        ====================================================== */
+
+        .document-header {
+
+            padding: 9px 20px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--kcmt-light-blue),
+                    #ffffff
+                );
+
+            border-top: 1px solid var(--border);
+
+            border-bottom: 1px solid var(--border);
+
+        }
+
+
+        .document-title {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+        }
+
+
+        .document-title-bar {
+
+            width: 4px;
+
+            height: 22px;
+
+            border-radius: 10px;
+
+            background:
+                linear-gradient(
+                    var(--kcmt-red),
+                    var(--kcmt-blue)
+                );
+
+        }
+
+
+        .document-title h2 {
+
+            margin: 0;
+
+            color: var(--kcmt-dark-blue);
+
+            font-size: 14px;
+
+            font-weight: 800;
+
+        }
+
+
+        .document-number {
+
+            text-align: right;
+
+            color: var(--text-muted);
+
+            font-size: 9px;
+
+        }
+
+
+        .document-number strong {
+
+            display: block;
+
+            margin-top: 2px;
+
+            color: var(--text-dark);
+
+            font-size: 9.5px;
+
+        }
+
+
+        /* =====================================================
+           INFO AREA
+        ====================================================== */
+
+        .info-area {
+
+            padding: 12px 20px 9px;
+
+        }
+
+
+        .info-card {
+
+            height: 100%;
+
+            padding: 10px 12px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 8px;
+
+            background: #f8fbff;
+
+        }
+
+
+        .vendor-card {
+
+            border-left: 4px solid var(--kcmt-blue);
+
+        }
+
+
+        .reference-card {
+
+            border-left: 4px solid var(--kcmt-red);
+
+        }
+
+
+        .info-label {
+
+            margin-bottom: 5px;
+
+            color: var(--text-muted);
+
+            font-size: 7.5px;
+
+            font-weight: 800;
+
+            letter-spacing: 1px;
+
+            text-transform: uppercase;
+
+        }
+
+
+        .info-name {
+
+            margin-bottom: 4px;
+
+            color: var(--kcmt-dark-blue);
+
+            font-size: 10.5px;
+
+            font-weight: 800;
+
+        }
+
+
+        .info-card p {
+
+            margin: 2px 0;
+
+            color: #526071;
+
+            font-size: 8.5px;
+
+            line-height: 1.45;
+
+        }
+
+
+        /* =====================================================
+           TABLE AREA
+        ====================================================== */
+
+        .table-area {
+
+            padding: 0 20px 10px;
+
+        }
+
+
+        .voucher-table {
+
+            width: 100%;
+
+            margin: 0;
+
+            border: 1px solid var(--border);
+
+            border-radius: 7px;
+
+            overflow: hidden;
+
+        }
+
+
+        .voucher-table thead th {
+
+            padding: 7px;
+
+            background: var(--kcmt-dark-blue);
+
+            color: #ffffff;
+
+            border: none;
+
+            font-size: 8px;
+
+            font-weight: 700;
+
+        }
+
+
+        .voucher-table tbody td {
+
+            padding: 7px;
+
+            color: #344054;
+
+            border-color: var(--border);
+
+            font-size: 9px;
+
+            vertical-align: middle;
+
+        }
+
+
+        .voucher-table tbody tr:nth-child(even) {
+
+            background: #fbfcfe;
+
+        }
+
+
+        /* =====================================================
+           LOWER SECTION
+        ====================================================== */
+
+        .lower-area {
+
+            padding: 5px 20px 12px;
+
+        }
+
+
+        .payment-box,
+        .summary-box {
+
+            height: 100%;
+
+            padding: 10px 12px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 8px;
+
+        }
+
+
+        .summary-box {
+
+            background: #fbfcfe;
+
+        }
+
+        .payment-box {
+            background: #f8fbff;
+        }
+
+
+        .section-title {
+
+            margin-bottom: 7px;
+
+            color: var(--kcmt-dark-blue);
+
+            font-size: 8px;
+
+            font-weight: 800;
+
+            letter-spacing: 1px;
+
+            text-transform: uppercase;
+
+        }
+
+
+        .payment-row {
+
+            display: flex;
+
+            gap: 8px;
+
+            margin: 5px 0;
+
+            font-size: 9px;
+
+        }
+
+
+        .payment-label {
+
+            min-width: 85px;
+
+            color: var(--text-muted);
+
+        }
+
+
+        .payment-value {
+
+            color: var(--text-dark);
+
+            font-weight: 700;
+
+        }
+
+
+        .paid-status {
+
+            display: inline-block;
+
+            padding: 2px 6px;
+
+            border-radius: 50px;
+
+            background: #e9f8f0;
+
+            color: var(--success);
+
+            font-size: 7.5px;
+
+            font-weight: 700;
+
+        }
+
+
+        /* =====================================================
+           AMOUNT IN WORDS
+        ====================================================== */
+
+        .amount-words {
+
+            margin-top: 8px;
+
+            padding: 7px 8px;
+
+            border: 1px dashed #cfd7e4;
+
+            border-radius: 7px;
+
+            background: #f7f9fc;
+
+            color: #475467;
+
+            font-size: 8px;
+
+            line-height: 1.5;
+
+        }
+
+
+        /* =====================================================
+           SUMMARY
+        ====================================================== */
+
+        .summary-row {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            gap: 15px;
+
+            margin: 5px 0;
+
+            color: var(--text-muted);
+
+            font-size: 9px;
+
+        }
+
+
+        .summary-row span:last-child {
+
+            color: var(--text-dark);
+
+            font-weight: 600;
+
+        }
+
+
+        .grand-total {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-top: 8px;
+
+            padding-top: 8px;
+
+            border-top: 2px solid var(--kcmt-dark-blue);
+
+            color: var(--kcmt-dark-blue);
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+        }
+
+
+        .grand-total strong {
+
+            color: var(--kcmt-red);
+
+            font-size: 12px;
+
+        }
+
+        .cafe-voucher .payment-box {
+            background: #f8fbff;
+            border-color: #cfe0ef;
+        }
+
+        .cafe-voucher .payment-row:last-child {
+            margin-top: 8px;
+            padding-top: 7px;
+            border-top: 1px solid #d6e2ed;
+        }
+
+        .cafe-voucher .payment-row:last-child .payment-value {
+            color: var(--success);
+            font-size: 11px;
+        }
+
+
+        /* =====================================================
+           SIGNATURE AREA
+        ====================================================== */
+
+        .signatures {
+
+            padding: 10px 20px 16px;
+
+            border-top: 1px solid var(--border);
+
+        }
+
+
+        .signature-box {
+
+            text-align: center;
+
+        }
+
+
+        .signature-line {
+
+            height: 27px;
+
+            border-bottom: 1px solid #9aa6b6;
+
+            margin-bottom: 6px;
+
+        }
+
+
+        .signature-box span {
+
+            color: var(--text-muted);
+
+            font-size: 7.5px;
+
+            font-weight: 600;
+
+        }
+
+
+        /* =====================================================
+           STUDENT INFORMATION
+        ====================================================== */
+
+        .student-information {
+
+            padding: 12px 20px 8px;
+
+        }
+
+
+        .student-item {
+
+            display: flex;
+
+            gap: 7px;
+
+            margin-bottom: 6px;
+
+            font-size: 9px;
+
+        }
+
+
+        .student-item .label {
+
+            min-width: 72px;
+
+            color: var(--text-muted);
+
+        }
+
+
+        .student-item .value {
+
+            color: var(--kcmt-dark-blue);
+
+            font-weight: 700;
+
+        }
+
+
+        /* =====================================================
+           RECEIPT NOTE
+        ====================================================== */
+
+        .receipt-note {
+
+            margin: 0 20px 12px;
+
+            padding: 8px 10px;
+
+            background: var(--kcmt-light-blue);
+
+            border: 1px solid #cbe6fb;
+
+            border-radius: 7px;
+
+            color: #34516b;
+
+            font-size: 8px;
+
+        }
+
+
+        /* =====================================================
+           CAFE RECEIPT
+        ====================================================== */
+
+        .cafe-voucher {
+
+            width: 80mm;
+
+            min-height: auto;
+
+            page: cafe-receipt;
+
+        }
+
+
+        .cafe-voucher .college-header {
+
+            padding: 18px 15px 12px;
+
+            text-align: center;
+
+        }
+
+
+        .cafe-voucher .college-brand {
+
+            display: block;
+
+        }
+
+
+        .cafe-voucher .college-logo {
+
+            width: 60px;
+
+            height: 60px;
+
+            margin-bottom: 6px;
+
+        }
+
+
+        .cafe-voucher .college-name {
+
+            font-size: 18px;
+
+        }
+
+
+        .cafe-voucher .college-tagline {
+
+            font-size: 7px;
+
+        }
+
+
+        .cafe-voucher .college-contact {
+
+            margin-top: 8px;
+
+            text-align: center;
+
+            font-size: 8.5px;
+
+        }
+
+
+        .cafe-voucher .college-contact strong {
+
+            font-size: 9px;
+
+        }
+
+
+        .cafe-voucher .document-header {
+
+            padding: 9px 15px;
+
+        }
+
+
+        .cafe-voucher .document-title h2 {
+
+            font-size: 12px;
+
+        }
+
+
+        .cafe-voucher .document-number {
+
+            font-size: 8px;
+
+        }
+
+
+        .cafe-voucher .document-number strong {
+
+            font-size: 9px;
+
+        }
+
+
+        .cafe-meta {
+
+            padding: 10px 15px;
+
+            border-bottom: 1px dashed #c8d1dc;
+
+        }
+
+
+        .cafe-meta-row {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            margin: 4px 0;
+
+            font-size: 9px;
+
+        }
+
+
+        .cafe-meta-row span:first-child {
+
+            color: var(--text-muted);
+
+        }
+
+
+        .cafe-meta-row span:last-child {
+
+            color: var(--text-dark);
+
+            font-weight: 700;
+
+        }
+
+
+        .cafe-voucher .table-area {
+
+            padding: 10px 15px 7px;
+
+        }
+
+
+        .cafe-voucher .voucher-table {
+
+            border: none;
+
+            border-radius: 0;
+
+        }
+
+
+        .cafe-voucher .voucher-table thead th {
+
+            padding: 5px 3px;
+
+            background: transparent;
+
+            color: var(--text-muted);
+
+            border-bottom: 1px solid var(--border);
+
+            font-size: 8px;
+
+        }
+
+
+        .cafe-voucher .voucher-table tbody td {
+
+            padding: 6px 3px;
+
+            border: none;
+
+            border-bottom: 1px solid #edf0f4;
+
+            font-size: 9px;
+
+        }
+
+
+        .cafe-voucher .voucher-table tbody tr:nth-child(even) {
+
+            background: transparent;
+
+        }
+
+
+        .cafe-voucher .lower-area {
+
+            padding: 5px 15px 12px;
+
+        }
+
+
+        .cafe-voucher .summary-box {
+
+            padding: 10px 0;
+
+            border: none;
+
+            border-top: 1px dashed #c8d1dc;
+
+            border-radius: 0;
+
+            background: transparent;
+
+        }
+
+
+        .cafe-voucher .payment-box {
+
+            padding: 10px 0 0;
+
+            border: none;
+
+            border-top: 1px dashed #c8d1dc;
+
+            border-radius: 0;
+
+        }
+
+
+        .cafe-voucher .grand-total {
+
+            font-size: 12px;
+
+        }
+
+
+        .cafe-voucher .grand-total strong {
+
+            font-size: 13px;
+
+        }
+
+
+        .cafe-footer {
+
+            padding: 14px 15px 17px;
+
+            text-align: center;
+
+            border-top: 1px dashed #c8d1dc;
+
+        }
+
+
+        .cafe-footer strong {
+
+            color: var(--kcmt-dark-blue);
+
+            font-size: 10px;
+
+        }
+
+
+        .cafe-footer p {
+
+            margin: 4px 0 0;
+
+            color: var(--text-muted);
+
+            font-size: 8px;
+
+        }
+
+
+        /* =====================================================
+           MOBILE
+        ====================================================== */
+
+        @media (max-width: 767px) {
+
+            body {
+                padding: 20px 8px;
+            }
+
+
+            .voucher {
+
+                width: 100%;
+
+                min-height: auto;
+
+            }
+
+
+            .college-contact {
+
+                margin-top: 12px;
+
+                text-align: left;
+
+            }
+
+
+            .info-area,
+            .table-area,
+            .lower-area,
+            .student-information,
+            .signatures {
+
+                padding-left: 15px;
+
+                padding-right: 15px;
+
+            }
+
+
+            .document-header {
+
+                padding-left: 15px;
+
+                padding-right: 15px;
+
+            }
+
+
+            .receipt-note {
+
+                margin-left: 15px;
+
+                margin-right: 15px;
+
+            }
+
+
+            .cafe-voucher {
+
+                width: 100%;
+
+            }
+
+        }
+
+
+        /* =====================================================
+           PRINT SETTINGS
+        ====================================================== */
+
+        @media print {
+
+            @page cafe-receipt {
+                size: 80mm auto;
+                margin: 0;
+            }
+
+            @page {
+
+                size: A5 portrait;
+
+                margin: 0;
+
+            }
+
+
+            html,
+            body {
+
+                margin: 0;
+
+                padding: 0;
+
+                background: #ffffff;
+
+            }
+
+
+            .preview-title {
+
+                display: none;
+
+            }
+
+
+            /* A5 */
+
+            .voucher {
+
+                width: 148mm;
+
+                height: 210mm;
+
+                min-height: 210mm;
+
+                margin: 0;
+
+                border: none;
+
+                border-radius: 0;
+
+                box-shadow: none;
+
+                page-break-after: always;
+
+                break-after: page;
+
+            }
+
+
+            /* Thermal receipt */
+
+            .cafe-voucher {
+
+                width: 80mm;
+
+                height: auto;
+
+                min-height: auto;
+
+                margin: 0 auto;
+
+                page-break-after: auto;
+
+                break-after: auto;
+
+            }
+
+
+            .kcmt-top-bar,
+            .document-header,
+            .info-card,
+            .summary-box,
+            .payment-box,
+            .receipt-note {
+
+                -webkit-print-color-adjust: exact;
+
+                print-color-adjust: exact;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     PREVIEW TITLE
+========================================================== -->
+
+<div class="preview-title">
+
+    <h1>
+        KCMT College Documents
+    </h1>
+
+    <p>
+        A5 Payment Voucher · A5 Student Fee Receipt · 80mm Cafe Receipt
+    </p>
+
+</div>
+
+
+
+<!-- =========================================================
+     PAYMENT VOUCHER
+     A5 SIZE
+========================================================== -->
+
+<section class="voucher">
+
+
+    <!-- TOP BRAND BAR -->
+
+    <div class="kcmt-top-bar"></div>
+
+
+    <!-- COLLEGE HEADER -->
+
+    <header class="college-header">
+
+        <div class="row align-items-center">
+
+
+            <!-- BRAND -->
+
+            <div class="col-7">
+
+                <div class="college-brand">
+
+                    <img
+                        src="../assets/kumakh-logo.png"
+                        alt="Kumakh College Logo"
+                        class="college-logo"
+                    >
+
+
+                    <div>
+
+                        <h1 class="college-name">
+                            KCMT College
+                        </h1>
+
+                        <div class="college-tagline">
+                            Learn · Lead · Succeed
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- CONTACT -->
+
+            <div class="col-5">
+
+                <div class="college-contact">
+
+                    <strong>
+                        Tulsipur 5, Dang
+                    </strong>
+
+                    Tel: 082-523473 / 9845016712
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </header>
+
+
+
+    <!-- DOCUMENT HEADER -->
+
+    <div class="document-header">
+
+        <div class="row align-items-center">
+
+
+            <div class="col-7">
+
+                <div class="document-title">
+
+                    <span class="document-title-bar"></span>
+
+                    <h2>
+                        Payment Voucher
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-5">
+
+                <div class="document-number">
+
+                    Voucher No.
+
+                    <strong>
+                        KCMT-PV-000577 · 09 Sep 2026
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- VENDOR + REFERENCE -->
+
+    <div class="info-area">
+
+        <div class="row g-2">
+
+
+            <!-- VENDOR -->
+
+            <div class="col-6">
+
+                <div class="info-card vendor-card">
+
+                    <div class="info-label">
+                        Paid To · Vendor
+                    </div>
+
+                    <div class="info-name">
+                        Everest Stationers & Suppliers
+                    </div>
+
+                    <p>
+                        Market Street, Industrial Area
+                    </p>
+
+                    <p>
+                        PAN: 987654321 · Tel: 111-222-3333
+                    </p>
+
+                    <p>
+                        Contact: Mr. Bibek Thapa
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- REFERENCE -->
+
+            <div class="col-6">
+
+                <div class="info-card reference-card">
+
+                    <div class="info-label">
+                        Reference
+                    </div>
+
+                    <p>
+                        <strong>
+                            Purchase Order
+                        </strong>
+
+                        #PO-2026-114
+                    </p>
+
+                    <p>
+                        Invoice: EST/INV/8842
+                    </p>
+
+                    <p>
+                        Delivery date: 06 Sep 2026
+                    </p>
+
+                    <p>
+                        Approved by: Admin Dept.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ITEM TABLE -->
+
+    <div class="table-area">
+
+        <div class="table-responsive">
+
+            <table class="table voucher-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th width="35">
+                            #
+                        </th>
+
+                        <th>
+                            Item Purchased
+                        </th>
+
+                        <th width="50" class="text-end">
+                            Qty
+                        </th>
+
+                        <th width="85" class="text-end">
+                            Rate
+                        </th>
+
+                        <th width="95" class="text-end">
+                            Amount
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                    <tr>
+
+                        <td>
+                            1
+                        </td>
+
+                        <td>
+                            A4 Photocopy Paper (Ream)
+                        </td>
+
+                        <td class="text-end">
+                            40
+                        </td>
+
+                        <td class="text-end">
+                            450.00
+                        </td>
+
+                        <td class="text-end">
+                            18,000.00
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td>
+                            2
+                        </td>
+
+                        <td>
+                            Whiteboard Markers (Box)
+                        </td>
+
+                        <td class="text-end">
+                            25
+                        </td>
+
+                        <td class="text-end">
+                            320.00
+                        </td>
+
+                        <td class="text-end">
+                            8,000.00
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td>
+                            3
+                        </td>
+
+                        <td>
+                            Register Books — 200 pg
+                        </td>
+
+                        <td class="text-end">
+                            60
+                        </td>
+
+                        <td class="text-end">
+                            85.00
+                        </td>
+
+                        <td class="text-end">
+                            5,100.00
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td>
+                            4
+                        </td>
+
+                        <td>
+                            Printer Toner Cartridge
+                        </td>
+
+                        <td class="text-end">
+                            4
+                        </td>
+
+                        <td class="text-end">
+                            2,200.00
+                        </td>
+
+                        <td class="text-end">
+                            8,800.00
+                        </td>
+
+                    </tr>
+
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- PAYMENT + SUMMARY -->
+
+    <div class="lower-area">
+
+        <div class="row g-2">
+
+
+            <!-- PAYMENT -->
+
+            <div class="col-7">
+
+                <div class="payment-box">
+
+                    <div class="section-title">
+                        Payment Details
+                    </div>
+
+
+                    <div class="payment-row">
+
+                        <span class="payment-label">
+                            Mode
+                        </span>
+
+                        <span class="payment-value">
+                            Bank Cheque
+                        </span>
+
+                    </div>
+
+
+                    <div class="payment-row">
+
+                        <span class="payment-label">
+                            Cheque / Ref
+                        </span>
+
+                        <span class="payment-value">
+                            004512
+                        </span>
+
+                    </div>
+
+
+                    <div class="payment-row">
+
+                        <span class="payment-label">
+                            Bank
+                        </span>
+
+                        <span class="payment-value">
+                            Nabil Bank Ltd.
+                        </span>
+
+                    </div>
+
+
+                    <div class="payment-row">
+
+                        <span class="payment-label">
+                            Status
+                        </span>
+
+                        <span class="payment-value">
+
+                            <span class="paid-status">
+                                Paid in full
+                            </span>
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="amount-words">
+
+                        <strong>
+                            In words:
+                        </strong>
+
+                        Forty-five thousand one hundred
+                        forty-two rupees only.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- SUMMARY -->
+
+            <div class="col-5">
+
+                <div class="summary-box">
+
+                    <div class="section-title">
+                        Payment Summary
+                    </div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Subtotal
+                        </span>
+
+                        <span>
+                            39,900.00
+                        </span>
+
+                    </div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            VAT (13%)
+                        </span>
+
+                        <span>
+                            5,187.00
+                        </span>
+
+                    </div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Discount
+                        </span>
+
+                        <span>
+                            -45.00
+                        </span>
+
+                    </div>
+
+
+                    <div class="grand-total">
+
+                        <span>
+                            Total Paid
+                        </span>
+
+                        <strong>
+                            Rs 45,042.00
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- SIGNATURES -->
+
+    <div class="signatures">
+
+        <div class="row g-3">
+
+
+            <div class="col-4">
+
+                <div class="signature-box">
+
+                    <div class="signature-line"></div>
+
+                    <span>
+                        Prepared by
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-4">
+
+                <div class="signature-box">
+
+                    <div class="signature-line"></div>
+
+                    <span>
+                        Checked by
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-4">
+
+                <div class="signature-box">
+
+                    <div class="signature-line"></div>
+
+                    <span>
+                        Received by (Vendor)
+                    </span>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+</section>
+
+
+
+<!-- =========================================================
+     STUDENT FEE RECEIPT
+     A5 SIZE
+========================================================== -->
+
+<section class="voucher">
+
+
+    <!-- TOP BRAND BAR -->
+
+    <div class="kcmt-top-bar"></div>
+
+
+    <!-- HEADER -->
+
+    <header class="college-header">
+
+        <div class="row align-items-center">
+
+
+            <div class="col-7">
+
+                <div class="college-brand">
+
+                    <img
+                        src="../assets/kumakh-logo.png"
+                        alt="Kumakh College Logo"
+                        class="college-logo"
+                    >
+
+
+                    <div>
+
+                        <h1 class="college-name">
+                            KCMT College
+                        </h1>
+
+                        <div class="college-tagline">
+                            Learn · Lead · Succeed
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-5">
+
+                <div class="college-contact">
+
+                    <strong>
+                        Tulsipur 5, Dang
+                    </strong>
+
+                    Tel: 082-523473 / 9845016712
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </header>
+
+
+
+    <!-- TITLE -->
+
+    <div class="document-header">
+
+        <div class="row align-items-center">
+
+
+            <div class="col-7">
+
+                <div class="document-title">
+
+                    <span class="document-title-bar"></span>
+
+                    <h2>
+                        Fee Collection Receipt
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-5">
+
+                <div class="document-number">
+
+                    Receipt No.
+
+                    <strong>
+                        KCMT-FEE-002391
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- STUDENT INFORMATION -->
+
+    <div class="student-information">
+
+        <div class="row">
+
+
+            <div class="col-6">
+
+                <div class="student-item">
+
+                    <span class="label">
+                        Received from
+                    </span>
+
+                    <span class="value">
+                        Aarav Sharma
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-6">
+
+                <div class="student-item">
+
+                    <span class="label">
+                        Date
+                    </span>
+
+                    <span class="value">
+                        09 Sep 2026
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-6">
+
+                <div class="student-item">
+
+                    <span class="label">
+                        Reg No.
+                    </span>
+
+                    <span class="value">
+                        KCMT-BBA-1042
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-6">
+
+                <div class="student-item">
+
+                    <span class="label">
+                        Program
+                    </span>
+
+                    <span class="value">
+                        BBA · Sem III
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-6">
+
+                <div class="student-item">
+
+                    <span class="label">
+                        Payment mode
+                    </span>
+
+                    <span class="value">
+                        Bank Transfer
+                    </span>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- FEE TABLE -->
+
+    <div class="table-area">
+
+        <table class="table voucher-table">
+
+            <thead>
+
+                <tr>
+
+                    <th width="40">
+                        #
+                    </th>
+
+                    <th>
+                        Particulars
+                    </th>
+
+                    <th width="110" class="text-end">
+                        Amount (Rs)
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+                <tr>
+
+                    <td>
+                        1
+                    </td>
+
+                    <td>
+                        Tuition Fee — Sem III
+                    </td>
+
+                    <td class="text-end">
+                        45,000.00
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        2
+                    </td>
+
+                    <td>
+                        Library & Lab Charges
+                    </td>
+
+                    <td class="text-end">
+                        5,000.00
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        3
+                    </td>
+
+                    <td>
+                        Examination Fee
+                    </td>
+
+                    <td class="text-end">
+                        3,500.00
+                    </td>
+
+                </tr>
+
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+
+    <!-- FEE SUMMARY -->
+
+    <div class="lower-area">
+
+        <div class="row g-2">
+
+
+            <!-- NOTE -->
+
+            <div class="col-7">
+
+                <div class="payment-box">
+
+                    <div class="section-title">
+                        Receipt Note
+                    </div>
+
+
+                    <div class="amount-words">
+
+                        <strong>
+                            Amount in words:
+                        </strong>
+
+                        Fifty-two thousand rupees only.
+
+                    </div>
+
+
+                    <div class="amount-words">
+
+                        This receipt is issued as confirmation
+                        of fee payment.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- SUMMARY -->
+
+            <div class="col-5">
+
+                <div class="summary-box">
+
+                    <div class="section-title">
+                        Fee Summary
+                    </div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Subtotal
+                        </span>
+
+                        <span>
+                            53,500.00
+                        </span>
+
+                    </div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Discount
+                        </span>
+
+                        <span>
+                            -1,500.00
+                        </span>
+
+                    </div>
+
+
+                    <div class="grand-total">
+
+                        <span>
+                            Total Paid
+                        </span>
+
+                        <strong>
+                            Rs 52,000.00
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- SIGNATURES -->
+
+    <div class="signatures">
+
+        <div class="row g-3">
+
+
+            <div class="col-6">
+
+                <div class="signature-box">
+
+                    <div class="signature-line"></div>
+
+                    <span>
+                        Received by (Accounts)
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-6">
+
+                <div class="signature-box">
+
+                    <div class="signature-line"></div>
+
+                    <span>
+                        Authorised Signature
+                    </span>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+</section>
+
+
+
+<!-- =========================================================
+     PURCHASE VOUCHER
+========================================================== -->
+
+<section class="voucher purchase-voucher">
+    <div class="kcmt-top-bar"></div>
+    <header class="college-header">
+        <div class="college-brand">
+            <img src="../assets/kumakh-logo.png" alt="Kumakh College Logo" class="college-logo">
+            <div>
+                <h1 class="college-name">KCMT College</h1>
+                <div class="college-tagline">Learn · Lead · Succeed</div>
+            </div>
+        </div>
+        <div class="college-contact"><strong>Tulsipur 5, Dang</strong><br>Tel: 082-523473 / 9845016712</div>
+    </header>
+    <div class="document-header">
+        <div class="row align-items-center">
+            <div class="col-7"><div class="document-title"><span class="document-title-bar"></span><h2>Purchase Voucher</h2></div></div>
+            <div class="col-5"><div class="document-number">Purchase ID<strong>—</strong></div></div>
+        </div>
+    </div>
+    <div class="info-area">
+        <div class="row g-2">
+            <div class="col-6"><div class="info-card vendor-card">
+                <div class="info-label">Vendor</div><div class="info-name">—</div>
+                <p>—</p><p>PAN/VAT: —</p><p>Contact: —</p>
+            </div></div>
+            <div class="col-6"><div class="info-card reference-card">
+                <div class="info-label">Purchase Details</div>
+                <p>Purchase ID: —</p><p>Invoice: —</p><p>Purchase date: —</p><p>Status: —</p>
+            </div></div>
+        </div>
+    </div>
+    <div class="table-area"><div class="table-responsive"><table class="table voucher-table">
+        <thead><tr><th width="35">S.N.</th><th>Particulars</th><th width="55" class="text-end">Qty</th><th width="70" class="text-end">Unit</th><th width="80" class="text-end">Rate</th><th width="75" class="text-end">Discount</th><th width="95" class="text-end">Amount</th></tr></thead>
+        <tbody><tr><td colspan="7">No purchase items found.</td></tr></tbody>
+    </table></div></div>
+    <div class="lower-area"><div class="row g-2">
+        <div class="col-7"><div class="payment-box">
+            <div class="section-title">Payment Details</div>
+            <div class="payment-row"><span class="payment-label">Method</span><span class="payment-value">—</span></div>
+            <div class="payment-row"><span class="payment-label">Invoice</span><span class="payment-value">—</span></div>
+            <div class="payment-row"><span class="payment-label">Status</span><span class="payment-value">—</span></div>
+            <div class="amount-words"><strong>Remarks:</strong> <span data-purchase-remarks>—</span></div>
+        </div></div>
+        <div class="col-5"><div class="summary-box">
+            <div class="section-title">Purchase Summary</div>
+            <div class="summary-row"><span>Subtotal</span><span>0.00</span></div>
+            <div class="summary-row"><span>Discount</span><span>0.00</span></div>
+            <div class="summary-row"><span>VAT / Tax</span><span>0.00</span></div>
+            <div class="grand-total"><span>Grand Total</span><strong>Rs 0.00</strong></div>
+            <div class="summary-row"><span>Paid Amount</span><span>0.00</span></div>
+            <div class="summary-row"><span>Due Amount</span><span>0.00</span></div>
+        </div></div>
+    </div></div>
+    <div class="signatures"><div class="row g-3">
+        <div class="col-4"><div class="signature-box"><div class="signature-line"></div><span>Prepared By</span></div></div>
+        <div class="col-4"><div class="signature-box"><div class="signature-line"></div><span>Checked By</span></div></div>
+        <div class="col-4"><div class="signature-box"><div class="signature-line"></div><span>Approved By</span></div></div>
+    </div></div>
+</section>
+
+<!-- =========================================================
+     CAFE RECEIPT
+     80MM THERMAL
+========================================================== -->
+
+<section class="voucher cafe-voucher">
+
+
+    <!-- TOP BAR -->
+
+    <div class="kcmt-top-bar"></div>
+
+
+    <!-- HEADER -->
+
+    <header class="college-header">
+
+        <div class="college-brand">
+
+
+            <img
+                src="../assets/kumakh-logo.png"
+                alt="Kumakh College Logo"
+                class="college-logo"
+            >
+
+
+            <h1 class="college-name">
+                KCMT Cafe
+            </h1>
+
+
+            <div class="college-tagline">
+                Learn · Lead · Succeed
+            </div>
+
+
+        </div>
+
+
+        <div class="college-contact">
+
+            <strong>
+                Tulsipur 5, Dang
+            </strong>
+
+            Tel: 082-523473 / 9845016712
+
+        </div>
+
+    </header>
+
+
+
+    <!-- RECEIPT HEADER -->
+
+    <div class="document-header">
+
+        <div class="row align-items-center">
+
+
+            <div class="col-7">
+
+                <div class="document-title">
+
+                    <span class="document-title-bar"></span>
+
+                    <h2>
+                        Sales Receipt
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-5">
+
+                <div class="document-number">
+
+                    Receipt
+
+                    <strong>
+                        CAF-000148
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- CAFE INFORMATION -->
+
+    <div class="cafe-meta">
+
+
+        <div class="cafe-meta-row">
+
+            <span>
+                Date
+            </span>
+
+            <span>
+                09/09/2026 10:42
+            </span>
+
+        </div>
+
+
+        <div class="cafe-meta-row">
+
+            <span>
+                Cashier
+            </span>
+
+            <span>
+                Ramesh
+            </span>
+
+        </div>
+
+
+        <div class="cafe-meta-row">
+
+            <span>
+                Order
+            </span>
+
+            <span>
+                Dine-in · T4
+            </span>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- ITEMS -->
+
+    <div class="table-area">
+
+        <table class="table voucher-table">
+
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Item
+                    </th>
+
+                    <th class="text-end">
+                        Qty
+                    </th>
+
+                    <th class="text-end">
+                        Amount
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+                <tr>
+
+                    <td>
+
+                        Masala Tea
+
+                        <br>
+
+                        <small>
+                            @ 25.00
+                        </small>
+
+                    </td>
+
+                    <td class="text-end">
+                        2
+                    </td>
+
+                    <td class="text-end">
+                        50.00
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+
+                        Veg Sandwich
+
+                        <br>
+
+                        <small>
+                            @ 80.00
+                        </small>
+
+                    </td>
+
+                    <td class="text-end">
+                        1
+                    </td>
+
+                    <td class="text-end">
+                        80.00
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+
+                        Cold Coffee
+
+                        <br>
+
+                        <small>
+                            @ 120.00
+                        </small>
+
+                    </td>
+
+                    <td class="text-end">
+                        1
+                    </td>
+
+                    <td class="text-end">
+                        120.00
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+
+                        Choco Muffin
+
+                        <br>
+
+                        <small>
+                            @ 60.00
+                        </small>
+
+                    </td>
+
+                    <td class="text-end">
+                        2
+                    </td>
+
+                    <td class="text-end">
+                        120.00
+                    </td>
+
+                </tr>
+
+
+            </tbody>
+
+
+        </table>
+
+    </div>
+
+
+
+    <!-- CAFE TOTAL -->
+
+    <div class="lower-area">
+
+
+        <div class="summary-box">
+
+
+            <div class="summary-row">
+
+                <span>
+                    Subtotal
+                </span>
+
+                <span>
+                    370.00
+                </span>
+
+            </div>
+
+
+            <div class="summary-row">
+
+                <span>
+                    Service (5%)
+                </span>
+
+                <span>
+                    18.50
+                </span>
+
+            </div>
+
+
+            <div class="summary-row">
+
+                <span>
+                    VAT (13%)
+                </span>
+
+                <span>
+                    48.10
+                </span>
+
+            </div>
+
+
+            <div class="grand-total">
+
+                <span>
+                    TOTAL
+                </span>
+
+                <strong>
+                    Rs 436.60
+                </strong>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- CASH -->
+
+        <div class="payment-box mt-2">
+
+
+            <div class="payment-row">
+
+                <span class="payment-label">
+                    Tendered Amount
+                </span>
+
+                <span class="payment-value">
+                    500.00
+                </span>
+
+            </div>
+
+
+            <div class="payment-row">
+
+                <span class="payment-label">
+                    Due Amount
+                </span>
+
+                <span class="payment-value">
+                    0.00
+                </span>
+
+            </div>
+
+
+            <div class="payment-row">
+
+                <span class="payment-label">
+                    Change Amount
+                </span>
+
+                <span class="payment-value">
+                    63.40
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- CAFE FOOTER -->
+
+    <footer class="cafe-footer">
+
+        <strong>
+            Thank you! Visit again
+        </strong>
+
+        <p>
+            Powered by KCMT POS · No refund on food items
+        </p>
+
+    </footer>
+
+
+</section>
+
+
+
+<!-- =========================================================
+     BOOTSTRAP JS
+========================================================== -->
+
+<script
+    src="../assets/vendor/bootstrap.bundle.min.js">
+</script>
+
+
+</body>
+</html>

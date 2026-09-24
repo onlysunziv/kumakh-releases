@@ -1,0 +1,1719 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Payment Out</title>
+
+    <!-- Bootstrap -->
+    <link
+      href="../assets/vendor/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap Icons -->
+    <link
+      href="../assets/vendor/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #f5f6f8;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #222;
+      }
+
+      /* =====================================
+           PAGE
+        ===================================== */
+
+      .payment-page {
+        width: 100%;
+        max-width: 1050px;
+        margin: 30px auto;
+        padding: 0 15px;
+      }
+
+      /* =====================================
+           CARD
+        ===================================== */
+
+      .payment-card {
+        background: #ffffff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+      }
+
+      /* =====================================
+           HEADER
+        ===================================== */
+
+      .payment-header {
+        background: #080d72;
+        color: #ffffff;
+        padding: 16px 20px;
+
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .header-icon {
+        width: 40px;
+        height: 40px;
+
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 6px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 18px;
+      }
+
+      .payment-header h4 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .payment-header p {
+        margin: 2px 0 0;
+        font-size: 11px;
+        opacity: 0.75;
+      }
+
+      /* =====================================
+           FORM
+        ===================================== */
+
+      .form-area {
+        padding: 22px;
+      }
+
+      .form-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 6px;
+      }
+
+      .required {
+        color: #dc3545;
+      }
+
+      .form-control,
+      .form-select {
+        height: 40px;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        font-size: 13px;
+        box-shadow: none;
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        border-color: #080d72;
+        box-shadow: 0 0 0 2px rgba(8, 13, 114, 0.08);
+      }
+
+      textarea.form-control {
+        height: 75px;
+        resize: vertical;
+      }
+
+      /* =====================================
+           PAYMENT TYPE
+        ===================================== */
+
+      .type-section {
+        margin-bottom: 24px;
+      }
+
+      .section-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #080d72;
+        margin-bottom: 12px;
+      }
+
+      .payment-type-container {
+        display: flex;
+        gap: 12px;
+      }
+
+      .payment-type-option {
+        flex: 1;
+        position: relative;
+      }
+
+      .payment-type-option input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .payment-type-label {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        padding: 13px 16px;
+
+        background: #ffffff;
+        border: 1px solid #d5dae2;
+        border-radius: 6px;
+
+        cursor: pointer;
+
+        transition: 0.2s;
+      }
+
+      .payment-type-label:hover {
+        border-color: #080d72;
+      }
+
+      .payment-type-icon {
+        width: 34px;
+        height: 34px;
+
+        background: #f0f2fa;
+        color: #080d72;
+
+        border-radius: 5px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .payment-type-text strong {
+        display: block;
+        font-size: 13px;
+      }
+
+      .payment-type-text span {
+        display: block;
+        margin-top: 2px;
+        font-size: 10px;
+        color: #777;
+      }
+
+      .payment-type-option input:checked + .payment-type-label {
+        border-color: #080d72;
+        background: #f5f6ff;
+      }
+
+      .payment-type-option
+        input:checked
+        + .payment-type-label
+        .payment-type-icon {
+        background: #080d72;
+        color: #ffffff;
+      }
+
+      /* =====================================
+           HIDDEN FORM SECTIONS
+        ===================================== */
+
+      .payment-details {
+        display: none;
+      }
+
+      .payment-details.active {
+        display: block;
+      }
+
+      /* =====================================
+           DIVIDER
+        ===================================== */
+
+      .divider {
+        border-top: 1px solid #e5e7eb;
+        margin: 22px 0;
+      }
+
+      /* =====================================
+           ACCOUNT BOX
+        ===================================== */
+
+      .account-box {
+        margin-top: 16px;
+
+        padding: 17px;
+
+        background: #f7f8fb;
+        border: 1px solid #dfe3ea;
+        border-radius: 7px;
+      }
+
+      .account-heading {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        font-weight: 700;
+        color: #777;
+
+        margin-bottom: 7px;
+      }
+
+      .account-name {
+        font-size: 15px;
+        font-weight: 700;
+        color: #080d72;
+
+        margin-bottom: 14px;
+      }
+
+      /* =====================================
+           STAT BOX
+        ===================================== */
+
+      .stat-box {
+        background: #ffffff;
+        border: 1px solid #e1e5eb;
+        border-radius: 6px;
+        padding: 11px 13px;
+      }
+
+      .stat-label {
+        display: block;
+        font-size: 10px;
+        color: #777;
+        margin-bottom: 4px;
+      }
+
+      .stat-value {
+        display: block;
+        font-size: 16px;
+        font-weight: 700;
+        color: #333;
+      }
+
+      .stat-box.due {
+        background: #fffaf0;
+        border-color: #efdba9;
+      }
+
+      .stat-box.due .stat-value {
+        color: #c27a00;
+      }
+
+      /* =====================================
+           STAFF DUE BOX
+        ===================================== */
+
+      .staff-due {
+        margin-top: 16px;
+      }
+
+      /* =====================================
+           PAYMENT AREA
+        ===================================== */
+
+      .payment-entry {
+        margin-top: 20px;
+
+        padding: 17px;
+
+        background: #f8f9fc;
+        border: 1px solid #dfe3ea;
+        border-radius: 7px;
+      }
+
+      .payment-entry-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: #080d72;
+        margin-bottom: 13px;
+      }
+
+      .paid-input {
+        height: 48px !important;
+        font-size: 19px !important;
+        font-weight: 700;
+        color: #080d72;
+      }
+
+      /* =====================================
+           REMAINING
+        ===================================== */
+
+      .remaining-box {
+        margin-top: 12px;
+
+        padding: 11px 14px;
+
+        background: #fff8e8;
+        border: 1px solid #efd79f;
+        border-radius: 6px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .remaining-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #765700;
+      }
+
+      .remaining-value {
+        font-size: 17px;
+        font-weight: 700;
+        color: #b06f00;
+      }
+
+      /* =====================================
+           FOOTER
+        ===================================== */
+
+      .footer {
+        padding: 14px 22px;
+
+        background: #f8f9fa;
+        border-top: 1px solid #ddd;
+
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
+      .btn-clear {
+        height: 38px;
+        padding: 0 18px;
+
+        background: #ffffff;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .btn-save {
+        height: 38px;
+        padding: 0 20px;
+
+        background: #080d72;
+        color: #ffffff;
+
+        border: none;
+        border-radius: 5px;
+
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .btn-save:hover {
+        background: #050957;
+      }
+
+      /* =====================================
+           RESPONSIVE
+        ===================================== */
+
+      @media (max-width: 650px) {
+        .payment-type-container {
+          flex-direction: column;
+        }
+
+        .footer {
+          padding: 12px 15px;
+        }
+
+        .btn-clear,
+        .btn-save {
+          flex: 1;
+        }
+      }
+
+      .payment-voucher {
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+        overflow: auto;
+        background: rgba(15, 23, 42, 0.55);
+        padding: 20px;
+      }
+      .payment-voucher .a4-bill {
+        width: 210mm;
+        min-height: 297mm;
+        margin: 0 auto;
+        padding: 11mm 12mm;
+        background: #fff;
+        color: #172033;
+        font:
+          10pt Arial,
+          sans-serif;
+        box-shadow: 0 2px 16px #0003;
+      }
+      .payment-voucher .bill-head {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 3px solid #0868c9;
+        padding-bottom: 6mm;
+      }
+      .payment-voucher .brand {
+        display: flex;
+        gap: 4mm;
+      }
+      .payment-voucher .brand img {
+        width: 23mm;
+        height: 23mm;
+        object-fit: contain;
+        border-radius: 50%;
+      }
+      .payment-voucher .bill-title {
+        text-align: right;
+        color: #034b94;
+      }
+      .payment-voucher .bill-title h1 {
+        font-size: 22pt;
+        margin: 0;
+      }
+      .payment-voucher .bill-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4mm;
+      }
+      .payment-voucher .bill-box {
+        border: 1px solid #cbd6e5;
+        margin-top: 5mm;
+      }
+      .payment-voucher .bill-box h4 {
+        margin: 0;
+        background: #034b94;
+        color: white;
+        padding: 2mm 3mm;
+        font-size: 8.5pt;
+        letter-spacing: 0.05em;
+      }
+      .payment-voucher .bill-box > div {
+        padding: 3mm;
+      }
+      .payment-voucher .bill-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .payment-voucher .bill-table th,
+      .payment-voucher .bill-table td {
+        border: 1px solid #cbd6e5;
+        padding: 2mm;
+      }
+      .payment-voucher .bill-table th {
+        background: #0868c9;
+        color: #fff;
+      }
+      .payment-voucher .number {
+        text-align: right;
+      }
+      .payment-voucher .voucher-actions {
+        width: 210mm;
+        margin: 0 auto 12px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+      @media print {
+        @page {
+          size: A4;
+          margin: 0;
+        }
+        body * {
+          visibility: hidden !important;
+        }
+        .payment-voucher,
+        .payment-voucher * {
+          visibility: visible !important;
+        }
+        .payment-voucher {
+          position: absolute;
+          inset: 0;
+          padding: 0;
+          background: #fff;
+        }
+        .payment-voucher .a4-bill {
+          margin: 0;
+          box-shadow: none;
+        }
+        .payment-voucher .voucher-actions {
+          display: none !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <dialog id="paymentOutStatusDialog" aria-labelledby="paymentOutStatusTitle" style="border:0;border-radius:14px;box-shadow:0 1rem 3rem rgba(0,0,0,.3);max-width:440px;width:calc(100% - 2rem);padding:0">
+      <div style="padding:1.5rem">
+        <h2 class="h5 mb-2" id="paymentOutStatusTitle">Saving payment</h2>
+        <p class="mb-3" id="paymentOutStatusMessage">Saving payment to the database...</p>
+        <div class="progress mb-3"><div id="paymentOutStatusProgress" class="progress-bar progress-bar-striped progress-bar-animated" style="width:35%">Saving</div></div>
+        <div class="small text-muted" id="paymentOutStatusDetails"></div>
+        <button id="paymentOutStatusClose" type="button" class="btn btn-primary mt-3 d-none">Close</button>
+      </div>
+    </dialog>
+    <div class="payment-page">
+      <div class="payment-card">
+        <!-- =================================
+             HEADER
+        ================================== -->
+
+        <div class="payment-header">
+          <div class="header-icon">
+            <i class="bi bi-cash-stack"></i>
+          </div>
+
+          <div>
+            <h4>Payment Out</h4>
+
+            <p>Record payments made by the business</p>
+          </div>
+        </div>
+
+        <!-- =================================
+             FORM AREA
+        ================================== -->
+
+        <div class="form-area">
+          <!-- =================================
+                 PAYMENT TYPE
+            ================================== -->
+
+          <div class="type-section">
+            <div class="section-title">
+              <i class="bi bi-wallet2 me-1"></i>
+
+              Payment Type
+            </div>
+
+            <div class="payment-type-container">
+              <!-- VENDOR -->
+
+              <div class="payment-type-option">
+                <input
+                  type="radio"
+                  name="paymentType"
+                  id="vendorPayment"
+                  value="vendor"
+                  onchange="showPaymentType('vendor')"
+                />
+
+                <label for="vendorPayment" class="payment-type-label">
+                  <div class="payment-type-icon">
+                    <i class="bi bi-building"></i>
+                  </div>
+
+                  <div class="payment-type-text">
+                    <strong> Vendor Payment </strong>
+
+                    <span> Pay an outstanding vendor balance </span>
+                  </div>
+                </label>
+              </div>
+
+              <!-- STAFF -->
+
+              <div class="payment-type-option">
+                <input
+                  type="radio"
+                  name="paymentType"
+                  id="staffPayment"
+                  value="staff"
+                  onchange="showPaymentType('staff')"
+                />
+
+                <label for="staffPayment" class="payment-type-label">
+                  <div class="payment-type-icon">
+                    <i class="bi bi-person"></i>
+                  </div>
+
+                  <div class="payment-type-text">
+                    <strong> Staff Payment </strong>
+
+                    <span> Pay an amount to a staff member </span>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- =================================
+                 VENDOR PAYMENT
+            ================================== -->
+
+          <div id="vendorSection" class="payment-details">
+            <div class="section-title">
+              <i class="bi bi-building me-1"></i>
+
+              Vendor Payment
+            </div>
+
+            <div class="row g-3">
+              <!-- Vendor -->
+
+              <div class="col-md-8">
+                <label class="form-label">
+                  Vendor Name
+                  <span class="required">*</span>
+                </label>
+
+                <select id="vendor" class="form-select" onchange="loadVendor()">
+                  <option value="">Select Vendor</option>
+                </select>
+              </div>
+
+              <!-- Date -->
+
+              <div class="col-md-4">
+                <label class="form-label"> Payment Date </label>
+
+                <input
+                  type="date"
+                  id="vendorPaymentDate"
+                  class="form-control"
+                />
+              </div>
+            </div>
+
+            <!-- Vendor Account -->
+
+            <div id="vendorAccount" class="account-box" style="display: none">
+              <div class="account-heading">Vendor Account</div>
+
+              <div id="vendorDisplay" class="account-name">-</div>
+
+              <div id="vendorLedgerDetails" class="small text-muted mb-3"></div>
+
+              <div class="row g-2">
+                <div class="col-md-4">
+                  <div class="stat-box">
+                    <span class="stat-label"> Total Purchase </span>
+
+                    <span id="vendorTotal" class="stat-value"> Rs. 0.00 </span>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="stat-box">
+                    <span class="stat-label"> Already Paid </span>
+
+                    <span id="vendorPaid" class="stat-value"> Rs. 0.00 </span>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="stat-box due">
+                    <span class="stat-label"> Current Due </span>
+
+                    <span id="vendorDue" class="stat-value"> Rs. 0.00 </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Payment Entry -->
+
+            <div class="payment-entry">
+              <div class="payment-entry-title">Payment Details</div>
+
+              <div class="row g-3">
+                <!-- Paid -->
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    Paid Amount
+                    <span class="required">*</span>
+                  </label>
+
+                  <input
+                    type="number"
+                    id="vendorPaidAmount"
+                    class="form-control paid-input"
+                    placeholder="0.00"
+                    min="0"
+                    step="0.01"
+                    oninput="calculateVendorRemaining()"
+                  />
+                </div>
+
+                <!-- Method -->
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    Payment Method
+                    <span class="required">*</span>
+                  </label>
+
+                  <select id="vendorPaymentMethod" class="form-select">
+                    <option value="">Select Method</option>
+
+                    <option value="Cash">Cash</option>
+
+                    <option value="Bank Transfer">Bank Transfer</option>
+
+                    <option value="Card">Card</option>
+
+                    <option value="Cheque">Cheque</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="remaining-box">
+                <span class="remaining-label"> Remaining Vendor Due </span>
+
+                <span id="vendorRemaining" class="remaining-value">
+                  Rs. 0.00
+                </span>
+              </div>
+            </div>
+
+            <!-- Notes -->
+
+            <div class="mt-3">
+              <label class="form-label"> Notes </label>
+
+              <textarea
+                id="vendorNotes"
+                class="form-control"
+                placeholder="Optional notes..."
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- =================================
+                 STAFF PAYMENT
+            ================================== -->
+
+          <div id="staffSection" class="payment-details">
+            <div class="section-title">
+              <i class="bi bi-person me-1"></i>
+
+              Staff Payment
+            </div>
+
+            <div class="row g-3">
+              <!-- Staff -->
+
+              <div class="col-md-8">
+                <label class="form-label">
+                  Staff Name
+                  <span class="required">*</span>
+                </label>
+
+                <select id="staff" class="form-select" onchange="loadStaff()">
+                  <option value="">Select Staff</option>
+                </select>
+              </div>
+
+              <!-- Date -->
+
+              <div class="col-md-4">
+                <label class="form-label"> Payment Date </label>
+
+                <input type="date" id="staffPaymentDate" class="form-control" />
+              </div>
+            </div>
+
+            <!-- Staff Due -->
+
+            <div
+              id="staffDueBox"
+              class="account-box staff-due"
+              style="display: none"
+            >
+              <div class="account-heading">Staff Account</div>
+
+              <div id="staffDisplay" class="account-name">-</div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="stat-box due">
+                    <span class="stat-label"> Due Salary </span>
+
+                    <span id="staffDue" class="stat-value"> Rs. 0.00 </span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="stat-box">
+                    <span class="stat-label"> Existing Advance </span>
+                    <span id="staffAdvanceBalance" class="stat-value"> Rs. 0.00 </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Staff Payment Entry -->
+
+            <div class="payment-entry">
+              <div class="payment-entry-title">Payment Details</div>
+
+              <div class="row g-3">
+                <!-- Paid -->
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    Paid Amount
+                    <span class="required">*</span>
+                  </label>
+                  <div class="form-text">Any amount above the due salary is recorded as a staff advance.</div>
+
+                  <input
+                    type="number"
+                    id="staffPaidAmount"
+                    class="form-control paid-input"
+                    placeholder="0.00"
+                    min="0"
+                    step="0.01"
+                    oninput="calculateStaffRemaining()"
+                  />
+                </div>
+
+                <!-- Method -->
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    Payment Method
+                    <span class="required">*</span>
+                  </label>
+
+                  <select id="staffPaymentMethod" class="form-select">
+                    <option value="">Select Method</option>
+
+                    <option value="Cash">Cash</option>
+
+                    <option value="Bank Transfer">Bank Transfer</option>
+
+                    <option value="Card">Card</option>
+
+                    <option value="Cheque">Cheque</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="remaining-box">
+                <span class="remaining-label"> Remaining Staff Due </span>
+
+                <span id="staffRemaining" class="remaining-value">
+                  Rs. 0.00
+                </span>
+                <span id="staffAdvanceAmount" class="remaining-value">Advance: Rs. 0.00</span>
+              </div>
+            </div>
+
+            <!-- Notes -->
+
+            <div class="mt-3">
+              <label class="form-label"> Notes </label>
+
+              <textarea
+                id="staffNotes"
+                class="form-control"
+                placeholder="Optional notes..."
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- =================================
+             FOOTER
+        ================================== -->
+
+        <div class="footer">
+          <button type="button" class="btn-clear" onclick="clearForm()">
+            Clear
+          </button>
+
+          <button type="button" class="btn-save" onclick="recordPayment()">
+            <i class="bi bi-check-lg me-1"></i>
+
+            Record Payment
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /* =====================================
+       GLOBAL VALUES
+    ===================================== */
+
+      let vendorDue = 0;
+      let staffDue = 0;
+      let selectedPaymentType = "";
+
+      /* =====================================
+       PAGE LOAD
+    ===================================== */
+
+      document.addEventListener("DOMContentLoaded", function () {
+        setToday();
+        if (typeof window.initializePaymentOutPage === "function") {
+          window.initializePaymentOutPage();
+        }
+      });
+
+      /* =====================================
+       SET TODAY
+    ===================================== */
+
+      function setToday() {
+        const today = new Date();
+
+        const year = today.getFullYear();
+
+        const month = String(today.getMonth() + 1).padStart(2, "0");
+
+        const day = String(today.getDate()).padStart(2, "0");
+
+        const date = `${year}-${month}-${day}`;
+
+        document.getElementById("vendorPaymentDate").value = date;
+
+        document.getElementById("staffPaymentDate").value = date;
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? "").replace(/[&<>"']/g, function (character) {
+          return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;",
+          }[character];
+        });
+      }
+
+      window.initializePaymentOutPage =
+        async function initializePaymentOutPage() {
+          const vendorSelect = document.getElementById("vendor");
+          const staffSelect = document.getElementById("staff");
+          if (
+            !vendorSelect ||
+            !staffSelect ||
+            vendorSelect.dataset.loading === "true"
+          )
+            return;
+          vendorSelect.dataset.loading = "true";
+          setToday();
+          while (vendorSelect.options.length > 1) vendorSelect.remove(1);
+          while (staffSelect.options.length > 1) staffSelect.remove(1);
+          try {
+            const results = await Promise.allSettled([
+              getVendors(),
+              getVendorLedger(),
+              getPayrollSummary(),
+              getStaff(),
+            ]);
+            const vendorsResponse =
+              results[0].status === "fulfilled" ? results[0].value : null;
+            const vendorLedgerResponse =
+              results[1].status === "fulfilled" ? results[1].value : null;
+            const payrollSummaryResponse =
+              results[2].status === "fulfilled" ? results[2].value : null;
+            const staffResponse =
+              results[3].status === "fulfilled" ? results[3].value : null;
+            const vendors =
+              vendorsResponse &&
+              vendorsResponse.success &&
+              Array.isArray(vendorsResponse.data)
+                ? vendorsResponse.data
+                : [];
+            const payrollSummary =
+              payrollSummaryResponse &&
+              payrollSummaryResponse.success &&
+              Array.isArray(payrollSummaryResponse.data)
+                ? payrollSummaryResponse.data
+                : [];
+            const staffRecords =
+              staffResponse &&
+              staffResponse.success &&
+              Array.isArray(staffResponse.data)
+                ? staffResponse.data
+                : [];
+            const payrollByEmployeeId = new Map(
+              payrollSummary.map((member) => [
+                String(member["Employee ID"] || member.employeeId || "").trim(),
+                member,
+              ]),
+            );
+            const vendorLedger =
+              vendorLedgerResponse &&
+              vendorLedgerResponse.success &&
+              Array.isArray(vendorLedgerResponse.data)
+                ? vendorLedgerResponse.data
+                : [];
+            const ledgerByVendorId = new Map(
+              vendorLedger.map((entry) => [
+                String(entry.vendorId ?? entry.vendor_id ?? "").trim(),
+                entry,
+              ]),
+            );
+            const ledgerByVendorName = new Map(
+              vendorLedger.map((entry) => [
+                String(entry.vendorName ?? entry.vendor_name ?? "").trim().toLowerCase(),
+                entry,
+              ]),
+            );
+
+            vendors.forEach((vendor) => {
+              const name =
+                vendor["Vendor Name"] ||
+                vendor.Name ||
+                vendor.vendorName ||
+                vendor.name ||
+                "";
+              if (!name) return;
+              const total = Number(
+                vendor.totalPurchases ??
+                  vendor["Total Purchases"] ??
+                  vendor["Total Purchase"] ??
+                  vendor.Purchased ??
+                  vendor["Purchased"] ??
+                  0,
+              );
+              const paid = Number(
+                vendor.totalPaid ??
+                  vendor["Total Paid"] ??
+                  vendor["Paid Amount"] ??
+                  0,
+              );
+              const vendorId = String(
+                vendor["Vendor ID"] || vendor.vendorId || vendor.ID || vendor.id || "",
+              ).trim();
+              const ledger =
+                ledgerByVendorId.get(vendorId) ||
+                ledgerByVendorName.get(String(name).trim().toLowerCase());
+              const ledgerTotal = Number(
+                ledger?.totalPurchased ?? ledger?.total_purchased_amount ?? total,
+              );
+              const ledgerPaid = Number(
+                ledger?.totalPaid ?? ledger?.total_paid_amount ?? paid,
+              );
+              const ledgerDue = Number(
+                ledger?.totalDue ?? ledger?.total_due_amount ?? Math.max(ledgerTotal - ledgerPaid, 0),
+              );
+              const option = new Option(name, name);
+              option.dataset.vendorId = vendorId;
+              option.dataset.total = ledgerTotal;
+              option.dataset.paid = ledgerPaid;
+              option.dataset.pan =
+                vendor["PAN/VAT No"] ||
+                vendor["PAN/VAT No."] ||
+                vendor.panVatNo ||
+                "";
+              option.dataset.address = vendor.Address || vendor.address || "";
+              option.dataset.contact =
+                vendor["Contact No"] ||
+                vendor.contactNo ||
+                vendor.contact ||
+                "";
+              option.dataset.opening =
+                vendor["Opening Balance"] ?? vendor.openingBalance ?? 0;
+              option.dataset.purchased = ledgerTotal;
+              option.dataset.due = ledgerDue;
+              option.dataset.lastTransaction =
+                ledger?.lastTransactionDate || ledger?.last_transaction_date || "";
+              vendorSelect.appendChild(option);
+            });
+
+            staffRecords.forEach((staff) => {
+              const name =
+                staff["Full Name"] ||
+                staff.fullName ||
+                staff["Employee Name"] ||
+                staff.employeeName ||
+                "";
+              const employeeId = String(
+                staff["Employee ID"] ||
+                  staff.employeeId ||
+                  staff.employeeID ||
+                  "",
+              ).trim();
+              if (!name || !employeeId) return;
+              const member = payrollByEmployeeId.get(employeeId) || {};
+              const option = new Option(name, name);
+              option.dataset.employeeId = employeeId;
+              option.dataset.total = Number(
+                member["Total Earnings"] ?? member.totalEarnings ?? 0,
+              );
+              option.dataset.paid = Number(
+                member["Total Paid"] ?? member.totalPaid ?? 0,
+              );
+              option.dataset.due = Number(
+                member["Total Due"] ?? member.totalDue ?? 0,
+              );
+              option.dataset.outstanding = Number(
+                member["Total Outstanding"] ?? member.totalOutstanding ?? 0,
+              );
+              option.dataset.advance = Number(
+                member["Total Advance"] ?? member.totalAdvance ?? 0,
+              );
+              staffSelect.appendChild(option);
+            });
+            vendorSelect.dataset.loaded = "true";
+            if (vendorSelect.options.length === 1) {
+              const error = results[0].status === "rejected"
+                ? results[0].reason?.message
+                : vendorsResponse?.message;
+              const option = new Option(
+                error ? `Unable to load vendors: ${error}` : "No vendors found",
+                "",
+              );
+              option.disabled = true;
+              vendorSelect.appendChild(option);
+            }
+          } catch (error) {
+            console.error("Unable to load payment-out balances:", error);
+            vendorSelect.dataset.loaded = "";
+            const option = new Option(
+              `Unable to load vendors: ${error?.message || "Database error"}`,
+              "",
+            );
+            option.disabled = true;
+            vendorSelect.appendChild(option);
+          } finally {
+            vendorSelect.dataset.loading = "";
+          }
+        };
+
+      /* =====================================
+       SHOW PAYMENT TYPE
+    ===================================== */
+
+      function showPaymentType(type) {
+        selectedPaymentType = type;
+
+        document.getElementById("vendorSection").classList.remove("active");
+
+        document.getElementById("staffSection").classList.remove("active");
+
+        if (type === "vendor") {
+          document.getElementById("vendorSection").classList.add("active");
+        }
+
+        if (type === "staff") {
+          document.getElementById("staffSection").classList.add("active");
+        }
+      }
+
+      /* =====================================
+       LOAD VENDOR
+    ===================================== */
+
+      function loadVendor() {
+        const select = document.getElementById("vendor");
+
+        const option = select.options[select.selectedIndex];
+
+        if (!select.value) {
+          document.getElementById("vendorAccount").style.display = "none";
+
+          vendorDue = 0;
+
+          calculateVendorRemaining();
+
+          return;
+        }
+
+        const total = parseFloat(option.dataset.total) || 0;
+
+        const paid = parseFloat(option.dataset.paid) || 0;
+
+        vendorDue =
+          option.dataset.due !== undefined && option.dataset.due !== ""
+            ? parseFloat(option.dataset.due) || 0
+            : total - paid;
+
+        document.getElementById("vendorAccount").style.display = "block";
+
+        document.getElementById("vendorDisplay").textContent = select.value;
+
+        document.getElementById("vendorLedgerDetails").innerHTML =
+          [
+            ["Vendor ID", option.dataset.vendorId],
+            ["PAN/VAT No", option.dataset.pan],
+            ["Address", option.dataset.address],
+            ["Contact No", option.dataset.contact],
+            ["Opening Balance", money(option.dataset.opening)],
+            ["Purchased", money(option.dataset.purchased)],
+            ["Paid Amount", money(option.dataset.paid)],
+            ["Due Amount", money(option.dataset.due)],
+            ["Last Transaction", option.dataset.lastTransaction],
+          ]
+            .filter(function (detail) {
+              return detail[1] !== undefined && detail[1] !== "";
+            })
+            .map(function (detail) {
+              return (
+                "<div><strong>" +
+                escapeHtml(detail[0]) +
+                ":</strong> " +
+                escapeHtml(detail[1]) +
+                "</div>"
+              );
+            })
+            .join("") || "Vendor details loaded from Vendor Ledger";
+
+        document.getElementById("vendorTotal").textContent = money(total);
+
+        document.getElementById("vendorPaid").textContent = money(paid);
+
+        document.getElementById("vendorDue").textContent = money(vendorDue);
+
+        document.getElementById("vendorPaidAmount").value = "";
+
+        calculateVendorRemaining();
+      }
+
+      /* =====================================
+       LOAD STAFF
+    ===================================== */
+
+      function loadStaff() {
+        const select = document.getElementById("staff");
+
+        const option = select.options[select.selectedIndex];
+
+        if (!select.value) {
+          document.getElementById("staffDueBox").style.display = "none";
+
+          staffDue = 0;
+
+          calculateStaffRemaining();
+
+          return;
+        }
+
+        staffDue = parseFloat(option.dataset.due) || 0;
+
+        document.getElementById("staffDueBox").style.display = "block";
+
+        document.getElementById("staffDisplay").textContent =
+          select.value +
+          (option.dataset.employeeId
+            ? " (" + option.dataset.employeeId + ")"
+            : "");
+
+        document.getElementById("staffDue").textContent = money(staffDue);
+        document.getElementById("staffAdvanceBalance").textContent = money(
+          parseFloat(option.dataset.advance) || 0,
+        );
+
+        document.getElementById("staffPaidAmount").value = "";
+
+        calculateStaffRemaining();
+      }
+
+      /* =====================================
+       VENDOR REMAINING
+    ===================================== */
+
+      function calculateVendorRemaining() {
+        const paid =
+          parseFloat(document.getElementById("vendorPaidAmount").value) || 0;
+
+        let remaining = vendorDue - paid;
+
+        if (remaining < 0) {
+          remaining = 0;
+        }
+
+        document.getElementById("vendorRemaining").textContent =
+          money(remaining);
+      }
+
+      /* =====================================
+       STAFF REMAINING
+    ===================================== */
+
+      function calculateStaffRemaining() {
+        const paid =
+          parseFloat(document.getElementById("staffPaidAmount").value) || 0;
+
+        let remaining = staffDue - paid;
+
+        if (remaining < 0) {
+          remaining = 0;
+        }
+
+        document.getElementById("staffRemaining").textContent =
+          money(remaining);
+        document.getElementById("staffAdvanceAmount").textContent =
+          "Advance: " + money(Math.max(paid - staffDue, 0));
+      }
+
+      /* =====================================
+       MONEY FORMAT
+    ===================================== */
+
+      function money(amount) {
+        return (
+          "Rs. " +
+          Number(amount).toLocaleString("en-IN", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        );
+      }
+
+      function amountInWords(amount) {
+        const n = Math.round(Number(amount) || 0);
+        const ones = [
+          "",
+          "One",
+          "Two",
+          "Three",
+          "Four",
+          "Five",
+          "Six",
+          "Seven",
+          "Eight",
+          "Nine",
+          "Ten",
+          "Eleven",
+          "Twelve",
+          "Thirteen",
+          "Fourteen",
+          "Fifteen",
+          "Sixteen",
+          "Seventeen",
+          "Eighteen",
+          "Nineteen",
+        ];
+        const tens = [
+          "",
+          "",
+          "Twenty",
+          "Thirty",
+          "Forty",
+          "Fifty",
+          "Sixty",
+          "Seventy",
+          "Eighty",
+          "Ninety",
+        ];
+        function words(v) {
+          if (v < 20) return ones[v];
+          if (v < 100)
+            return (
+              tens[Math.floor(v / 10)] + (v % 10 ? " " + ones[v % 10] : "")
+            );
+          if (v < 1000)
+            return (
+              ones[Math.floor(v / 100)] +
+              " Hundred" +
+              (v % 100 ? " " + words(v % 100) : "")
+            );
+          if (v < 100000)
+            return (
+              words(Math.floor(v / 1000)) +
+              " Thousand" +
+              (v % 1000 ? " " + words(v % 1000) : "")
+            );
+          if (v < 10000000)
+            return (
+              words(Math.floor(v / 100000)) +
+              " Lakh" +
+              (v % 100000 ? " " + words(v % 100000) : "")
+            );
+          return (
+            words(Math.floor(v / 10000000)) +
+            " Crore" +
+            (v % 10000000 ? " " + words(v % 10000000) : "")
+          );
+        }
+        return (n ? words(n) : "Zero") + " Rupees Only";
+      }
+
+      function showPaymentVoucher(data) {
+        if (window.KumakhVouchers?.paymentVoucher) {
+          window.KumakhVouchers.paymentVoucher(data);
+          return;
+        }
+        data = data || {};
+        const voucher = document.createElement("div");
+        voucher.className = "payment-voucher";
+        const date = data.paymentDate
+          ? new Date(data.paymentDate).toLocaleDateString("en-GB")
+          : new Date().toLocaleDateString("en-GB");
+        voucher.innerHTML = `
+                        <div class="voucher-actions no-print"><button class="btn btn-primary" data-print>Print</button><button class="btn btn-outline-secondary" data-close>Close</button></div>
+                        <div class="a4-bill">
+                          <div class="bill-head"><div class="brand"><img src="./assets/kumakh-logo.png" alt="Kumakh College"><div><b>KUMAKH COLLEGE</b><br><small>TULSIPUR 5, BP CHWOK DANG</small><br><small>Contact: 082-590291, 523473 / 9845016712</small></div></div><div class="bill-title"><h1>PAYMENT VOUCHER</h1><small>${escapeHtml(data.paymentType || "PAYMENT OUT")}</small></div></div>
+                          <div class="bill-grid"><div class="bill-box"><h4>PAID TO</h4><div><b>${escapeHtml(data.payeeName || data.employeeName || data.staffName || "—")}</b><br>Staff ID: ${escapeHtml(data.payeeId || data.employeeId || data.staffId || "—")}${data.panVatNo ? "<br>PAN/VAT No.: " + escapeHtml(data.panVatNo) : ""}</div></div><div class="bill-box"><h4>VOUCHER INFORMATION</h4><div>Voucher No.: ${escapeHtml(data.voucherNo || "—")}<br>Date: ${escapeHtml(date)}<br>Payment Method: ${escapeHtml(data.paymentMethod || "—")}</div></div></div>
+                          <div class="bill-box"><h4>PAYMENT DETAILS</h4><table class="bill-table"><thead><tr><th>Description</th><th class="number">Amount (NPR)</th></tr></thead><tbody><tr><td>Previous Due / Outstanding</td><td class="number">${money(data.previousDue)}</td></tr><tr><td><b>Paid Amount</b></td><td class="number"><b>${money(data.paidAmount)}</b></td></tr><tr><td>Remaining Due / Outstanding</td><td class="number">${money(data.remainingDue)}</td></tr></tbody></table></div>
+                          <div class="bill-box"><h4>AMOUNT IN WORDS</h4><div>${escapeHtml(amountInWords(data.paidAmount))}</div></div><div class="bill-box"><h4>REMARKS</h4><div>${escapeHtml(data.remarks || "—")}</div></div><div class="bill-box"><div style="display:flex;justify-content:space-between;padding-top:16mm"><span>Prepared By</span><span>Received By</span><span>Authorized By</span></div></div>
+                        </div>`;
+        document.body.appendChild(voucher);
+        voucher.querySelector("[data-print]").onclick = () => window.print();
+        voucher.querySelector("[data-close]").onclick = () => voucher.remove();
+      }
+
+      /* =====================================
+       RECORD PAYMENT
+    ===================================== */
+
+      async function recordPayment() {
+        const statusDialog = document.getElementById("paymentOutStatusDialog");
+        const statusTitle = document.getElementById("paymentOutStatusTitle");
+        const statusMessage = document.getElementById("paymentOutStatusMessage");
+        const statusProgress = document.getElementById("paymentOutStatusProgress");
+        const statusDetails = document.getElementById("paymentOutStatusDetails");
+        const statusClose = document.getElementById("paymentOutStatusClose");
+        const showSaving = (label) => {
+          statusTitle.textContent = "Saving payment";
+          statusMessage.textContent = `Saving ${label} to the database. Please wait...`;
+          statusProgress.className = "progress-bar progress-bar-striped progress-bar-animated";
+          statusProgress.style.width = "35%";
+          statusProgress.textContent = "Saving";
+          statusDetails.textContent = "The payment is confirmed only after the database responds.";
+          statusClose.classList.add("d-none");
+          statusDialog.showModal();
+        };
+        const showResult = (success, label, result) => {
+          statusTitle.textContent = success ? "Payment recorded successfully" : "Payment was not recorded";
+          statusMessage.textContent = success ? `${label} was saved in the database.` : (result?.message || `Unable to save ${label}.`);
+          statusProgress.className = `progress-bar ${success ? "bg-success" : "bg-danger"}`;
+          statusProgress.style.width = "100%";
+          statusProgress.textContent = success ? "Saved" : "Failed";
+          statusDetails.textContent = success ? `Database record: ${result?.data?.paymentId || result?.data?.voucherNo || "confirmed"}` : "No successful database confirmation was received.";
+          statusClose.classList.remove("d-none");
+        };
+        statusClose.onclick = () => statusDialog.close();
+        if (!selectedPaymentType) {
+          window.kumakhDialogs.alert("Please select Vendor Payment or Staff Payment first.");
+
+          return;
+        }
+
+        /* ==============================
+           VENDOR
+        ============================== */
+
+        if (selectedPaymentType === "vendor") {
+          const vendor = document.getElementById("vendor").value;
+
+          const method = document.getElementById("vendorPaymentMethod").value;
+
+          const amount =
+            parseFloat(document.getElementById("vendorPaidAmount").value) || 0;
+
+          if (!vendor) {
+            window.kumakhDialogs.alert("Please select a vendor.");
+
+            return;
+          }
+
+          if (!method) {
+            window.kumakhDialogs.alert("Please select a payment method.");
+
+            return;
+          }
+
+          if (amount <= 0) {
+            window.kumakhDialogs.alert("Please enter the paid amount.");
+
+            return;
+          }
+
+          if (amount > vendorDue) {
+            window.kumakhDialogs.alert(
+              "Paid amount cannot be greater than the vendor's due amount.",
+            );
+
+            return;
+          }
+
+          try {
+            showSaving("vendor payment");
+            const response = await saveVendorPayment({
+              vendorName: vendor,
+              amount: amount,
+              vendorId:
+                document.getElementById("vendor").options[
+                  document.getElementById("vendor").selectedIndex
+                ].dataset.vendorId || "",
+              panVatNo:
+                document.getElementById("vendor").options[
+                  document.getElementById("vendor").selectedIndex
+                ].dataset.pan || "",
+              paymentDate: document.getElementById("vendorPaymentDate").value,
+              paymentMethod: method,
+              remarks: document.getElementById("vendorNotes").value,
+              previousDue: vendorDue,
+              remainingDue: Math.max(vendorDue - amount, 0),
+            });
+            if (!response || !response.success) {
+              showResult(false, "vendor payment", response);
+              throw new Error(
+                response && response.message
+                  ? response.message
+                  : "Unable to record vendor payment.",
+              );
+            }
+            showResult(true, "vendor payment", response);
+            showPaymentVoucher({
+              ...response.data,
+              paymentType: "Vendor Payment",
+              panVatNo:
+                response.data?.panVatNo ||
+                document.getElementById("vendor").options[
+                  document.getElementById("vendor").selectedIndex
+                ].dataset.pan || "",
+            });
+            window.kumakhDialogs.alert("Vendor payment recorded successfully!");
+            clearForm();
+            if (typeof window.initializePaymentOutPage === "function") {
+              document.getElementById("vendor").dataset.loaded = "";
+              await window.initializePaymentOutPage();
+            }
+          } catch (error) {
+            showResult(false, "vendor payment", { message: error.message });
+            window.kumakhDialogs.alert(error.message || "Unable to record vendor payment.");
+          }
+
+          return;
+        }
+
+        /* ==============================
+           STAFF
+        ============================== */
+
+        if (selectedPaymentType === "staff") {
+          const staff = document.getElementById("staff").value;
+
+          const method = document.getElementById("staffPaymentMethod").value;
+
+          const amount =
+            parseFloat(document.getElementById("staffPaidAmount").value) || 0;
+
+          if (!staff) {
+            window.kumakhDialogs.alert("Please select a staff member.");
+
+            return;
+          }
+
+          if (!method) {
+            window.kumakhDialogs.alert("Please select a payment method.");
+
+            return;
+          }
+
+          if (amount <= 0) {
+            window.kumakhDialogs.alert("Please enter the paid amount.");
+
+            return;
+          }
+
+          try {
+            showSaving("staff payment");
+            const option =
+              document.getElementById("staff").options[
+                document.getElementById("staff").selectedIndex
+              ];
+            const employeeId = String(option.dataset.employeeId || "").trim();
+            const employeeName = String(staff || option.textContent || "").trim();
+            if (!employeeId || !employeeName) {
+              throw new Error("Required staff name and staff ID could not be fetched.");
+            }
+            const previousDue = parseFloat(option.dataset.due) || 0;
+            const response = await saveStaffPayment({
+              employeeId,
+              employeeName,
+              amount: amount,
+              paymentDate: document.getElementById("staffPaymentDate").value,
+              paymentMethod: method,
+              remarks: document.getElementById("staffNotes").value,
+              previousDue,
+              remainingDue: Math.max(previousDue - amount, 0),
+              advanceAmount: Math.max(amount - previousDue, 0),
+            });
+            if (!response || !response.success) {
+              showResult(false, "staff payment", response);
+              throw new Error(
+                response && response.message
+                  ? response.message
+                  : "Unable to record staff payment.",
+              );
+            }
+            showResult(true, "staff payment", response);
+            showPaymentVoucher({
+              ...response.data,
+              paymentType: "Staff Payment",
+            });
+            window.kumakhDialogs.alert("Staff payment recorded successfully!");
+            clearForm();
+            document.getElementById("staff").dataset.loaded = "";
+            await window.initializePaymentOutPage();
+          } catch (error) {
+            showResult(false, "staff payment", { message: error.message });
+            window.kumakhDialogs.alert(error.message || "Unable to record staff payment.");
+          }
+        }
+      }
+
+      /* =====================================
+       CLEAR
+    ===================================== */
+
+      function clearForm() {
+        selectedPaymentType = "";
+
+        vendorDue = 0;
+        staffDue = 0;
+
+        document
+          .querySelectorAll('input[name="paymentType"]')
+          .forEach((radio) => (radio.checked = false));
+
+        document.getElementById("vendorSection").classList.remove("active");
+
+        document.getElementById("staffSection").classList.remove("active");
+
+        document.getElementById("vendor").value = "";
+
+        document.getElementById("staff").value = "";
+
+        document.getElementById("vendorPaidAmount").value = "";
+
+        document.getElementById("staffPaidAmount").value = "";
+
+        document.getElementById("vendorPaymentMethod").value = "";
+
+        document.getElementById("staffPaymentMethod").value = "";
+
+        document.getElementById("vendorNotes").value = "";
+
+        document.getElementById("staffNotes").value = "";
+
+        document.getElementById("vendorAccount").style.display = "none";
+
+        document.getElementById("staffDueBox").style.display = "none";
+
+        document.getElementById("vendorRemaining").textContent = "Rs. 0.00";
+
+        document.getElementById("staffRemaining").textContent = "Rs. 0.00";
+
+        document.getElementById("staffAdvanceBalance").textContent = "Rs. 0.00";
+
+        document.getElementById("staffAdvanceAmount").textContent = "Advance: Rs. 0.00";
+
+        setToday();
+      }
+    </script>
+  </body>
+</html>

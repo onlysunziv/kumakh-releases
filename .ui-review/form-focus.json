@@ -1,0 +1,938 @@
+[
+  {
+    "label": "students add name offline",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "students add address offline",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "students add editable [data-focus-review=\"modal-0\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "students add editable [data-focus-review=\"modal-1\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "students add editable [data-focus-review=\"modal-2\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "students add editable [data-focus-review=\"modal-3\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "students add alert dismissal result",
+    "pass": true
+  },
+  {
+    "label": "students add alert restores caret",
+    "pass": true
+  },
+  {
+    "label": "students add typing after alert",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "students add confirm dismissal result",
+    "pass": true
+  },
+  {
+    "label": "students add confirm restores caret",
+    "pass": true
+  },
+  {
+    "label": "students add typing after confirm",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "students add prompt dismissal result",
+    "pass": true
+  },
+  {
+    "label": "students add prompt restores caret",
+    "pass": true
+  },
+  {
+    "label": "students add typing after prompt",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "students add retains focus while loading",
+    "pass": true,
+    "before": true,
+    "after": true,
+    "active": "studentFullName"
+  },
+  {
+    "label": "students add uninterrupted typing",
+    "pass": true
+  },
+  {
+    "label": "students add close restores page input",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "students edit name offline",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "students edit address offline",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "students edit editable [data-focus-review=\"modal-0\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "students edit editable [data-focus-review=\"modal-1\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "students edit editable [data-focus-review=\"modal-2\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "students edit editable [data-focus-review=\"modal-3\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "students edit alert dismissal result",
+    "pass": true
+  },
+  {
+    "label": "students edit alert restores caret",
+    "pass": true
+  },
+  {
+    "label": "students edit typing after alert",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "students edit confirm dismissal result",
+    "pass": true
+  },
+  {
+    "label": "students edit confirm restores caret",
+    "pass": true
+  },
+  {
+    "label": "students edit typing after confirm",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "students edit prompt dismissal result",
+    "pass": true
+  },
+  {
+    "label": "students edit prompt restores caret",
+    "pass": true
+  },
+  {
+    "label": "students edit typing after prompt",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "students edit retains focus while loading",
+    "pass": true,
+    "before": true,
+    "after": true,
+    "active": "studentFullName"
+  },
+  {
+    "label": "students edit uninterrupted typing",
+    "pass": true
+  },
+  {
+    "label": "students edit close restores page input",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add name offline",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add address offline",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-0\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-1\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-2\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-3\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-4\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-5\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-6\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-7\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-8\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-9\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-10\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-11\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-12\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-13\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-14\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-15\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-16\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-17\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-18\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-19\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-20\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-21\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-22\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-23\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add editable [data-focus-review=\"modal-24\"]",
+    "pass": true,
+    "focused": true,
+    "value": "123"
+  },
+  {
+    "label": "staff add alert dismissal result",
+    "pass": true
+  },
+  {
+    "label": "staff add alert restores caret",
+    "pass": true
+  },
+  {
+    "label": "staff add typing after alert",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add confirm dismissal result",
+    "pass": true
+  },
+  {
+    "label": "staff add confirm restores caret",
+    "pass": true
+  },
+  {
+    "label": "staff add typing after confirm",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add prompt dismissal result",
+    "pass": true
+  },
+  {
+    "label": "staff add prompt restores caret",
+    "pass": true
+  },
+  {
+    "label": "staff add typing after prompt",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff add retains focus while loading",
+    "pass": true,
+    "before": true,
+    "after": true,
+    "active": "staffFullName"
+  },
+  {
+    "label": "staff add uninterrupted typing",
+    "pass": true
+  },
+  {
+    "label": "staff add close restores page input",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit name offline",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit address offline",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-0\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-1\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-2\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-3\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-4\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-5\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-6\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-7\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-8\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-9\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-10\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-11\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-12\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-13\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-14\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-15\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-16\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-17\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-18\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-19\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-20\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-21\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-22\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-23\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit editable [data-focus-review=\"modal-24\"]",
+    "pass": true,
+    "focused": true,
+    "value": "123"
+  },
+  {
+    "label": "staff edit alert dismissal result",
+    "pass": true
+  },
+  {
+    "label": "staff edit alert restores caret",
+    "pass": true
+  },
+  {
+    "label": "staff edit typing after alert",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit confirm dismissal result",
+    "pass": true
+  },
+  {
+    "label": "staff edit confirm restores caret",
+    "pass": true
+  },
+  {
+    "label": "staff edit typing after confirm",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit prompt dismissal result",
+    "pass": true
+  },
+  {
+    "label": "staff edit prompt restores caret",
+    "pass": true
+  },
+  {
+    "label": "staff edit typing after prompt",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "staff edit retains focus while loading",
+    "pass": true,
+    "before": true,
+    "after": true,
+    "active": "staffFullName"
+  },
+  {
+    "label": "staff edit uninterrupted typing",
+    "pass": true
+  },
+  {
+    "label": "staff edit close restores page input",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "vendors add name offline",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "vendors add address offline",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "vendors add editable [data-focus-review=\"modal-0\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "vendors add editable [data-focus-review=\"modal-1\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "vendors add editable [data-focus-review=\"modal-2\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "vendors add editable [data-focus-review=\"modal-3\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "vendors add editable [data-focus-review=\"modal-4\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "vendors add alert dismissal result",
+    "pass": true
+  },
+  {
+    "label": "vendors add alert restores caret",
+    "pass": true
+  },
+  {
+    "label": "vendors add typing after alert",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "vendors add confirm dismissal result",
+    "pass": true
+  },
+  {
+    "label": "vendors add confirm restores caret",
+    "pass": true
+  },
+  {
+    "label": "vendors add typing after confirm",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "vendors add prompt dismissal result",
+    "pass": true
+  },
+  {
+    "label": "vendors add prompt restores caret",
+    "pass": true
+  },
+  {
+    "label": "vendors add typing after prompt",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "vendors add retains focus while loading",
+    "pass": true,
+    "before": true,
+    "after": true,
+    "active": "vendorName"
+  },
+  {
+    "label": "vendors add uninterrupted typing",
+    "pass": true
+  },
+  {
+    "label": "vendors add close restores page input",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "vendors edit name offline",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "vendors edit address offline",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "vendors edit editable [data-focus-review=\"modal-0\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "vendors edit editable [data-focus-review=\"modal-1\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "vendors edit editable [data-focus-review=\"modal-2\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "vendors edit editable [data-focus-review=\"modal-3\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "vendors edit editable [data-focus-review=\"modal-4\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "vendors edit alert dismissal result",
+    "pass": true
+  },
+  {
+    "label": "vendors edit alert restores caret",
+    "pass": true
+  },
+  {
+    "label": "vendors edit typing after alert",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "vendors edit confirm dismissal result",
+    "pass": true
+  },
+  {
+    "label": "vendors edit confirm restores caret",
+    "pass": true
+  },
+  {
+    "label": "vendors edit typing after confirm",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "vendors edit prompt dismissal result",
+    "pass": true
+  },
+  {
+    "label": "vendors edit prompt restores caret",
+    "pass": true
+  },
+  {
+    "label": "vendors edit typing after prompt",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "vendors edit retains focus while loading",
+    "pass": true,
+    "before": true,
+    "after": true,
+    "active": "vendorName"
+  },
+  {
+    "label": "vendors edit uninterrupted typing",
+    "pass": true
+  },
+  {
+    "label": "vendors edit close restores page input",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "confirm returns accepted value",
+    "pass": true
+  },
+  {
+    "label": "prompt returns accepted value",
+    "pass": true
+  },
+  {
+    "label": "payments visible field [data-focus-review=\"field-0\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "payments visible field [data-focus-review=\"field-1\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "payments visible field [data-focus-review=\"field-2\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "salary visible field [data-focus-review=\"field-0\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "expenses visible field [data-focus-review=\"field-0\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "expenses visible field [data-focus-review=\"field-1\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "expenses visible field [data-focus-review=\"field-2\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "cafe visible field [data-focus-review=\"field-0\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "cafe visible field [data-focus-review=\"field-1\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "settings visible field [data-focus-review=\"field-0\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "settings visible field [data-focus-review=\"field-1\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "settings visible field [data-focus-review=\"field-2\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "settings visible field [data-focus-review=\"field-3\"]",
+    "pass": true,
+    "focused": true,
+    "value": "Typing test"
+  },
+  {
+    "label": "Staff invalid attachment blocks save",
+    "pass": true
+  },
+  {
+    "label": "Staff form saves both documents after repeated selection and picker cancel",
+    "pass": true
+  },
+  {
+    "label": "Staff form documents reach report upload requests",
+    "pass": true
+  },
+  {
+    "label": "report dialog close releases field focus",
+    "pass": true
+  }
+]

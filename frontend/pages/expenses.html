@@ -1,0 +1,409 @@
+<style>
+  .expenses-page {
+    color: #18324d;
+  }
+  .expenses-hero {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 22px;
+    padding: 24px;
+    border-radius: 20px;
+    color: #fff;
+    background: linear-gradient(135deg, #123b62, #247d91);
+  }
+  .expenses-hero h2 {
+    margin: 0 0 5px;
+    font-weight: 800;
+  }
+  .expenses-hero p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.78);
+  }
+  .expenses-card {
+    border: 1px solid #dce7f1;
+    border-radius: 18px;
+    padding: 22px;
+    background: #fff;
+    box-shadow: 0 12px 30px rgba(18, 59, 98, 0.08);
+  }
+  .expenses-card h3 {
+    margin: 0 0 18px;
+    font-size: 1.05rem;
+  }
+  .expenses-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .expenses-field {
+    display: grid;
+    gap: 6px;
+  }
+  .expenses-field.full {
+    grid-column: 1 / -1;
+  }
+  .expenses-field label {
+    color: #526b82;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+  .expenses-field input,
+  .expenses-field select,
+  .expenses-field textarea {
+    width: 100%;
+    border: 1px solid #d5e1ec;
+    border-radius: 10px;
+    padding: 11px 12px;
+    color: #18324d;
+    background: #f8fbfe;
+    outline: 0;
+  }
+  .expenses-field input:focus,
+  .expenses-field select:focus,
+  .expenses-field textarea:focus {
+    border-color: #36a6b8;
+    box-shadow: 0 0 0 3px rgba(54, 166, 184, 0.14);
+  }
+  .expenses-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
+  }
+  .expenses-message {
+    min-height: 20px;
+    margin-top: 12px;
+    font-size: 0.82rem;
+  }
+  .expenses-message.success {
+    color: #15805c;
+  }
+  .expenses-message.error {
+    color: #bd3e4b;
+  }
+  .expenses-topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .expenses-topic {
+    border: 1px solid #cfe0ed;
+    border-radius: 999px;
+    padding: 6px 10px;
+    color: #2d6682;
+    background: #f4faff;
+    cursor: pointer;
+    font-size: 0.75rem;
+  }
+  .expenses-topic:hover {
+    border-color: #36a6b8;
+    background: #e9fbfa;
+  }
+  .expenses-list {
+    margin-top: 22px;
+    overflow-x: auto;
+  }
+  .expenses-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 680px;
+  }
+  .expenses-table th,
+  .expenses-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #e5edf4;
+    text-align: left;
+    white-space: nowrap;
+  }
+  .expenses-table th {
+    color: #526b82;
+    background: #f5f9fc;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .expenses-table td {
+    font-size: 0.86rem;
+  }
+  .expenses-table td.amount {
+    color: #123b62;
+    font-weight: 800;
+    text-align: right;
+  }
+  .expenses-empty {
+    padding: 22px 10px;
+    color: #71869a;
+    text-align: center;
+  }
+  @media (max-width: 700px) {
+    .expenses-hero {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+    .expenses-form {
+      grid-template-columns: 1fr;
+    }
+    .expenses-field.full {
+      grid-column: auto;
+    }
+  }
+</style>
+
+<section class="page-section expenses-page">
+  <div class="expenses-hero">
+    <div>
+      <h2>Record Expense</h2>
+      <p>Track maintenance, utilities, supplies and other operating costs.</p>
+    </div>
+    <span aria-hidden="true" style="font-size: 2.5rem">₨</span>
+  </div>
+  <div class="expenses-card">
+    <h3>Expense details</h3>
+    <form id="expenseForm">
+      <div class="expenses-form">
+        <div class="expenses-field">
+          <label for="expenseDate">Expense date</label
+          ><input id="expenseDate" type="date" required />
+        </div>
+        <div class="expenses-field">
+          <label for="expenseCategory">Expense topic</label
+          ><select id="expenseCategory" required>
+            <option value="">Select topic</option>
+            <option>Maintenance</option>
+            <option>Electricity</option>
+            <option>Water</option>
+            <option>Internet</option>
+            <option>Office Supplies</option>
+            <option>Cleaning</option>
+            <option>Transport</option>
+            <option>Rent</option>
+            <option>Salary</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="expenses-field">
+          <label for="expenseName">Description</label
+          ><input
+            id="expenseName"
+            required
+            placeholder="e.g. Classroom fan repair"
+          />
+        </div>
+        <div class="expenses-field">
+          <label for="expenseAmount">Amount (NPR)</label
+          ><input
+            id="expenseAmount"
+            type="number"
+            min="0"
+            step="0.01"
+            required
+            placeholder="0.00"
+          />
+        </div>
+        <div class="expenses-field">
+          <label for="expensePayment">Payment method</label
+          ><select id="expensePayment">
+            <option>Cash</option>
+            <option>Bank Transfer</option>
+            <option>Cheque</option>
+            <option>Online</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="expenses-field">
+          <label for="expenseReference">Reference / bill no.</label
+          ><input id="expenseReference" placeholder="Optional reference" />
+        </div>
+        <div class="expenses-field full">
+          <label for="expenseRemarks">Remarks</label
+          ><textarea
+            id="expenseRemarks"
+            rows="3"
+            placeholder="Add details about this expense"
+          ></textarea>
+        </div>
+      </div>
+      <div class="expenses-topics" aria-label="Common expense topics">
+        <button class="expenses-topic" type="button" data-topic="Maintenance">
+          Maintenance</button
+        ><button class="expenses-topic" type="button" data-topic="Electricity">
+          Electricity</button
+        ><button class="expenses-topic" type="button" data-topic="Cleaning">
+          Cleaning</button
+        ><button
+          class="expenses-topic"
+          type="button"
+          data-topic="Office Supplies"
+        >
+          Office supplies
+        </button>
+      </div>
+      <div class="expenses-actions">
+        <button class="btn btn-outline-secondary" type="reset">Clear</button
+        ><button class="btn btn-primary" type="submit">Save expense</button>
+      </div>
+      <div
+        class="expenses-message"
+        id="expenseMessage"
+        aria-live="polite"
+      ></div>
+    </form>
+  </div>
+  <div class="expenses-card expenses-list">
+    <h3>Recent expenses</h3>
+    <table class="expenses-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Category</th>
+          <th>Description</th>
+          <th>Payment</th>
+          <th>Reference / remarks</th>
+          <th>Amount (NPR)</th>
+        </tr>
+      </thead>
+      <tbody id="expensesTableBody">
+        <tr>
+          <td colspan="6" class="expenses-empty">Loading expenses...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<script>
+  (() => {
+    const page = document.querySelector(".expenses-page");
+    if (!page || page.dataset.ready === "true") return;
+    page.dataset.ready = "true";
+    const form = page.querySelector("#expenseForm"),
+      message = page.querySelector("#expenseMessage"),
+      date = page.querySelector("#expenseDate"),
+      tableBody = page.querySelector("#expensesTableBody");
+    const value = (record, names) => {
+      for (const name of names) {
+        const key = Object.keys(record || {}).find(
+          (candidate) =>
+            candidate.toLowerCase().replace(/[\s_-]/g, "") === name,
+        );
+        if (key && record[key] !== undefined && record[key] !== "")
+          return record[key];
+      }
+      return "";
+    };
+    const escapeHtml = (text) =>
+      String(text == null ? "" : text).replace(
+        /[&<>"']/g,
+        (character) =>
+          ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;",
+          })[character],
+      );
+    const renderExpenses = (records) => {
+      const rows = (Array.isArray(records) ? records : [])
+        .slice()
+        .reverse()
+        .slice(0, 25);
+      if (!rows.length) {
+        tableBody.innerHTML =
+          '<tr><td colspan="6" class="expenses-empty">No expenses recorded yet.</td></tr>';
+        return;
+      }
+      tableBody.innerHTML = rows
+        .map((record) => {
+          const notes = String(value(record, ["notes"]) || "");
+          const parts = notes.split(" | ");
+          const payment = parts.shift() || "-";
+          return `<tr><td>${escapeHtml(value(record, ["expensedate", "date"]) || "-")}</td><td>${escapeHtml(value(record, ["category"]) || "-")}</td><td>${escapeHtml(value(record, ["expensename", "description"]) || "-")}</td><td>${escapeHtml(payment)}</td><td>${escapeHtml(parts.join(" | ") || "-")}</td><td class="amount">${escapeHtml(Number(value(record, ["amount"]) || 0).toFixed(2))}</td></tr>`;
+        })
+        .join("");
+    };
+    const loadExpenses = async () => {
+      if (
+        !window.kumakhApi ||
+        typeof window.kumakhApi.getExpensesPurchases !== "function"
+      ) {
+        tableBody.innerHTML =
+          '<tr><td colspan="6" class="expenses-empty">Expense API is not configured.</td></tr>';
+        return;
+      }
+      try {
+        const response = await window.kumakhApi.getExpensesPurchases();
+        if (!response.success)
+          throw new Error(response.message || "Unable to load expenses.");
+        renderExpenses(response.data && response.data.expenses);
+      } catch (error) {
+        tableBody.innerHTML = `<tr><td colspan="6" class="expenses-empty">${escapeHtml(error.message)}</td></tr>`;
+      }
+    };
+    const today = () => {
+      date.value = new Date().toISOString().slice(0, 10);
+    };
+    today();
+    page.querySelectorAll("[data-topic]").forEach((button) =>
+      button.addEventListener("click", () => {
+        page.querySelector("#expenseCategory").value = button.dataset.topic;
+      }),
+    );
+    form.addEventListener("reset", () =>
+      window.setTimeout(() => {
+        today();
+        message.textContent = "";
+        message.className = "expenses-message";
+      }),
+    );
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      message.textContent = "";
+      message.className = "expenses-message";
+      if (
+        !window.kumakhApi ||
+        typeof window.kumakhApi.saveExpense !== "function"
+      ) {
+        message.textContent = "Expense API is not configured.";
+        message.classList.add("error");
+        return;
+      }
+      const button = form.querySelector('[type="submit"]');
+      button.disabled = true;
+      try {
+        const paymentMethod = page.querySelector("#expensePayment").value;
+        const reference = page.querySelector("#expenseReference").value.trim();
+        const remarks = page.querySelector("#expenseRemarks").value.trim();
+        const notes = [
+          paymentMethod,
+          reference ? `Reference: ${reference}` : "",
+          remarks,
+        ]
+          .filter(Boolean)
+          .join(" | ");
+        const response = await window.kumakhApi.saveExpense({
+          expenseDate: date.value,
+          category: page.querySelector("#expenseCategory").value,
+          expenseName: page.querySelector("#expenseName").value.trim(),
+          amount: page.querySelector("#expenseAmount").value,
+          notes,
+        });
+        if (!response.success)
+          throw new Error(response.message || "Unable to save expense.");
+        message.textContent = "Expense recorded successfully.";
+        message.classList.add("success");
+        form.reset();
+        loadExpenses();
+      } catch (error) {
+        message.textContent = error.message;
+        message.classList.add("error");
+      } finally {
+        button.disabled = false;
+      }
+    });
+    loadExpenses();
+  })();
+</script>

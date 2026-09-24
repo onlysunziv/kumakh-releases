@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kumakh College Management System</title>
+    <link
+      href="./assets/vendor/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="./assets/vendor/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/main.css" />
+    <link rel="stylesheet" href="./css/dashboard.css" />
+    <link rel="stylesheet" href="./css/vouchers.css" />
+    <link rel="stylesheet" href="./css/ui-polish.css" />
+    <link rel="stylesheet" href="./css/report-submission.css" />
+  </head>
+  <body class="app-body">
+    <a class="skip-link" href="#pageContent">Skip to page content</a>
+    <div
+      class="app-splash"
+      id="appSplash"
+      aria-label="Loading Kumakh College Management System"
+      role="status"
+    >
+      <div class="kcmt-loader">
+        <div class="kcmt-loader-ring"></div>
+        <div class="kcmt-loader-logo">
+          <img src="./assets/kumakh-logo.png" alt="Kumakh College" />
+        </div>
+        <div class="kcmt-loader-text">
+          LOADING<span class="kcmt-loader-dots"><i>.</i><i>.</i><i>.</i></span>
+        </div>
+      </div>
+    </div>
+    <div class="app-shell">
+      <aside class="sidebar" id="appSidebar">
+        <div class="brand-header brand-header--compact">
+          <div
+            class="brand-icon"
+            id="sidebarLogoToggle"
+            aria-label="Collapse sidebar"
+            aria-expanded="true"
+            title="College navigation"
+          >
+            <img
+              src="./assets/kumakh-logo.png"
+              alt="Kumakh College logo"
+              draggable="false"
+            />
+          </div>
+          <span class="brand-wordmark" aria-label="KCMT">KCMT</span>
+        </div>
+
+        <nav class="nav-menu" aria-label="Main navigation">
+          <button class="nav-item active" data-page="dashboard" data-short="D">
+            <i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span>
+          </button>
+          <button class="nav-item" data-page="cafe" data-short="C">
+            <i class="bi bi-cup-hot-fill"></i><span>Cafe POS</span>
+          </button>
+          <button class="nav-item" data-page="course" data-short="C">
+            <i class="bi bi-journal-bookmark-fill"></i><span>Courses</span>
+          </button>
+          <button class="nav-item" data-page="students" data-short="S">
+            <i class="bi bi-mortarboard-fill"></i><span>Students</span>
+          </button>
+          <button class="nav-item" data-page="payments" data-short="P">
+            <i class="bi bi-wallet2"></i><span>Payments</span>
+          </button>
+          <button class="nav-item" data-page="staff" data-short="S">
+            <i class="bi bi-people-fill"></i><span>Staff</span>
+          </button>
+          <button class="nav-item" data-page="salary" data-short="S">
+            <i class="bi bi-cash-stack"></i><span>Salary</span>
+          </button>
+          <button class="nav-item" data-page="payment-out" data-short="P">
+            <i class="bi bi-send-fill"></i><span>Payment Out</span>
+          </button>
+          <button class="nav-item" data-page="purchases" data-short="P">
+            <i class="bi bi-cart-check-fill"></i><span>Purchases</span>
+          </button>
+          <button class="nav-item" data-page="expenses" data-short="E">
+            <i class="bi bi-receipt-cutoff"></i><span>Expenses</span>
+          </button>
+          <button class="nav-item" data-page="vendors" data-short="V">
+            <i class="bi bi-shop"></i><span>Vendors</span>
+          </button>
+          <button class="nav-item" data-page="reports" data-short="R">
+            <i class="bi bi-cloud-arrow-up-fill"></i><span>Submit Reports</span>
+          </button>
+          <button class="nav-item" data-page="settings" data-short="⚙">
+            <i class="bi bi-gear-fill"></i><span>Settings</span>
+          </button>
+        </nav>
+      </aside>
+
+      <main class="content-panel">
+        <header class="topbar">
+          <div class="topbar-brand">
+            <div class="topbar-title">
+              <span>Workspace</span
+              ><strong id="workspaceTitle">College Operations</strong>
+            </div>
+          </div>
+          <div class="user-panel">
+            <span id="userDisplayName">User</span>
+            <span class="user-role" id="userRoleBadge">Role</span>
+            <span id="currentDateDisplay" class="user-role date-badge"
+              >Date</span
+            >
+            <button
+              id="logoutButton"
+              class="btn btn-sm btn-outline-danger"
+              type="button"
+              title="Log out"
+            >
+              <i class="bi bi-box-arrow-right"></i>
+              <span>Logout</span>
+            </button>
+          </div>
+        </header>
+
+        <div id="softwareUpdateAnnouncement" class="alert alert-info mx-3 my-2" role="status" hidden></div>
+        <section id="pageContent" class="page-content"></section>
+      </main>
+    </div>
+
+    <script src="./js/dialogs.js"></script>
+    <script src="./js/api.js"></script>
+    <script src="./js/vouchers.js"></script>
+    <script src="./js/report-submission.js"></script>
+    <script src="./js/updates.js"></script>
+    <script src="./js/app.js"></script>
+    <script>
+      window.setTimeout(function () {
+        var splash = document.getElementById("appSplash");
+        if (splash) splash.classList.add("is-hidden");
+      }, 10000);
+    </script>
+  </body>
+</html>

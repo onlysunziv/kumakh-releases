@@ -1,0 +1,523 @@
+<section class="page-section">
+  <div class="card p-3 p-lg-4">
+    <div
+      class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2"
+    >
+      <div>
+        <h3 class="mb-1">Staff / Employees</h3>
+        <p class="text-muted mb-0">
+          Manage employees, profiles, records, and documents
+        </p>
+      </div>
+
+      <button id="addStaffButton" data-permission="staff.add" class="btn btn-primary" type="button">
+        + Add New Staff
+      </button>
+    </div>
+
+    <div class="mb-3 row g-2">
+      <div class="col-md-8">
+        <label class="visually-hidden" for="staffSearch">Search staff</label>
+        <input
+          id="staffSearch"
+          class="form-control"
+          type="search"
+          placeholder="Search by Employee ID, name, mobile, email, department, job title"
+        />
+      </div>
+
+      <div class="col-md-4">
+        <label class="visually-hidden" for="staffDepartmentFilter"
+          >Filter by department</label
+        >
+        <select id="staffDepartmentFilter" class="form-select">
+          <option value="">All npmdepartments</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="staffPageMessage" class="alert d-none mb-3" role="alert"></div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0 student-table">
+        <thead class="table-light">
+          <tr>
+            <th>Photo</th>
+            <th>Employee ID</th>
+            <th>Full Name</th>
+            <th>Job Title</th>
+            <th>Department</th>
+            <th>Mobile Number</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="staffTableBody">
+          <tr>
+            <td colspan="9" class="text-center text-muted py-4">
+              Loading staff...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div
+    id="staffFormModal"
+    class="modal d-none student-modal"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="staffFormTitle"
+  >
+    <div class="modal-dialog modal-xl a4-modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div>
+            <h5 id="staffFormTitle" class="modal-title">Add New Staff</h5>
+            <p class="text-muted mb-0">Complete employee profile details</p>
+          </div>
+          <button
+            type="button"
+            class="btn-close"
+            data-staff-modal-close
+            aria-label="Close"
+          ></button>
+        </div>
+
+        <div class="modal-body" style="overflow-y: auto">
+          <form id="staffForm" novalidate>
+            <div
+              id="staffFormAlert"
+              class="alert d-none mb-3"
+              role="alert"
+            ></div>
+
+            <div class="mb-4">
+              <h6 class="mb-3">Section 1 — Personal Information</h6>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="staffFullName" class="form-label"
+                    >Full Name <span class="text-danger">*</span></label
+                  >
+                  <input
+                    id="staffFullName"
+                    name="fullName"
+                    class="form-control"
+                    type="text"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label for="staffPassportPhoto" class="form-label"
+                    >Passport Size Photo</label
+                  >
+                  <input
+                    id="staffPassportPhoto"
+                    class="form-control"
+                    type="file"
+                    accept="image/jpeg,image/png,image/jpg"
+                  />
+                  <div class="small text-muted mt-2" id="staffPhotoFileInfo">
+                    No file selected.
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <label for="staffAddress" class="form-label"
+                    >Address <span class="text-danger">*</span></label
+                  >
+                  <textarea
+                    id="staffAddress"
+                    name="address"
+                    class="form-control"
+                    rows="2"
+                    required
+                  ></textarea>
+                </div>
+                <div class="col-md-3">
+                  <label for="staffGender" class="form-label"
+                    >Gender <span class="text-danger">*</span></label
+                  >
+                  <select
+                    id="staffGender"
+                    name="gender"
+                    class="form-select"
+                    required
+                  >
+                    <option value="">Select</option>
+                    <option>Male</option>
+                    <option>Female</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label for="staffBloodGroup" class="form-label"
+                    >Blood Group <span class="text-danger">*</span></label
+                  >
+                  <select
+                    id="staffBloodGroup"
+                    name="bloodGroup"
+                    class="form-select"
+                    required
+                  >
+                    <option value="">Select</option>
+                    <option>A+</option>
+                    <option>A-</option>
+                    <option>B+</option>
+                    <option>B-</option>
+                    <option>AB+</option>
+                    <option>AB-</option>
+                    <option>O+</option>
+                    <option>O-</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label for="staffMobileNumber" class="form-label"
+                    >Mobile Number <span class="text-danger">*</span></label
+                  >
+                  <input
+                    id="staffMobileNumber"
+                    name="mobileNumber"
+                    class="form-control"
+                    type="tel"
+                  />
+                </div>
+                <div class="col-md-3">
+                  <label for="staffEmail" class="form-label">Email</label>
+                  <input
+                    id="staffEmail"
+                    name="email"
+                    class="form-control"
+                    type="email"
+                  />
+                </div>
+                <div class="col-md-3">
+                  <label for="staffCitizenshipNumber" class="form-label"
+                    >Citizenship Number
+                    <span class="text-danger">*</span></label
+                  >
+                  <input
+                    id="staffCitizenshipNumber"
+                    name="citizenshipNumber"
+                    class="form-control"
+                    type="text"
+                  />
+                </div>
+                <div class="col-md-3">
+                  <label for="staffPersonalPanNo" class="form-label"
+                    >Personal PAN No</label
+                  >
+                  <input
+                    id="staffPersonalPanNo"
+                    name="personalPanNo"
+                    class="form-control"
+                    type="text"
+                  />
+                </div>
+                <div class="col-md-3">
+                  <label for="staffMaritalStatus" class="form-label"
+                    >Marital Status <span class="text-danger">*</span></label
+                  >
+                  <select
+                    id="staffMaritalStatus"
+                    name="maritalStatus"
+                    class="form-select"
+                    required
+                  >
+                    <option value="">Select</option>
+                    <option>Single</option>
+                    <option>Married</option>
+                    <option>Divorced</option>
+                    <option>Widowed</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label for="staffHomeNumber" class="form-label"
+                    >Home Number</label
+                  >
+                  <input
+                    id="staffHomeNumber"
+                    name="homeNumber"
+                    class="form-control"
+                    type="tel"
+                  />
+                </div>
+                <div class="col-md-3">
+                  <label for="staffAlternativeNumber" class="form-label"
+                    >Alternative Number</label
+                  >
+                  <input
+                    id="staffAlternativeNumber"
+                    name="alternativeNumber"
+                    class="form-control"
+                    type="tel"
+                  />
+                </div>
+                <div class="col-md-3">
+                  <label for="staffDateOfBirth" class="form-label"
+                    >Date of Birth</label
+                  >
+                  <input
+                    id="staffDateOfBirth"
+                    name="dateOfBirth"
+                    class="form-control"
+                    type="date"
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label for="staffDocumentUpload" class="form-label"
+                    >Employee Documents</label
+                  >
+                  <input
+                    id="staffDocumentUpload"
+                    class="form-control"
+                    type="file"
+                    multiple
+                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                  />
+                  <div class="small text-muted mt-2" id="staffDocumentFileInfo">
+                    No documents selected.
+                  </div>
+                  <ul id="staffDocumentList" class="list-group mt-2" aria-live="polite"></ul>
+                  <div class="form-text">PDF, JPG, PNG, DOC or DOCX, up to 5 MB each. Save Staff before submitting the report.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <h6 class="mb-3">Section 2 — Family Information</h6>
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <label for="staffFathersName" class="form-label"
+                    >Father's Name</label
+                  ><input
+                    id="staffFathersName"
+                    name="fatherName"
+                    class="form-control"
+                    type="text"
+                  />
+                </div>
+                <div class="col-md-3">
+                  <label for="staffMothersName" class="form-label"
+                    >Mother's Name</label
+                  ><input
+                    id="staffMothersName"
+                    name="motherName"
+                    class="form-control"
+                    type="text"
+                  />
+                </div>
+                <div class="col-md-3">
+                  <label for="staffGrandfathersName" class="form-label"
+                    >Grandfather's Name</label
+                  ><input
+                    id="staffGrandfathersName"
+                    name="grandfatherName"
+                    class="form-control"
+                    type="text"
+                  />
+                </div>
+                <div class="col-md-3">
+                  <label for="staffGrandmothersName" class="form-label"
+                    >Grandmother's Name</label
+                  ><input
+                    id="staffGrandmothersName"
+                    name="grandmotherName"
+                    class="form-control"
+                    type="text"
+                  />
+                </div>
+                <div class="col-md-3">
+                  <label for="staffSpouseName" class="form-label"
+                    >Spouse Name</label
+                  ><input
+                    id="staffSpouseName"
+                    name="spouseName"
+                    class="form-control"
+                    type="text"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <h6 class="mb-3">Section 3 — Bank Information</h6>
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <label for="staffAccountNumber" class="form-label"
+                    >Account Number</label
+                  ><input
+                    id="staffAccountNumber"
+                    name="accountNumber"
+                    class="form-control"
+                    type="text"
+                    inputmode="numeric"
+                  />
+                </div>
+                <div class="col-md-3">
+                  <label for="staffAccountName" class="form-label"
+                    >Account Name</label
+                  ><input
+                    id="staffAccountName"
+                    name="accountName"
+                    class="form-control"
+                    type="text"
+                  />
+                </div>
+                <div class="col-md-3">
+                  <label for="staffBankName" class="form-label">Bank Name</label
+                  ><input
+                    id="staffBankName"
+                    name="bankName"
+                    class="form-control"
+                    type="text"
+                  />
+                </div>
+                <div class="col-md-3">
+                  <label for="staffSwiftCode" class="form-label"
+                    >SWIFT Code</label
+                  ><input
+                    id="staffSwiftCode"
+                    name="swiftCode"
+                    class="form-control"
+                    type="text"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <h6 class="mb-3">Section 4 — Employment Information</h6>
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <label for="staffJobTitle" class="form-label"
+                    >Job Title <span class="text-danger">*</span></label
+                  ><input
+                    id="staffJobTitle"
+                    name="jobTitle"
+                    class="form-control"
+                    type="text"
+                    required
+                  />
+                </div>
+                <div class="col-md-3">
+                  <label for="staffEmployeeId" class="form-label"
+                    >Employee ID <span class="text-danger">*</span></label
+                  ><input
+                    id="staffEmployeeId"
+                    name="employeeId"
+                    class="form-control"
+                    type="text"
+                    required
+                  />
+                </div>
+                <div class="col-md-3">
+                  <label for="staffReportTo" class="form-label">Report To</label
+                  ><input
+                    id="staffReportTo"
+                    name="reportTo"
+                    class="form-control"
+                    type="text"
+                  />
+                </div>
+                <div class="col-md-3">
+                  <label for="staffDepartment" class="form-label"
+                    >Department <span class="text-danger">*</span></label
+                  ><input
+                    id="staffDepartment"
+                    name="department"
+                    class="form-control"
+                    type="text"
+                    required
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label for="staffCompanyName" class="form-label"
+                    >Company Name <span class="text-danger">*</span></label
+                  ><input
+                    id="staffCompanyName"
+                    name="companyName"
+                    class="form-control"
+                    type="text"
+                    required
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label for="staffCompanyAddress" class="form-label"
+                    >Company Address <span class="text-danger">*</span></label
+                  ><input
+                    id="staffCompanyAddress"
+                    name="companyAddress"
+                    class="form-control"
+                    type="text"
+                    required
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label for="staffCompanyContactNo" class="form-label"
+                    >Company Contact No
+                    <span class="text-danger">*</span></label
+                  ><input
+                    id="staffCompanyContactNo"
+                    name="companyContactNo"
+                    class="form-control"
+                    type="tel"
+                    required
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label for="staffJoiningDate" class="form-label"
+                    >Joining Date <span class="text-danger">*</span></label
+                  ><input
+                    id="staffJoiningDate"
+                    name="joiningDate"
+                    class="form-control"
+                    type="date"
+                    required
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label for="staffBasicSalary" class="form-label"
+                    >Basic Salary <span class="text-danger">*</span></label
+                  ><input
+                    id="staffBasicSalary"
+                    name="basicSalary"
+                    class="form-control"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    required
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label for="staffStatus" class="form-label"
+                    >Employment Status</label
+                  ><select id="staffStatus" name="status" class="form-select">
+                    <option value="Working">Working</option>
+                    <option value="Left">Left</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-staff-modal-close
+          >
+            Cancel
+          </button>
+          <button type="button" id="saveStaffButton" data-permission="staff.add" class="btn btn-primary">
+            Save Staff
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
