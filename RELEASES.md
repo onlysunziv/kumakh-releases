@@ -31,13 +31,18 @@ installer/update artifacts only; it does not push this project's source code.
    function npm { & node 'C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js' @args }
    ```
 
-4. The Windows build embeds the existing Turso URL/token into a main-process-only
-   resource at `resources\config\turso.env`. `scripts/build-win.js` creates that
-   resource from the secured build environment and removes the staging file after
-   packaging. An installed user does not provision configuration and no
-   `database.json` is used. The main process loads the resource automatically,
+4. Before packaging, set `TURSO_CONFIG_FILE` to an explicitly selected secure
+   production env file (or provide `TURSO_DATABASE_URL` and
+   `TURSO_AUTH_TOKEN` directly). `scripts/build-win.js` validates the URL and
+   both credentials, stages `build\turso-config.env` only for electron-builder,
+   and removes the staging file after packaging. The build fails before
+   electron-builder if configuration is absent or invalid; it never discovers
+   `.env` automatically. The packaged main-process-only resource is used only
+   to bootstrap persistent configuration on first launch. The main process then
+   preserves it at `%APPDATA%\kumakh-college-management-system\runtime.env`,
    creates or opens `%APPDATA%\kumakh-college-management-system\database\kumakh-sync.db`,
-   and synchronizes it with the existing Turso database.
+   and synchronizes it with the existing Turso database. No `database.json` is
+   used, and updater replacement never touches these paths.
 5. Install the newly rebuilt `dist\KCMT-Setup-1.0.0.exe`. An older installed app
    without this updater must receive this baseline installer manually once.
 

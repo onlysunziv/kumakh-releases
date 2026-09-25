@@ -3,20 +3,32 @@ const fs = require('fs');
 const path = require('path');
 const { validateRelease } = require('./validate-release');
 
+function validateProductionDatabaseConfig(root = path.resolve(__dirname, '..'), environment = process.env) {
+  const configuredFile = environment.TURSO_CONFIG_FILE;
+  const source = configuredFile
+    ? require('dotenv').parse(fs.readFileSync(path.resolve(root, configuredFile), 'utf8'))
+    : environment;
+  const url = String(source.TURSO_DATABASE_URL || '').trim();
+  const authToken = String(source.TURSO_AUTH_TOKEN || '').trim();
+  if (!url || !authToken) {
+    throw new Error('Production Turso configuration is required. Set TURSO_DATABASE_URL and TURSO_AUTH_TOKEN, or TURSO_CONFIG_FILE, before packaging.');
+  }
+  let parsed;
+  try { parsed = new URL(url); } catch (_) { throw new Error('TURSO_DATABASE_URL must be a valid URL.'); }
+  if (!['libsql:', 'turso:', 'https:'].includes(parsed.protocol) || !parsed.hostname) {
+    throw new Error('TURSO_DATABASE_URL must use libsql://, turso://, or https:// and include a host.');
+  }
+  return { url, authToken };
+}
+
 function buildWindows(publish = false, root = path.resolve(__dirname, '..')) {
   if (process.platform !== 'win32') throw new Error('Build Windows releases on the Windows development PC.');
   // Never allow a local/CI environment to implicitly turn an ordinary build into a release.
   const env = { ...process.env };
   delete env.DEBUG;
   if (!publish) for (const name of ['GH_TOKEN', 'GITHUB_TOKEN', 'GITHUB_RELEASE_TOKEN']) delete env[name];
-  const sourceEnv = path.join(root, '.env');
   const bundledConfig = path.join(root, 'build', 'turso-config.env');
-  const source = fs.existsSync(sourceEnv)
-    ? require('dotenv').parse(fs.readFileSync(sourceEnv))
-    : process.env;
-  const url = String(source.TURSO_DATABASE_URL || env.TURSO_DATABASE_URL || '').trim();
-  const authToken = String(source.TURSO_AUTH_TOKEN || env.TURSO_AUTH_TOKEN || '').trim();
-  if (!url || !authToken) throw new Error('Turso build configuration is missing. Set TURSO_DATABASE_URL and TURSO_AUTH_TOKEN in the secure build environment.');
+  const { url, authToken } = validateProductionDatabaseConfig(root, env);
   fs.writeFileSync(bundledConfig, `TURSO_DATABASE_URL=${url}\nTURSO_AUTH_TOKEN=${authToken}\n`, { encoding: 'utf8', mode: 0o600 });
   try {
     const result = spawnSync(process.execPath, [require.resolve('electron-builder/cli.js'), '--win', '--publish', publish ? 'always' : 'never'], { cwd: root, env, stdio: 'inherit' });
@@ -29,4 +41,4 @@ function buildWindows(publish = false, root = path.resolve(__dirname, '..')) {
 if (require.main === module) {
   try { buildWindows(); } catch (error) { console.error(error.message); process.exitCode = 1; }
 }
-module.exports = { buildWindows };
+module.exports = { buildWindows, validateProductionDatabaseConfig };

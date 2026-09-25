@@ -7,22 +7,16 @@ const electronApp = process.versions.electron ? require("electron").app : null;
 
 function tursoConfigPath() {
   if (!electronApp || process.env.NODE_ENV === "test") return null;
-  const appData = process.env.APPDATA || "";
   const packagedConfig = electronApp.isPackaged && process.resourcesPath
     ? path.join(process.resourcesPath, "config", "turso.env")
     : null;
   const candidates = electronApp.isReady()
     ? [
-        packagedConfig,
         path.join(electronApp.getPath("userData"), "runtime.env"),
-        path.join(electronApp.getPath("userData"), "turso.env"),
-        appData && path.join(appData, "kumakh-college-management-system", "runtime.env"),
-        appData && path.join(appData, "kumakh-college-management-system", "turso.env"),
+        packagedConfig,
       ]
     : [
         packagedConfig,
-        appData && path.join(appData, "kumakh-college-management-system", "runtime.env"),
-        appData && path.join(appData, "kumakh-college-management-system", "turso.env"),
       ];
   return candidates.find(candidate => candidate && fs.existsSync(candidate)) || null;
 }
@@ -40,14 +34,30 @@ function readEnvFile(filePath) {
 }
 
 function resolveTursoConfiguration() {
+  const persistentConfig = electronApp?.isReady()
+    ? path.join(electronApp.getPath("userData"), "runtime.env")
+    : null;
+  const packagedConfig = electronApp?.isPackaged && process.resourcesPath
+    ? path.join(process.resourcesPath, "config", "turso.env")
+    : null;
   const userConfig = tursoConfigPath();
-  const fromUserConfig = readEnvFile(userConfig);
   if (!userConfig && electronApp?.isPackaged) {
     throw Object.assign(new Error("Packaged Turso configuration is unavailable."), { code: "TURSO_PACKAGED_CONFIGURATION_MISSING" });
   }
+  const fromUserConfig = readEnvFile(userConfig);
   const url = String(fromUserConfig.TURSO_DATABASE_URL || process.env.TURSO_DATABASE_URL || "").trim();
   const authToken = String(fromUserConfig.TURSO_AUTH_TOKEN || process.env.TURSO_AUTH_TOKEN || "").trim();
-  return url && authToken ? { url, authToken, source: userConfig || "environment" } : null;
+  if (!url || !authToken) return null;
+  if (electronApp?.isPackaged && userConfig === packagedConfig && persistentConfig) {
+    fs.mkdirSync(path.dirname(persistentConfig), { recursive: true });
+    const temporary = `${persistentConfig}.tmp-${process.pid}`;
+    fs.writeFileSync(temporary, `TURSO_DATABASE_URL=${url}\nTURSO_AUTH_TOKEN=${authToken}\n`, { encoding: "utf8", mode: 0o600 });
+    try { fs.renameSync(temporary, persistentConfig); } catch (error) {
+      fs.rmSync(temporary, { force: true });
+      if (!fs.existsSync(persistentConfig)) throw error;
+    }
+  }
+  return { url, authToken, source: persistentConfig || userConfig || "environment" };
 }
 
 function applyTursoConfiguration(configured) {

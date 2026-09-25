@@ -19,6 +19,10 @@ function validateRelease(root = path.resolve(__dirname, '..')) {
     if (info.path === file.url && info.sha512 !== hash) throw new Error('Legacy metadata checksum differs from installer');
   }
   const resources = path.join(output, 'win-unpacked', 'resources');
+  const tursoConfig = path.join(resources, 'config', 'turso.env');
+  if (!fs.existsSync(tursoConfig)) throw new Error('Packaged release is missing resources/config/turso.env');
+  const tursoValues = require('dotenv').parse(fs.readFileSync(tursoConfig));
+  if (!tursoValues.TURSO_DATABASE_URL || !tursoValues.TURSO_AUTH_TOKEN) throw new Error('Packaged release has incomplete Turso configuration');
   const config = yaml.load(fs.readFileSync(path.join(resources, 'app-update.yml'), 'utf8'));
   for (const key of ['provider', 'owner', 'repo']) if (config[key] !== pkg.build.publish[key]) throw new Error(`Packaged update ${key} differs from release configuration`);
   if (config.token || config.private) throw new Error('Client update configuration must be public and token-free');
