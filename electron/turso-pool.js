@@ -14,6 +14,7 @@ function databasePath(file) {
 const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 const isReplicaLockError = (error) => /locking error|locked|error 33/i.test(String(error?.message || error));
 const replicaExists = file => fs.existsSync(file) && fs.statSync(file).size > 0;
+const isReplicaDeserializationError = error => /(?:sync engine operation failed.*deserialization error|deserialization error.*expected value at line 1 column 1|stale replica|invalid sync metadata)/i.test(String(error?.message || error));
 const syncErrorMessage = error => {
   const message = String(error?.message || error || "Unknown Turso sync error").trim();
   const code = error?.code ? ` [${error.code}]` : "";
@@ -28,12 +29,15 @@ const normalizeSyncUrl = value => {
 };
 
 class TursoPool {
-  constructor(file, { syncUrl, authToken, seed = true } = {}) {
+  constructor(file, { syncUrl, authToken, seed = true, recoveryAttempted = false } = {}) {
     this.file = databasePath(file);
     this.context = new AsyncLocalStorage();
     this.tail = Promise.resolve();
     this.syncTail = Promise.resolve();
     this.syncUrl = syncUrl ? normalizeSyncUrl(syncUrl) : null;
+    this.authToken = authToken;
+    this.seed = seed;
+    this.recoveryAttempted = recoveryAttempted;
     this.client = null;
     this.status = {
       state: syncUrl ? "syncing" : "offline",
@@ -53,6 +57,75 @@ class TursoPool {
     });
   }
 
+  replicaFiles() {
+    return [
+      this.file,
+      `${this.file}-wal`,
+      `${this.file}-shm`,
+      path.join(path.dirname(this.file), "database_sync_state.json"),
+    ].filter(file => fs.existsSync(file));
+  }
+
+  async recoverDesynchronizedReplica(error) {
+    if (this.recoveryAttempted || !replicaExists(this.file)) throw error;
+
+    const recoveryDirectory = path.join(
+      path.dirname(this.file),
+      "backups",
+      `kumakh-replica-recovery-${new Date().toISOString().replace(/[:.]/g, "-")}`,
+    );
+    fs.mkdirSync(recoveryDirectory, { recursive: true });
+    const files = this.replicaFiles();
+    const backupFiles = files.map(file => {
+      const target = path.join(recoveryDirectory, path.basename(file));
+      fs.copyFileSync(file, target, fs.constants.COPYFILE_EXCL);
+      return { file, target };
+    });
+
+    // A push is the safety gate: if local changes cannot be sent to Turso,
+    // rebuilding this replica could discard unsynchronized records.
+    try {
+      await this.client.push();
+    } catch (pushError) {
+      throw Object.assign(
+        new Error(`Local replica sync metadata is invalid and pending changes could not be preserved. Backup: ${recoveryDirectory}. ${syncErrorMessage(error)}`),
+        { cause: pushError, code: "TURSO_REPLICA_RECOVERY_UNSAFE", backupDirectory: recoveryDirectory },
+      );
+    }
+
+    const displacedFiles = [];
+    try {
+      await this.client.close();
+      this.client = null;
+      for (const { file } of backupFiles) {
+        const displaced = `${file}.stale-${process.pid}`;
+        fs.renameSync(file, displaced);
+        displacedFiles.push({ file, displaced });
+      }
+
+      this.recoveryAttempted = true;
+      this.client = await import("@tursodatabase/sync").then(({ connect }) => connect({
+        path: this.file,
+        url: this.syncUrl,
+        authToken: this.authToken,
+        clientName: "KUMAKH-POS",
+      }));
+      await this.pull();
+      for (const { displaced } of displacedFiles) fs.rmSync(displaced, { force: true });
+      return;
+    } catch (recoveryError) {
+      if (this.client) await this.client.close().catch(() => {});
+      this.client = null;
+      for (const { file, displaced } of displacedFiles) {
+        if (!fs.existsSync(file) && fs.existsSync(displaced)) fs.renameSync(displaced, file);
+      }
+      throw Object.assign(
+        new Error(`Local replica recovery failed after backup ${recoveryDirectory}: ${syncErrorMessage(recoveryError)}`),
+        { cause: recoveryError, code: "TURSO_REPLICA_RECOVERY_FAILED", backupDirectory: recoveryDirectory },
+      );
+    }
+  }
+
   async initialize(seed) {
     fs.mkdirSync(path.dirname(this.file), { recursive: true });
     this.client = await this.clientReady;
@@ -68,6 +141,11 @@ class TursoPool {
         break;
       } catch (error) {
         syncError = error;
+        if (isReplicaDeserializationError(error) && previouslySynced) {
+          await this.recoverDesynchronizedReplica(error);
+          syncError = null;
+          break;
+        }
         if (!isReplicaLockError(error) || attempt === 4) break;
         await wait(attempt * 750);
       }
@@ -271,4 +349,4 @@ class TursoPool {
   }
 }
 
-module.exports = { TursoPool, normalizeSyncUrl, replicaExists, syncErrorMessage };
+module.exports = { TursoPool, normalizeSyncUrl, replicaExists, isReplicaDeserializationError, syncErrorMessage };

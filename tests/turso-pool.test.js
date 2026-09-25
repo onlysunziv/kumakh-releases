@@ -3,7 +3,7 @@ const assert = require("node:assert/strict");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
-const { normalizeSyncUrl, replicaExists, syncErrorMessage } = require("../electron/turso-pool");
+const { normalizeSyncUrl, replicaExists, isReplicaDeserializationError, syncErrorMessage } = require("../electron/turso-pool");
 
 test("normalizes supported Turso URLs without changing their database host", () => {
   assert.equal(normalizeSyncUrl("libsql://example.turso.io/"), "libsql://example.turso.io");
@@ -23,4 +23,10 @@ test("detects a real local replica by file contents, not a sync marker", () => {
 
 test("keeps the real sync error and code in startup diagnostics", () => {
   assert.equal(syncErrorMessage(Object.assign(new Error("expected value at line 1 column 1"), { code: "TURSO_SYNC_FAILED" })), "expected value at line 1 column 1 [TURSO_SYNC_FAILED]");
+});
+
+test("matches only the known local replica deserialization failure", () => {
+  assert.equal(isReplicaDeserializationError(new Error("sync engine operation failed: deserialization error: expected value at line 1 column 1")), true);
+  assert.equal(isReplicaDeserializationError(new Error("fetch failed: network unavailable")), false);
+  assert.equal(isReplicaDeserializationError(new Error("SQLITE_CORRUPT: database disk image is malformed")), false);
 });
