@@ -75,6 +75,11 @@ function createUpdateService({ app, ipcMain, updater, logger, getWindows, canIns
     if (code === 'ETIMEDOUT' || /timeout|timed out/i.test(message)) return 'The update server did not respond in time.';
     if (code === 'ENOTFOUND' || code === 'ENETUNREACH' || code === 'ECONNREFUSED' || /network is unreachable|no internet|offline|internet connection/i.test(message)) return 'No internet connection.';
     if (/checksum|sha512|integrity verification/i.test(message)) return 'The downloaded update file failed integrity verification.';
+    if (/authentication|unauthorized|forbidden|bad credentials|access denied/i.test(message) || statusCode === 401) return 'Authentication/update feed error.';
+    if (/latest\.yml|metadata|yaml|release feed/i.test(message)) return 'Update metadata is invalid.';
+    if (/download|artifact|installer/i.test(message)) return 'Download failed.';
+    if (/install|quitAndInstall/i.test(message)) return 'Unable to install update.';
+    if (/fetch failed|socket|connection|network/i.test(message)) return 'GitHub update server could not be reached.';
     return 'The update could not be completed.';
   };
   const fail = error => {
@@ -103,7 +108,7 @@ function createUpdateService({ app, ipcMain, updater, logger, getWindows, canIns
     updater.on('checking-for-update', () => { log.info('Checking for update'); send({ status: 'checking', error: null, technicalError: '', latestVersion: null }); });
     updater.on('update-available', info => { log.info(`Update available: ${info.version}`); send({ status: 'available', latestVersion: info.version, error: null, technicalError: '', releaseNotes: noteText(info), progress: null }); });
     updater.on('update-not-available', info => { log.info(`Application is up to date at ${info.version || state.currentVersion}`); send({ status: 'current', currentVersion: state.currentVersion, latestVersion: info.version || state.currentVersion, error: null, technicalError: '', releaseNotes: '', progress: null }); });
-    updater.on('download-progress', progress => send({ status: 'downloading', progress: { percent: Math.max(0, Math.min(100, Number(progress.percent) || 0)), transferred: Number(progress.transferred) || 0, total: Number(progress.total) || 0 } }));
+    updater.on('download-progress', progress => send({ status: 'downloading', progress: { percent: Math.max(0, Math.min(100, Number(progress.percent) || 0)), transferred: Number(progress.transferred) || 0, total: Number(progress.total) || 0, bytesPerSecond: Number(progress.bytesPerSecond) || 0 } }));
     updater.on('update-downloaded', info => { log.info(`Update downloaded: ${info.version}`); send({ status: 'ready', latestVersion: info.version, error: null, technicalError: '', progress: null }); });
     updater.on('error', fail);
   }

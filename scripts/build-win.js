@@ -2,24 +2,7 @@ const { spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const { validateRelease } = require('./validate-release');
-
-function validateProductionDatabaseConfig(root = path.resolve(__dirname, '..'), environment = process.env) {
-  const configuredFile = environment.TURSO_CONFIG_FILE;
-  const source = configuredFile
-    ? require('dotenv').parse(fs.readFileSync(path.resolve(root, configuredFile), 'utf8'))
-    : environment;
-  const url = String(source.TURSO_DATABASE_URL || '').trim();
-  const authToken = String(source.TURSO_AUTH_TOKEN || '').trim();
-  if (!url || !authToken) {
-    throw new Error('Production Turso configuration is required. Set TURSO_DATABASE_URL and TURSO_AUTH_TOKEN, or TURSO_CONFIG_FILE, before packaging.');
-  }
-  let parsed;
-  try { parsed = new URL(url); } catch (_) { throw new Error('TURSO_DATABASE_URL must be a valid URL.'); }
-  if (!['libsql:', 'turso:', 'https:'].includes(parsed.protocol) || !parsed.hostname) {
-    throw new Error('TURSO_DATABASE_URL must use libsql://, turso://, or https:// and include a host.');
-  }
-  return { url, authToken };
-}
+const { generateTursoConfig, validateProductionDatabaseConfig } = require('./generate-turso-config');
 
 function buildWindows(publish = false, root = path.resolve(__dirname, '..')) {
   if (process.platform !== 'win32') throw new Error('Build Windows releases on the Windows development PC.');
@@ -27,9 +10,7 @@ function buildWindows(publish = false, root = path.resolve(__dirname, '..')) {
   const env = { ...process.env };
   delete env.DEBUG;
   if (!publish) for (const name of ['GH_TOKEN', 'GITHUB_TOKEN', 'GITHUB_RELEASE_TOKEN']) delete env[name];
-  const bundledConfig = path.join(root, 'build', 'turso-config.env');
-  const { url, authToken } = validateProductionDatabaseConfig(root, env);
-  fs.writeFileSync(bundledConfig, `TURSO_DATABASE_URL=${url}\nTURSO_AUTH_TOKEN=${authToken}\n`, { encoding: 'utf8', mode: 0o600 });
+  const bundledConfig = generateTursoConfig(root, env);
   try {
     const result = spawnSync(process.execPath, [require.resolve('electron-builder/cli.js'), '--win', '--publish', publish ? 'always' : 'never'], { cwd: root, env, stdio: 'inherit' });
     if (result.error || result.status !== 0) throw new Error('Windows build failed. Version is retained; fix the failure before retrying.');

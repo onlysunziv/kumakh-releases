@@ -98,6 +98,7 @@
       "repo": "kumakh-releases",
       "releaseType": "release"
     },
+    "beforePack": "scripts/before-pack.js",
     "afterPack": "scripts/verify-package.js"
   }
 }

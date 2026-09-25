@@ -418,8 +418,136 @@
         padding: 0 4px;
       }
     }
+
+    .login-update-details {
+      margin-top: 22px;
+      border: 1px solid rgba(11, 26, 48, 0.14);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.34);
+      box-shadow: 0 8px 20px rgba(11, 26, 48, 0.07);
+      overflow: hidden;
+    }
+
+    .login-update-details summary {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 16px;
+      color: var(--navy);
+      font-size: 13px;
+      font-weight: 700;
+      list-style: none;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.18s ease, color 0.18s ease;
+    }
+
+    .login-update-details summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .login-update-details summary::before {
+      content: "\F116";
+      display: grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      background: rgba(211, 47, 47, 0.1);
+      color: var(--red);
+      font-family: "bootstrap-icons";
+      font-size: 14px;
+      transition: transform 0.2s ease, background 0.18s ease;
+    }
+
+    .login-update-details summary::after {
+      content: "\F282";
+      margin-left: auto;
+      color: var(--muted);
+      font-family: "bootstrap-icons";
+      font-size: 12px;
+      transition: transform 0.2s ease;
+    }
+
+    .login-update-details summary:hover {
+      background: rgba(255, 255, 255, 0.42);
+      color: var(--red);
+    }
+
+    .login-update-details[open] summary {
+      border-bottom: 1px solid rgba(11, 26, 48, 0.1);
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .login-update-details[open] summary::before {
+      background: rgba(211, 47, 47, 0.16);
+      transform: rotate(-12deg);
+    }
+
+    .login-update-details[open] summary::after {
+      transform: rotate(180deg);
+    }
+
+    .login-update-details > [data-software-update] {
+      margin: 0 !important;
+      padding: 18px 16px 16px !important;
+      border-radius: 0 !important;
+      background: rgba(255, 255, 255, 0.52) !important;
+      animation: login-update-open 0.2s ease-out;
+    }
+
+    .login-update-details [data-software-update] .settings-pane-heading {
+      display: none;
+    }
+
+    .login-update-details [data-software-update] dl {
+      margin-bottom: 14px !important;
+      padding: 11px 12px;
+      border: 1px solid rgba(11, 26, 48, 0.1);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.54);
+      font-size: 11px;
+    }
+
+    .login-update-details [data-software-update] dt,
+    .login-update-details [data-software-update] dd {
+      padding-top: 4px;
+      padding-bottom: 4px;
+    }
+
+    .login-update-details [data-software-update] dt {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .login-update-details [data-software-update] dd {
+      color: var(--navy);
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .login-update-details [data-software-update] button {
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    @keyframes login-update-open {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .login-update-details summary::before,
+      .login-update-details summary::after,
+      .login-update-details > [data-software-update] {
+        animation: none;
+        transition: none;
+      }
+    }
   </style>
   <link rel="stylesheet" href="./css/ui-polish.css">
+  <link rel="stylesheet" href="./css/updates.css">
 </head>
 <body class="login-body">
 
@@ -517,7 +645,9 @@
           <div id="loginError" class="error-message" role="alert" aria-live="assertive"></div>
         </form>
 
-        <details class="mt-3"><summary>Software Update</summary><div data-software-update class="mt-3 p-3 rounded-3 bg-white bg-opacity-75"></div></details>
+        <button type="button" class="update-launcher" data-open-updates aria-haspopup="dialog" aria-controls="updateDialog">
+          <i class="bi bi-arrow-repeat" aria-hidden="true"></i> Check for Updates <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+        </button>
         <!-- Card Bottom Line Accent -->
         <div class="card-footer-divider">
           <div class="line"></div>
