@@ -1,6 +1,6 @@
 {
   "name": "kumakh-college-management-system",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Kumakh College Management System desktop application",
   "main": "electron/main.js",
   "scripts": {
