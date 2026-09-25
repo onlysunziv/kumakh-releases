@@ -1,6 +1,9 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const fs = require("fs/promises");
 const path = require("path");
+// Keep the database and its Turso credentials in the same persistent location
+// across installer updates and product-name changes.
+app.setPath("userData", path.join(app.getPath("appData"), "kumakh-college-management-system"));
 const { createWindow } = require("./window");
 const { getDatabase, closeDatabase } = require("./database");
 const { databasePath } = require("./sqlite-pool");

@@ -3,13 +3,14 @@
   if (!bridge?.getUpdateState) return;
   let state;
   let busy = false;
-  const labels = { idle: 'Not checked yet', disabled: 'Unavailable in development', checking: 'Checking', current: 'Up to Date', available: 'Update Available', downloading: 'Downloading', ready: 'Ready to Install', installing: 'Restarting', error: 'Error' };
+  const labels = { idle: 'Not checked yet', disabled: 'Unavailable in development', checking: 'Checking', current: 'KUMAKH is up to date', available: 'Update available', downloading: 'Downloading', ready: 'Ready to Install', installing: 'Restarting', error: 'Error' };
   const mb = bytes => `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   const panelMarkup = `<div class="settings-pane-heading"><div><h5>Software Update</h5><p>KUMAKH College Management System</p></div></div>
     <dl class="row mb-3"><dt class="col-6">Current Version</dt><dd class="col-6" data-update-value="currentVersion">—</dd><dt class="col-6">Latest Version</dt><dd class="col-6" data-update-value="latestVersion">—</dd><dt class="col-6">Update Status</dt><dd class="col-6" data-update-value="status" role="status">—</dd><dt class="col-6">Last Checked</dt><dd class="col-6" data-update-value="lastChecked">Never</dd></dl>
+    <p class="small text-success fw-semibold" data-update-up-to-date hidden>KUMAKH is up to date<br><span class="fw-normal">You’re running the latest version.</span></p>
     <div data-update-progress hidden><label>Downloading Update <span data-update-value="percent"></span></label><progress class="w-100" max="100" value="0" aria-label="Download progress"></progress><p class="small" data-update-value="bytes"></p></div>
     <div data-update-notes hidden><h6>Release notes</h6><pre class="small text-wrap" style="font-family:inherit;max-height:180px;overflow:auto" data-update-value="releaseNotes"></pre></div>
-    <p class="small text-danger" data-update-value="error" role="alert"></p>
+    <p class="small text-danger" data-update-value="error" role="alert"></p><details class="small text-muted" data-update-technical hidden><summary>Technical details</summary><pre class="small text-wrap mb-0" data-update-value="technicalError"></pre></details>
     <p class="small text-muted">Save or cancel your work and sign out before installing. Updates never restart an active workspace.</p>
     <div class="d-flex gap-2 flex-wrap"><button class="btn btn-outline-primary btn-sm" type="button" data-update-action="check">Check for Updates</button><button class="btn btn-primary btn-sm" type="button" data-update-action="download" hidden>Download Update</button><button class="btn btn-primary btn-sm" type="button" data-update-action="install" hidden>Restart &amp; Install</button><button class="btn btn-light border btn-sm" type="button" data-update-action="later" hidden>Install Later</button></div>
     <p class="small mt-2" data-update-notice role="status"></p>`;
@@ -18,11 +19,17 @@
     state = next;
     document.querySelectorAll('[data-software-update]').forEach(panel => {
       if (!panel.dataset.initialized) { panel.innerHTML = panelMarkup; panel.dataset.initialized = 'true'; }
-      const values = { ...state, currentVersion: state.currentVersion || '—', latestVersion: state.latestVersion || '—', status: labels[state.status] || state.status, lastChecked: state.lastChecked ? new Date(state.lastChecked).toLocaleString() : 'Never', error: state.error || '', percent: `${Math.round(state.progress?.percent || 0)}%`, bytes: `${mb(state.progress?.transferred || 0)} / ${mb(state.progress?.total || 0)}` };
+      const values = { ...state, currentVersion: state.currentVersion || '—', latestVersion: state.latestVersion || '—', status: labels[state.status] || state.status, lastChecked: state.lastChecked ? new Date(state.lastChecked).toLocaleString() : 'Never', error: state.error || '', technicalError: state.technicalError || '', percent: `${Math.round(state.progress?.percent || 0)}%`, bytes: `${mb(state.progress?.transferred || 0)} / ${mb(state.progress?.total || 0)}` };
       panel.querySelectorAll('[data-update-value]').forEach(node => { node.textContent = values[node.dataset.updateValue] || ''; });
       panel.querySelector('[data-update-progress]').hidden = state.status !== 'downloading';
       panel.querySelector('progress').value = state.progress?.percent || 0;
       panel.querySelector('[data-update-notes]').hidden = !state.releaseNotes;
+      panel.querySelector('[data-update-up-to-date]').hidden = state.status !== 'current';
+      panel.querySelector('[data-update-technical]').hidden = !state.technicalError;
+      const statusNode = panel.querySelector('[data-update-value="status"]');
+      statusNode.classList.toggle('text-success', state.status === 'current');
+      statusNode.classList.toggle('text-danger', state.status === 'error');
+      statusNode.textContent = `${state.status === 'current' ? '✓ ' : ''}${values.status}`;
       const visible = { check: ['idle', 'current', 'error', 'available', 'disabled'].includes(state.status), download: state.status === 'available', install: state.status === 'ready', later: state.status === 'ready' };
       panel.querySelectorAll('[data-update-action]').forEach(button => { button.hidden = !visible[button.dataset.updateAction]; button.disabled = busy || !state.enabled; });
       if (state.notice) panel.querySelector('[data-update-notice]').textContent = state.notice;

@@ -13,6 +13,19 @@ function databasePath(file) {
 
 const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 const isReplicaLockError = (error) => /locking error|locked|error 33/i.test(String(error?.message || error));
+const replicaExists = file => fs.existsSync(file) && fs.statSync(file).size > 0;
+const syncErrorMessage = error => {
+  const message = String(error?.message || error || "Unknown Turso sync error").trim();
+  const code = error?.code ? ` [${error.code}]` : "";
+  return `${message}${code}`;
+};
+const normalizeSyncUrl = value => {
+  const url = String(value || "").trim().replace(/\/+$/, "");
+  if (!/^(?:libsql|turso|https?):\/\/[^/\s]+(?:\/[^/\s]*)?$/i.test(url)) {
+    throw Object.assign(new Error("TURSO_DATABASE_URL must be a valid libsql://, turso://, or https:// URL."), { code: "TURSO_DATABASE_URL_INVALID" });
+  }
+  return url;
+};
 
 class TursoPool {
   constructor(file, { syncUrl, authToken, seed = true } = {}) {
@@ -20,7 +33,7 @@ class TursoPool {
     this.context = new AsyncLocalStorage();
     this.tail = Promise.resolve();
     this.syncTail = Promise.resolve();
-    this.syncUrl = syncUrl;
+    this.syncUrl = syncUrl ? normalizeSyncUrl(syncUrl) : null;
     this.client = null;
     this.status = {
       state: syncUrl ? "syncing" : "offline",
@@ -44,11 +57,11 @@ class TursoPool {
     fs.mkdirSync(path.dirname(this.file), { recursive: true });
     this.client = await this.clientReady;
     const statePath = path.join(path.dirname(this.file), "database_sync_state.json");
-    const previouslySynced = fs.existsSync(statePath) && fs.existsSync(this.file);
+    const previouslySynced = replicaExists(this.file);
     let syncError;
-    // An existing replica must be usable immediately. The background sync
-    // timer will pull remote changes after the window has opened.
-    for (let attempt = 1; !previouslySynced && attempt <= 4; attempt += 1) {
+    // Always pull at startup. Existing replicas remain authoritative locally
+    // when the cloud is temporarily unavailable; a new replica must bootstrap.
+    for (let attempt = 1; attempt <= 4; attempt += 1) {
       try {
         await this.pull();
         syncError = null;
@@ -61,9 +74,9 @@ class TursoPool {
     }
     if (syncError) {
       if (!previouslySynced) {
-        throw new Error(`Initial Turso bootstrap failed: ${syncError.message}`);
+        throw Object.assign(new Error(`Initial Turso bootstrap failed: ${syncErrorMessage(syncError)}`), { cause: syncError, code: "TURSO_INITIAL_SYNC_FAILED" });
       }
-      console.warn("Turso initial sync unavailable; continuing with the local replica:", syncError.message);
+      console.warn("Turso initial sync unavailable; continuing with the local replica:", syncErrorMessage(syncError));
     }
     const [{ user_version: version }] = await this.all("PRAGMA user_version");
     if (version > require('./schema-migrations').CURRENT_SCHEMA_VERSION) throw new Error("Database schema is newer than this application");
@@ -258,4 +271,4 @@ class TursoPool {
   }
 }
 
-module.exports = { TursoPool };
+module.exports = { TursoPool, normalizeSyncUrl, replicaExists, syncErrorMessage };

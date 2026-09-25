@@ -11,9 +11,19 @@ require("dotenv").config({ path: electronApp?.isPackaged
 
 function tursoConfigPath() {
   if (!electronApp || process.env.NODE_ENV === "test") return null;
-  if (electronApp.isReady()) return path.join(electronApp.getPath("userData"), "turso.env");
   const appData = process.env.APPDATA || "";
-  return appData ? path.join(appData, "kumakh-college-management-system", "turso.env") : null;
+  const candidates = electronApp.isReady()
+    ? [
+        path.join(electronApp.getPath("userData"), "runtime.env"),
+        path.join(electronApp.getPath("userData"), "turso.env"),
+        appData && path.join(appData, "kumakh-college-management-system", "runtime.env"),
+        appData && path.join(appData, "kumakh-college-management-system", "turso.env"),
+      ]
+    : [
+        appData && path.join(appData, "kumakh-college-management-system", "runtime.env"),
+        appData && path.join(appData, "kumakh-college-management-system", "turso.env"),
+      ];
+  return candidates.find(candidate => candidate && fs.existsSync(candidate)) || null;
 }
 
 function readEnvFile(filePath) {
@@ -189,7 +199,7 @@ class Database {
         authToken: configured.authToken,
       });
     } else {
-      throw new Error("Turso configuration is missing for this installation.");
+      throw Object.assign(new Error("Turso configuration is missing for this installation. Provision the existing cloud database settings before starting KUMAKH."), { code: "TURSO_CONFIGURATION_MISSING" });
     }
     this.initializePermissions = options?.initializePermissions !== false;
   }
