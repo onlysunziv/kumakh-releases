@@ -245,6 +245,7 @@ a:focus-visible,
 
 .app-shell {
   display: flex;
+  height: 100dvh;
   min-height: 100vh;
 }
 
@@ -627,7 +628,8 @@ a:focus-visible,
   padding: 14px 16px;
   color: #26364a;
   vertical-align: middle;
-  word-break: break-word;
+  word-break: normal;
+  overflow-wrap: normal;
 }
 
 .student-table tbody tr:last-child td {
@@ -3291,6 +3293,7 @@ body[data-display-size="comfortable"] .card > .card-body {
 @media (max-width: 760px) {
   .app-shell {
     display: block;
+    height: auto;
   }
   .sidebar {
     width: 100%;
@@ -3310,6 +3313,8 @@ body[data-display-size="comfortable"] .card > .card-body {
   }
   .content-panel {
     width: 100%;
+    height: auto;
+    overflow: visible;
   }
   .topbar {
     position: relative;
@@ -3317,6 +3322,7 @@ body[data-display-size="comfortable"] .card > .card-body {
   }
   .page-content {
     padding: 18px 16px 30px;
+    overflow: visible;
   }
 }
 
@@ -3325,14 +3331,18 @@ body[data-display-size="comfortable"] .card > .card-body {
    scrolling or extend beyond the available app area. */
 .content-panel {
   min-height: 0;
+  height: 100%;
   overflow: hidden;
 }
 .page-content {
+  flex: 1 1 auto;
   min-width: 0;
   max-width: 100%;
   padding: clamp(14px, 1.7vw, 24px);
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 .page-content > * {
   min-width: 0;
@@ -3371,6 +3381,18 @@ body[data-display-size="comfortable"] .card > .card-body {
   .page-content .form-control,
   .page-content .form-select {
     min-height: 40px;
+  }
+}
+@media (max-width: 760px) {
+  .app-shell {
+    height: auto;
+  }
+  .content-panel {
+    height: auto;
+    overflow: visible;
+  }
+  .page-content {
+    overflow: visible;
   }
 }
 
@@ -4938,6 +4960,176 @@ body.app-body .page-content :is(.table, .student-table, .settings-data-table, .p
   white-space: nowrap;
 }
 
+body.app-body .page-content .student-table .student-actions-cell {
+  min-width: 265px;
+  white-space: normal;
+}
+
+body.app-body .page-content .student-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+body.app-body .page-content .student-row-actions > .btn,
+body.app-body .page-content .student-row-actions > .form-select {
+  margin-left: 0 !important;
+  flex: 0 0 auto;
+}
+
+body.app-body .page-content .student-row-actions > .form-select {
+  max-width: 8rem;
+}
+
+body.app-body .page-content .staff-table {
+  table-layout: fixed;
+  width: 100%;
+  min-width: 0 !important;
+}
+
+body.app-body .page-content .staff-table thead th,
+body.app-body .page-content .staff-table tbody td {
+  height: 76px;
+  padding: 0.55rem 0.6rem;
+  vertical-align: middle;
+}
+
+body.app-body .page-content .staff-table thead th {
+  height: 46px;
+  white-space: nowrap;
+  font-size: 0.74rem;
+  letter-spacing: 0.01em;
+}
+
+body.app-body .page-content .staff-table tbody tr {
+  transition: background-color 160ms ease;
+}
+
+body.app-body .page-content .staff-table tbody tr:hover {
+  background-color: #f4f8fc;
+}
+
+body.app-body .page-content .staff-table th:nth-child(1),
+body.app-body .page-content .staff-table td:nth-child(1) { width: 62px; }
+body.app-body .page-content .staff-table th:nth-child(2),
+body.app-body .page-content .staff-table td:nth-child(2) { width: 88px; }
+body.app-body .page-content .staff-table th:nth-child(3),
+body.app-body .page-content .staff-table td:nth-child(3) { width: 13%; }
+body.app-body .page-content .staff-table th:nth-child(4),
+body.app-body .page-content .staff-table td:nth-child(4) { width: 10%; }
+body.app-body .page-content .staff-table th:nth-child(5),
+body.app-body .page-content .staff-table td:nth-child(5) { width: 9%; }
+body.app-body .page-content .staff-table th:nth-child(6),
+body.app-body .page-content .staff-table td:nth-child(6) { width: 10%; }
+body.app-body .page-content .staff-table th:nth-child(7),
+body.app-body .page-content .staff-table td:nth-child(7) { width: 14%; }
+body.app-body .page-content .staff-table th:nth-child(8),
+body.app-body .page-content .staff-table td:nth-child(8) { width: 88px; }
+body.app-body .page-content .staff-table th:nth-child(9),
+body.app-body .page-content .staff-table td:nth-child(9) { width: 220px; }
+
+body.app-body .page-content .staff-table tbody td:not(.staff-photo-cell):not(.staff-actions-cell) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+body.app-body .page-content .staff-photo-cell {
+  text-align: center;
+  white-space: nowrap;
+}
+
+body.app-body .page-content .staff-avatar {
+  display: inline-grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border: 1px solid #d7e1ee;
+  border-radius: 50%;
+  background: #eef4fb;
+  color: #49657f;
+  font-size: 0.66rem;
+  font-weight: 700;
+  object-fit: cover;
+}
+
+body.app-body .page-content .staff-avatar-placeholder {
+  border-style: dashed;
+}
+
+body.app-body .page-content .staff-status-badge {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  padding: 0.27rem 0.55rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e8f5ee;
+  color: #177245;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.app-body .page-content .staff-row-actions {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+body.app-body .page-content .staff-row-actions .btn {
+  min-width: 0;
+  margin: 0 !important;
+  padding: 0.3rem 0.48rem;
+  font-size: 0.7rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+body.app-body .page-content .staff-actions-cell {
+  overflow: visible;
+  white-space: nowrap;
+}
+
+@media (max-width: 1250px) {
+  body.app-body .page-content .staff-table th:nth-child(3),
+  body.app-body .page-content .staff-table td:nth-child(3) { width: 13%; }
+  body.app-body .page-content .staff-table th:nth-child(4),
+  body.app-body .page-content .staff-table td:nth-child(4) { width: 10%; }
+  body.app-body .page-content .staff-table th:nth-child(5),
+  body.app-body .page-content .staff-table td:nth-child(5) { width: 9%; }
+  body.app-body .page-content .staff-table th:nth-child(6),
+  body.app-body .page-content .staff-table td:nth-child(6) { width: 10%; }
+  body.app-body .page-content .staff-table th:nth-child(7),
+  body.app-body .page-content .staff-table td:nth-child(7) { width: 14%; }
+  body.app-body .page-content .staff-table th:nth-child(9),
+  body.app-body .page-content .staff-table td:nth-child(9) { width: 230px; }
+  body.app-body .page-content .staff-row-actions { gap: 5px; }
+  body.app-body .page-content .staff-row-actions .btn {
+    padding-inline: 0.38rem;
+    font-size: 0.66rem;
+  }
+}
+
+@media (max-width: 900px) {
+  body.app-body .page-content .student-table .student-actions-cell {
+    min-width: 235px;
+  }
+
+  body.app-body .page-content .student-row-actions {
+    justify-content: flex-start;
+  }
+}
+
 body.app-body .page-content .card-header,
 body.app-body .page-content .card-footer,
 body.app-body .page-content .modal-header,
@@ -5453,6 +5645,143 @@ body.app-body .sidebar.is-collapsed .brand-header {
 .report-page-auth-card input{display:block;width:100%;margin-top:.35rem;padding:.65rem .75rem;border:1px solid #cddbea;border-radius:.6rem}
 .report-page-auth-card input:focus{outline:0;border-color:#1769e8;box-shadow:0 0 0 .2rem rgba(23,105,232,.12)}
 .report-page-auth-error{min-height:1.25rem;margin-top:.75rem;color:#c0392b;font-size:.82rem}
+
+/* Final desktop workspace geometry. Keep one bounded app scrollport and let
+   tables manage only their own overflow when their columns need it. */
+@media screen {
+  html,
+  body {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+  }
+
+  body.app-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  body.app-body .app-shell {
+    flex: 1 1 auto;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    min-width: 0;
+  }
+
+  body.app-body .sidebar {
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+  }
+
+  body.app-body .content-panel {
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body.app-body .topbar {
+    flex: 0 0 auto;
+    min-width: 0;
+  }
+
+  body.app-body .topbar-brand,
+  body.app-body .user-panel {
+    min-width: 0;
+  }
+
+  body.app-body .topbar-brand {
+    flex: 1 1 auto;
+  }
+
+  body.app-body .user-panel {
+    flex: 0 1 auto;
+  }
+
+  body.app-body .page-content {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    width: 100%;
+    max-width: none;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  body.app-body .page-content > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  body.app-body .page-content .table-responsive,
+  body.app-body .page-content .student-table-responsive {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+
+  body.app-body .page-content :is(.table, .student-table, .settings-data-table, .purchase-table, .vendor-table) {
+    max-width: none;
+  }
+
+  body.app-body .page-content :is(.table, .student-table, .settings-data-table, .purchase-table, .vendor-table) th {
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  body.app-body .page-content :is(.table, .student-table, .settings-data-table, .purchase-table, .vendor-table) td {
+    vertical-align: middle;
+    word-break: normal;
+    overflow-wrap: normal;
+  }
+
+  body.app-body .page-content :is(.table, .student-table, .settings-data-table, .purchase-table, .vendor-table) :is(.text-end, [class*="action"], [data-action]) {
+    white-space: nowrap;
+  }
+
+  @media (max-width: 760px) {
+    body.app-body {
+      display: block;
+      height: auto;
+      min-height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    body.app-body .app-shell {
+      display: block;
+      flex: none;
+      height: auto;
+      min-height: 100%;
+    }
+
+    body.app-body .sidebar,
+    body.app-body .content-panel {
+      min-height: 0;
+      height: auto;
+      overflow: visible;
+    }
+
+    body.app-body .sidebar {
+      overflow-x: hidden;
+      overflow-y: visible;
+    }
+
+    body.app-body .page-content {
+      min-height: 0;
+      overflow: visible;
+    }
+  }
+}
 .report-page-auth-actions{display:flex;justify-content:flex-end;gap:.6rem;margin-top:.75rem}
 .app-message-dialog {width:min(440px,calc(100vw - 32px));border:1px solid #dbe5ee;border-radius:20px;padding:26px;color:#17354f;box-shadow:0 24px 80px #0b22394d;background:#fff}
 .app-message-dialog::backdrop {background:#0b223966;backdrop-filter:blur(5px)}

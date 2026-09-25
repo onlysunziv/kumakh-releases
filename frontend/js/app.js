@@ -2655,19 +2655,19 @@ window.initializeStaffPage = async function initializeStaffPage() {
         const status = staffField(staff, "Status") || "Working";
 
         return `
-          <tr>
-            <td>
-              ${photoUrl ? `<img src="${escapeStaffHtml(photoUrl)}" alt="${escapeStaffHtml(fullName)}" style="width:48px;height:48px;object-fit:cover;border-radius:12px;border:1px solid #d7e1ee;" />` : '<span class="text-muted">N/A</span>'}
+          <tr class="staff-row">
+            <td class="staff-photo-cell">
+              ${photoUrl ? `<img class="staff-avatar" src="${escapeStaffHtml(photoUrl)}" alt="${escapeStaffHtml(fullName)}" title="${escapeStaffHtml(fullName)}" />` : '<span class="staff-avatar staff-avatar-placeholder" aria-label="No photo">N/A</span>'}
             </td>
-            <td>${escapeStaffHtml(employeeId)}</td>
-            <td>${escapeStaffHtml(fullName)}</td>
-            <td>${escapeStaffHtml(jobTitle)}</td>
-            <td>${escapeStaffHtml(department)}</td>
-            <td>${escapeStaffHtml(mobileNumber)}</td>
-            <td>${escapeStaffHtml(email)}</td>
-            <td>${escapeStaffHtml(status)}</td>
-            <td class="text-end">
-              <div class="d-flex gap-2 justify-content-end flex-wrap">
+            <td class="staff-id-cell" title="${escapeStaffHtml(employeeId)}">${escapeStaffHtml(employeeId)}</td>
+            <td class="staff-name-cell" title="${escapeStaffHtml(fullName)}">${escapeStaffHtml(fullName)}</td>
+            <td class="staff-job-cell" title="${escapeStaffHtml(jobTitle)}">${escapeStaffHtml(jobTitle)}</td>
+            <td class="staff-department-cell" title="${escapeStaffHtml(department)}">${escapeStaffHtml(department)}</td>
+            <td class="staff-mobile-cell" title="${escapeStaffHtml(mobileNumber)}">${escapeStaffHtml(mobileNumber)}</td>
+            <td class="staff-email-cell" title="${escapeStaffHtml(email)}">${escapeStaffHtml(email)}</td>
+            <td class="staff-status-cell"><span class="staff-status-badge">${escapeStaffHtml(status)}</span></td>
+            <td class="text-end staff-actions-cell">
+              <div class="staff-row-actions">
                 <button type="button" class="btn btn-sm btn-outline-primary" data-action="view" data-staff="${encodeURIComponent(JSON.stringify(staff))}">View</button>
                 <button type="button" class="btn btn-sm btn-outline-secondary" data-action="edit" data-staff="${encodeURIComponent(JSON.stringify(staff))}">Edit</button>
                 <button type="button" class="btn btn-sm btn-outline-warning" data-action="status" data-staff="${encodeURIComponent(JSON.stringify(staff))}">Status</button>
@@ -3347,7 +3347,8 @@ window.initializeStudentsPage = async function initializeStudentsPage() {
                      </td>
                      <td>${escapeStudentHtml(studentField(student, "Status") || "Active")}</td>
 
-                     <td class="text-end">
+                     <td class="text-end student-actions-cell">
+                       <div class="student-row-actions">
 
                        <button
                          type="button"
@@ -3390,6 +3391,7 @@ window.initializeStudentsPage = async function initializeStudentsPage() {
                            : ""
                        }
 
+                       </div>
                      </td>
 
                    </tr>
