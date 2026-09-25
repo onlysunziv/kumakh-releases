@@ -6,6 +6,7 @@ out/
 .env
 .env.*
 !.env.example
+build/turso-config.env
 
 *.db
 *.sqlite

@@ -7,10 +7,13 @@ const columns = require('../database/columns.json');
 function databasePath() {
   const electron = process.versions.electron ? require('electron') : null;
   if (electron?.app?.getPath) {
-    const configured = Boolean(String(process.env.TURSO_DATABASE_URL || '').trim());
     const databaseDirectory = path.join(electron.app.getPath('userData'), 'database');
     fs.mkdirSync(databaseDirectory, { recursive: true });
-    return path.join(databaseDirectory, configured ? 'kumakh-sync.db' : 'kumakh.db');
+    const replica = path.join(databaseDirectory, 'kumakh-sync.db');
+    const legacy = path.join(databaseDirectory, 'kumakh.db');
+    if (fs.existsSync(replica)) return replica;
+    if (fs.existsSync(legacy)) return legacy;
+    return replica;
   }
   return path.join(path.resolve(__dirname, '..'), 'database', 'kumakh.db');
 }

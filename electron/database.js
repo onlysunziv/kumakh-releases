@@ -4,22 +4,23 @@ const path = require("path");
 const { SQLitePool } = require("./sqlite-pool");
 const { TursoPool } = require("./turso-pool");
 const electronApp = process.versions.electron ? require("electron").app : null;
-// Packaged credentials belong to this Windows user, never to app.asar.
-require("dotenv").config({ path: electronApp?.isPackaged
-  ? path.join(electronApp.getPath('userData'), 'runtime.env')
-  : path.join(__dirname, "..", ".env"), quiet: true });
 
 function tursoConfigPath() {
   if (!electronApp || process.env.NODE_ENV === "test") return null;
   const appData = process.env.APPDATA || "";
+  const packagedConfig = electronApp.isPackaged && process.resourcesPath
+    ? path.join(process.resourcesPath, "config", "turso.env")
+    : null;
   const candidates = electronApp.isReady()
     ? [
+        packagedConfig,
         path.join(electronApp.getPath("userData"), "runtime.env"),
         path.join(electronApp.getPath("userData"), "turso.env"),
         appData && path.join(appData, "kumakh-college-management-system", "runtime.env"),
         appData && path.join(appData, "kumakh-college-management-system", "turso.env"),
       ]
     : [
+        packagedConfig,
         appData && path.join(appData, "kumakh-college-management-system", "runtime.env"),
         appData && path.join(appData, "kumakh-college-management-system", "turso.env"),
       ];
@@ -41,6 +42,9 @@ function readEnvFile(filePath) {
 function resolveTursoConfiguration() {
   const userConfig = tursoConfigPath();
   const fromUserConfig = readEnvFile(userConfig);
+  if (!userConfig && electronApp?.isPackaged) {
+    throw Object.assign(new Error("Packaged Turso configuration is unavailable."), { code: "TURSO_PACKAGED_CONFIGURATION_MISSING" });
+  }
   const url = String(fromUserConfig.TURSO_DATABASE_URL || process.env.TURSO_DATABASE_URL || "").trim();
   const authToken = String(fromUserConfig.TURSO_AUTH_TOKEN || process.env.TURSO_AUTH_TOKEN || "").trim();
   return url && authToken ? { url, authToken, source: userConfig || "environment" } : null;

@@ -31,26 +31,13 @@ installer/update artifacts only; it does not push this project's source code.
    function npm { & node 'C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js' @args }
    ```
 
-4. Provision runtime credentials **on each Windows user account that runs the
-   installed application**, before its first launch with this build. The old
-   packaging configuration included `.env`; new installers deliberately exclude
-   all environment files. Existing `%APPDATA%\kumakh-college-management-system\turso.env`
-   remains supported. Existing report settings stored in the database remain
-   supported too. For installations that relied on bundled `.env`, run this once
-   from a secured project copy containing that installation's existing `.env`:
-
-   ```powershell
-   npm run config:installed
-   ```
-
-   This explicitly copies only Turso and report configuration to
-   `%APPDATA%\kumakh-college-management-system\runtime.env`. It refuses to
-   overwrite an existing runtime.env, does not copy GitHub publishing credentials,
-   and prints no credential values. On other PCs an administrator can instead
-   provision that file directly through their secure process. Do not distribute
-   runtime.env in a GitHub release. Preserve each installation's existing Turso
-   endpoint and identity. Missing Turso configuration stops startup with a
-   meaningful error; it never falls back to a new empty production database.
+4. The Windows build embeds the existing Turso URL/token into a main-process-only
+   resource at `resources\config\turso.env`. `scripts/build-win.js` creates that
+   resource from the secured build environment and removes the staging file after
+   packaging. An installed user does not provision configuration and no
+   `database.json` is used. The main process loads the resource automatically,
+   creates or opens `%APPDATA%\kumakh-college-management-system\database\kumakh-sync.db`,
+   and synchronizes it with the existing Turso database.
 5. Install the newly rebuilt `dist\KCMT-Setup-1.0.0.exe`. An older installed app
    without this updater must receive this baseline installer manually once.
 

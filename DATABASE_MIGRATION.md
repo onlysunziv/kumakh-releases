@@ -1,13 +1,13 @@
 # Current Windows release storage note
 
 For the September 2026 automatic-update implementation, the installed application
-uses `%APPDATA%\kumakh-college-management-system\database\kumakh-sync.db` with
-credentials in user-local `turso.env` or `runtime.env`. Some historical directions
-below describe older storage/build behavior and are retained as history. Follow
-[RELEASES.md](RELEASES.md) for current installed paths, credential provisioning,
-backup/migration safeguards and updater acceptance testing. Do not copy or restore
-an actively used replica, and do not assume the Node backup script targets the
-installed application's database.
+uses `%APPDATA%\kumakh-college-management-system\database\kumakh-sync.db` and
+automatically loads the existing Turso configuration from its packaged
+main-process resource. Some historical directions below describe older
+storage/build behavior and are retained as history. Follow [RELEASES.md](RELEASES.md)
+for current installed paths, backup/migration safeguards and updater acceptance
+testing. Do not copy or restore an actively used replica, and do not assume the
+Node backup script targets the installed application's database.
 
 # Historical application storage
 
@@ -21,16 +21,16 @@ Turso support remains optional and must never block SQLite startup. If optional
 Turso credentials are present, any cloud synchronization failure is a warning;
 local SQLite operations continue normally.
 
-Production configuration template:
+Production build configuration template:
 
 ```env
 TURSO_DATABASE_URL=<MY_DATABASE_URL>
 TURSO_AUTH_TOKEN=<MY_NEW_ROTATED_TOKEN>
 ```
 
-Optional Turso credentials are read only by the backend integration. They are
-not required for startup, are not returned to the renderer, and are not used
-as the primary database path.
+The build script packages these values only for the Electron main process. They
+are not returned to the renderer. Startup requires the packaged configuration
+because the local file is a Turso replica, not an independent fallback database.
 
 All frontend API calls use the Electron IPC bridge and local SQLite, including login.
 There is no remote CRUD fallback. Google Sheets is contacted only when submitting
