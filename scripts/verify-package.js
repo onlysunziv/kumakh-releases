@@ -1,10 +1,13 @@
 // Runs before artifact publication, on the actual packaged archive.
 const fs = require('fs');
 const path = require('path');
+const { spawnSync } = require('child_process');
 const asar = require('@electron/asar');
+const { peMachine } = require('./prepare-native-runtime');
 
 module.exports = async function verifyPackage(context) {
   const stagingConfig = path.join(context.packager.projectDir, 'build', 'turso-config.env');
+  const stagedRuntime = path.join(context.packager.projectDir, 'build', 'native-runtime', 'vcruntime140.dll');
   try {
     const dotenv = require('dotenv');
     const resourceConfig = path.join(context.appOutDir, 'resources', 'config', 'turso.env');
@@ -13,6 +16,42 @@ module.exports = async function verifyPackage(context) {
     if (!config.TURSO_DATABASE_URL || !config.TURSO_AUTH_TOKEN) throw new Error('Packaged application has incomplete Turso configuration.');
     const archive = path.join(context.appOutDir, 'resources', 'app.asar');
     const files = asar.listPackage(archive).map(name => name.replace(/^[/\\]/, '').replaceAll('\\', '/'));
+    if (context.electronPlatformName === 'win32') {
+      const unpacked = path.join(context.appOutDir, 'resources', 'app.asar.unpacked', 'node_modules');
+      const nativeBindings = [
+        path.join(unpacked, '@tursodatabase', 'sync-win32-x64-msvc', 'sync.win32-x64-msvc.node'),
+        path.join(unpacked, 'sqlite3', 'build', 'Release', 'node_sqlite3.node'),
+      ];
+      for (const binding of nativeBindings) {
+        if (!fs.existsSync(binding)) throw new Error(`Packaged Windows x64 database binding is missing: ${path.relative(context.appOutDir, binding)}`);
+        if (peMachine(binding) !== 0x8664) throw new Error(`Packaged database binding is not x64: ${path.relative(context.appOutDir, binding)}`);
+      }
+      const runtime = path.join(path.dirname(nativeBindings[0]), 'vcruntime140.dll');
+      if (!fs.existsSync(runtime)) throw new Error('Packaged Turso binding is missing app-local VCRUNTIME140.dll.');
+      if (peMachine(runtime) !== 0x8664) throw new Error('Packaged VCRUNTIME140.dll is not x64.');
+      const requiredPackages = [
+        'node_modules/@tursodatabase/sync/package.json',
+        'node_modules/@tursodatabase/sync-win32-x64-msvc/package.json',
+        'node_modules/sqlite3/package.json',
+      ];
+      for (const requiredPackage of requiredPackages) {
+        if (!files.includes(requiredPackage)) throw new Error(`Packaged database dependency is missing from app.asar: ${requiredPackage}`);
+      }
+      const executable = path.join(context.appOutDir, `${context.packager.appInfo.productFilename || 'KCMT'}.exe`);
+      const probe = path.join(context.packager.projectDir, 'scripts', 'verify-native-runtime.js');
+      const probeExpression = `require(${JSON.stringify(probe)}).verifyPackagedRuntime(${JSON.stringify(context.appOutDir)}).catch(error => { console.error(error.stack || error); process.exitCode = 1; })`;
+      const result = spawnSync(executable, ['-e', probeExpression], {
+        env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' },
+        encoding: 'utf8',
+        timeout: 60000,
+        windowsHide: true,
+      });
+      if (result.error || result.status !== 0) {
+        throw new Error(`Packaged Electron native database runtime probe failed.\n${result.stderr || result.error?.message || `Exit code: ${result.status}`}`);
+      }
+      if (result.stdout) console.log(result.stdout.trim());
+      console.log('Verified packaged Windows x64 Turso/sqlite3 bindings and app-local VCRUNTIME140.dll.');
+    }
     const forbidden = /(^|\/)(\.env(?:\..*)?|turso\.env|backups|files|purchase-bills)(\/|$)|\.(db|sqlite|sqlite3)(-|$)|\.(pem|pfx|p12)$/i;
     const secretPattern = /(?:gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,}|-----BEGIN (?:RSA |EC )?PRIVATE KEY-----|"type"\s*:\s*"service_account")/;
     const secrets = [];
@@ -28,5 +67,6 @@ module.exports = async function verifyPackage(context) {
     console.log('Packaged application verified: no database, user files, environment files or detected credentials.');
   } finally {
     fs.rmSync(stagingConfig, { force: true });
+    fs.rmSync(stagedRuntime, { force: true });
   }
 };

@@ -1,12 +1,13 @@
 {
   "name": "kumakh-college-management-system",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Kumakh College Management System desktop application",
   "main": "electron/main.js",
   "scripts": {
     "start": "electron .",
     "dev": "electron .",
     "test": "node --check electron/main.js && node --check electron/preload.js && node --check electron/window.js && node --check frontend/js/auth.js && node --check frontend/js/app.js && node --test tests/*.test.js",
+    "verify:release": "node scripts/verify-release.js",
     "db:backup": "node scripts/backup-database.js",
     "db:turso:check": "node scripts/check-turso.js",
     "db:migrate": "node scripts/migrate-mysql.js --run",
@@ -34,6 +35,7 @@
   },
   "dependencies": {
     "@tursodatabase/sync": "^0.7.2",
+    "@tursodatabase/sync-win32-x64-msvc": "0.7.2",
     "dotenv": "^17.4.2",
     "electron-log": "^5.4.4",
     "electron-updater": "^6.8.9",
@@ -51,6 +53,7 @@
       "database/KUMAKH_DATABASE.sql",
       "database/columns.json",
       "frontend/**/*",
+      "node_modules/@tursodatabase/sync-win32-x64-msvc/**/*",
       "package.json",
       "!**/*.db",
       "!**/*.db-*",
@@ -62,6 +65,10 @@
       {
         "from": "build/turso-config.env",
         "to": "config/turso.env"
+      },
+      {
+        "from": "build/native-runtime/vcruntime140.dll",
+        "to": "app.asar.unpacked/node_modules/@tursodatabase/sync-win32-x64-msvc/vcruntime140.dll"
       }
     ],
     "win": {
@@ -90,7 +97,9 @@
     "npmRebuild": true,
     "asarUnpack": [
       "node_modules/sqlite3/**/*.node",
-      "node_modules/@tursodatabase/**/*.node"
+      "node_modules/@tursodatabase/**/*.node",
+      "node_modules/@tursodatabase/sync-win32-x64-msvc/**/*.node",
+      "node_modules/@tursodatabase/sync-win32-x64-msvc/vcruntime140.dll"
     ],
     "publish": {
       "provider": "github",
@@ -100,5 +109,10 @@
     },
     "beforePack": "scripts/before-pack.js",
     "afterPack": "scripts/verify-package.js"
+  },
+  "allowScripts": {
+    "electron@32.3.3": true,
+    "sqlite3@6.0.1": true,
+    "electron-winstaller@5.4.0": true
   }
 }

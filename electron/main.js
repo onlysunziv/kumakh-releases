@@ -1,14 +1,110 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
+const fsSync = require("fs");
 const fs = require("fs/promises");
+const os = require("os");
 const path = require("path");
 // Keep the database and its Turso credentials in the same persistent location
 // across installer updates and product-name changes.
 app.setPath("userData", path.join(app.getPath("appData"), "kumakh-college-management-system"));
 const { createWindow } = require("./window");
-const { getDatabase, closeDatabase } = require("./database");
-const { databasePath } = require("./sqlite-pool");
+let getDatabase;
+let closeDatabase = async () => {};
+let databasePath = () => path.join(app.getPath("userData"), "database", "kumakh-sync.db");
 
 const isDev = !app.isPackaged;
+function logDatabaseStartupError(error, seen = new Set(), label = "Database startup error") {
+  if (!error || seen.has(error)) return;
+  seen.add(error);
+  console.error(`${label}:`, error.stack || error);
+  const causes = Array.isArray(error.cause) ? error.cause : [error.cause];
+  for (const [index, cause] of causes.entries()) {
+    if (cause) logDatabaseStartupError(cause, seen, `Database startup cause ${index + 1}`);
+  }
+  if (Array.isArray(error.errors)) {
+    for (const [index, cause] of error.errors.entries()) {
+      logDatabaseStartupError(cause, seen, `Database startup nested error ${index + 1}`);
+    }
+  }
+}
+function startupErrorCode(error) {
+  const errors = [];
+  const visit = value => {
+    if (!value || errors.includes(value)) return;
+    errors.push(value);
+    for (const cause of Array.isArray(value.cause) ? value.cause : [value.cause]) visit(cause);
+    for (const nested of value.errors || []) visit(nested);
+  };
+  visit(error);
+  const messages = errors.map(value => `${value.code || ""} ${value.message || value}`).join("\n");
+  if (/Unsupported architecture on Windows/i.test(messages)) return "DB_NATIVE_ARCH_MISMATCH";
+  if (/Cannot find native binding|ERR_DLOPEN_FAILED|sync-win32-x64-msvc.*(?:not found|cannot find|missing)/i.test(messages)) {
+    return "DB_NATIVE_BINDING_MISSING";
+  }
+  return error.code || "DATABASE_STARTUP_FAILED";
+}
+function writeStartupDiagnostics(error) {
+  const databaseFile = databasePath();
+  const nativePackagePath = path.join(app.getAppPath(), "node_modules", "@tursodatabase", "sync-win32-x64-msvc");
+  const nativePackageDirectory = app.isPackaged && process.resourcesPath
+    ? path.join(process.resourcesPath, "app.asar.unpacked", "node_modules", "@tursodatabase", "sync-win32-x64-msvc")
+    : nativePackagePath;
+  const bindingPath = path.join(nativePackageDirectory, "sync.win32-x64-msvc.node");
+  const runtimePath = path.join(nativePackageDirectory, "vcruntime140.dll");
+  const configFiles = [
+    path.join(app.getPath("userData"), "runtime.env"),
+    path.join(process.resourcesPath || "", "config", "turso.env"),
+  ];
+  const configAvailable = configFiles.some(file => {
+    try {
+      const content = fsSync.readFileSync(file, "utf8");
+      return /^TURSO_DATABASE_URL=.+$/m.test(content) && /^TURSO_AUTH_TOKEN=.+$/m.test(content);
+    } catch (_) { return false; }
+  });
+  let bindingVersion = "unresolved";
+  try {
+    const packageFile = path.join(nativePackagePath, "package.json");
+    bindingVersion = JSON.parse(fsSync.readFileSync(packageFile, "utf8")).version;
+  } catch (_) {}
+  const details = {
+    appVersion: app.getVersion(),
+    electronVersion: process.versions.electron || "unknown",
+    electronNodeVersion: process.versions.node,
+    platform: process.platform,
+    architecture: process.arch,
+    windowsVersion: os.release(),
+    isPackaged: app.isPackaged,
+    resourcesPath: process.resourcesPath || null,
+    appPath: app.getAppPath(),
+    userDataPath: app.getPath("userData"),
+    databasePath: databaseFile,
+    databaseExists: fsSync.existsSync(databaseFile),
+    databaseLibrary: "@tursodatabase/sync (libSQL embedded replica)",
+    nativePackage: "@tursodatabase/sync-win32-x64-msvc",
+    nativePackageVersion: bindingVersion,
+    expectedBindingPath: bindingPath,
+    bindingPresent: fsSync.existsSync(bindingPath),
+    appLocalRuntimePath: runtimePath,
+    appLocalRuntimePresent: fsSync.existsSync(runtimePath),
+    tursoConfigurationPresent: configAvailable,
+    startupStage: "database-initialization",
+    errorCode: startupErrorCode(error),
+  };
+  const redact = value => String(value)
+    .replace(/(?:https?|libsql|turso):\/\/[^\s"'<>]+/gi, "[DATABASE_URL]")
+    .replace(/Bearer\s+[^\s";,]+/gi, "Bearer [REDACTED]")
+    .replace(/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g, "[REDACTED]");
+  const logPath = path.join(app.getPath("userData"), "logs", "startup.log");
+  try {
+    fsSync.mkdirSync(path.dirname(logPath), { recursive: true });
+    if (fsSync.existsSync(logPath) && fsSync.statSync(logPath).size > 4 * 1024 * 1024) {
+      fsSync.renameSync(logPath, `${logPath}.previous`);
+    }
+    fsSync.appendFileSync(logPath, `${new Date().toISOString()} ${JSON.stringify(details)}\n${redact(error.stack || error)}\n\n`, "utf8");
+  } catch (logError) {
+    console.error("Unable to write persistent database startup log:", logError.stack || logError);
+  }
+  return { ...details, logPath };
+}
 let syncTimer;
 let updates;
 let activeOperations = 0;
@@ -41,6 +137,8 @@ if (!hasSingleInstanceLock) {
 
 app.whenReady().then(async () => {
   if (!hasSingleInstanceLock) return;
+  ({ getDatabase, closeDatabase } = require("./database"));
+  databasePath = require("./sqlite-pool").databasePath;
   console.info(`KUMAKH local replica: ${databasePath()}`);
   const database = await getDatabase({ seed: false, initializePermissions: false });
   syncTimer = setInterval(() => {
@@ -164,11 +262,12 @@ app.whenReady().then(async () => {
     }
   });
 }).catch((error) => {
-  console.error("Database startup failed:", error.code || error.message);
-  if (error.stack) console.error(error.stack);
+  const diagnostics = writeStartupDiagnostics(error);
+  console.error("Database startup diagnostics:", JSON.stringify(diagnostics));
+  logDatabaseStartupError(error);
   require("electron").dialog.showErrorBox(
     "Database unavailable",
-    `The local database replica could not be opened.\n\n${error.code || "DATABASE_STARTUP_FAILED"}: ${error.message}\n\nNo records were reset.`,
+    `The local database replica could not be opened.\n\n${diagnostics.errorCode}: ${error.message}\n\nDetails were saved to:\n${diagnostics.logPath}`,
   );
   app.quit();
 });

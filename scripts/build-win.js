@@ -17,6 +17,7 @@ function buildWindows(publish = false, root = path.resolve(__dirname, '..')) {
     validateRelease(root);
   } finally {
     fs.rmSync(bundledConfig, { force: true });
+    fs.rmSync(path.join(root, 'build', 'native-runtime', 'vcruntime140.dll'), { force: true });
   }
 }
 if (require.main === module) {
