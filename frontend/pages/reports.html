@@ -26,6 +26,7 @@
     <div id="reportMessage" class="small mt-3" role="status"></div>
   </div>
   <div class="card p-3 mb-3 reports-panel"><div class="reports-panel-heading"><div><h2 class="h5 mb-1">Report preview</h2><p class="small text-muted mb-0">Review the records and destination before submitting.</p></div><span class="reports-panel-icon"><i class="bi bi-eye"></i></span></div><div id="reportPreview"><div class="empty-report-state"><i class="bi bi-file-earmark-bar-graph"></i><span>Select one or more reports and a date range.</span></div></div></div>
+  <div class="card p-3 mb-3 reports-panel"><div class="reports-panel-heading"><div><h2 class="h5 mb-1">Missing Media repair</h2><p class="small text-muted mb-0">Select replacement files for active Student/Staff media that is neither available locally nor confirmed in Drive.</p></div><button class="btn btn-sm btn-outline-primary" id="refreshMissingMedia" type="button">Refresh</button></div><div id="missingMediaStatus" class="small text-muted mb-2" role="status"></div><div id="missingMediaList"><div class="empty-report-state"><span>Checking media availability...</span></div></div></div>
   <div class="card p-3 reports-panel"><div class="reports-panel-heading"><div><h2 class="h5 mb-1">Submission results</h2><p class="small text-muted mb-0">Every submission is recorded here with its current status.</p></div><span class="reports-panel-icon"><i class="bi bi-cloud-check"></i></span></div><div id="reportResults"><div class="empty-report-state"><i class="bi bi-inbox"></i><span>No submissions yet.</span></div></div></div>
   <dialog id="reportSubmissionDialog" class="report-submission-dialog" aria-labelledby="reportSubmissionTitle">
     <div class="report-submission-content">
@@ -174,6 +175,64 @@
       message.textContent = text;
       message.className = classes[level] || classes.info;
     };
+    const missingMediaList = document.getElementById("missingMediaList");
+    const missingMediaStatus = document.getElementById("missingMediaStatus");
+    const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, character => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+    }[character]));
+    const loadMissingMedia = async () => {
+      if (!missingMediaList) return;
+      missingMediaStatus.textContent = "Validating saved media...";
+      missingMediaList.innerHTML = '<div class="empty-report-state"><span>Checking media availability...</span></div>';
+      try {
+        const response = await window.kumakhApi.getMissingPersonMedia();
+        if (!response?.success || !response.data) throw new Error(response?.message || "Could not validate person media.");
+        const { ready = 0, missing = 0, items = [] } = response.data;
+        missingMediaStatus.textContent = `${ready} ready, ${missing} missing media.`;
+        missingMediaList.innerHTML = items.length
+          ? `<div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Registration / Employee ID</th><th>Name</th><th>Media type</th><th>Missing filename</th><th class="text-end">Repair</th></tr></thead><tbody>${items.map(item => `<tr><td>${escapeHtml(item.personId)}</td><td>${escapeHtml(item.personName)}</td><td>${escapeHtml(item.mediaType)}</td><td>${escapeHtml(item.fileName)}</td><td class="text-end"><button type="button" class="btn btn-sm btn-outline-primary" data-repair-media="${escapeHtml(item.mediaId)}">Re-select File</button></td></tr>`).join("")}</tbody></table></div>`
+          : '<div class="empty-report-state"><i class="bi bi-check-circle"></i><span>No missing Student/Staff media.</span></div>';
+      } catch (error) {
+        missingMediaStatus.textContent = error.message || "Media validation failed.";
+        missingMediaList.innerHTML = '<div class="alert alert-danger mb-0">Media validation failed. Refresh to retry.</div>';
+      }
+    };
+    document.getElementById("refreshMissingMedia")?.addEventListener("click", loadMissingMedia);
+    missingMediaList?.addEventListener("click", event => {
+      const button = event.target.closest("[data-repair-media]");
+      if (!button) return;
+      const mediaId = button.dataset.repairMedia;
+      const picker = document.createElement("input");
+      picker.type = "file";
+      picker.accept = ".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx";
+      picker.addEventListener("change", async () => {
+        const file = picker.files?.[0];
+        picker.remove();
+        if (!file) return;
+        button.disabled = true;
+        try {
+          const base64 = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result || "").split(",")[1] || "");
+            reader.onerror = () => reject(new Error(`Could not read ${file.name}.`));
+            reader.readAsDataURL(file);
+          });
+          const repaired = await window.kumakhApi.repairPersonMedia({
+            mediaId,
+            media: { fileName: file.name, mimeType: file.type || "application/octet-stream", base64 },
+          });
+          if (!repaired?.success) throw new Error(repaired?.message || "Could not repair media.");
+          await loadMissingMedia();
+          say(`${file.name} was copied into persistent KUMAKH media storage.`, "success");
+        } catch (error) {
+          say(error.message || "Could not repair media.", "danger");
+          button.disabled = false;
+        }
+      }, { once: true });
+      document.body.appendChild(picker);
+      picker.click();
+    });
+    loadMissingMedia();
     const selected = () => {
       const complete = types.querySelector('input[value="all-reports"]');
       if (complete && complete.checked) return ["all-reports"];
@@ -221,7 +280,7 @@
       if (!response?.success) throw new Error(response?.message || 'Submission history could not be loaded.');
       const rows = response.success ? response.data : [];
       resultsContainer.innerHTML = rows.length
-        ? `<div class="table-responsive"><table class="table table-hover reports-results-table align-middle mb-0"><thead><tr><th>Report</th><th>Date range</th><th>Status</th><th>Submitted</th><th>Details</th><th class="text-end">Action</th></tr></thead><tbody>${rows.map((r) => `<tr><td class="report-name-cell">${escape(r.report_name)}</td><td class="text-nowrap">${escape(r.date_from)}<br><span class="text-muted small">to ${escape(r.date_to)}</span></td><td>${statusBadge(r.status)}</td><td class="text-nowrap">${escape(formatDate(r.submitted_at))}</td><td class="report-detail ${r.status === "Failed" ? "text-danger" : "text-muted"}">${escape(r.error_message || (r.status === "Submitted" ? "Remote sheet updated successfully." : "Waiting for submission."))}</td><td class="text-end">${r.status === "Failed" ? `<button class="btn btn-sm btn-outline-danger retry-report" data-id="${escape(r.id)}"><i class="bi bi-arrow-repeat me-1"></i>Retry</button>` : '<span class="text-success"><i class="bi bi-check-circle"></i></span>'}</td></tr>`).join("")}</tbody></table></div>`
+        ? `<div class="table-responsive"><table class="table table-hover reports-results-table align-middle mb-0"><thead><tr><th>Report</th><th>Date range</th><th>Status</th><th>Submitted</th><th>Details</th><th class="text-end">Action</th></tr></thead><tbody>${rows.map((r) => `<tr><td class="report-name-cell">${escape(r.report_name)}</td><td class="text-nowrap">${escape(r.date_from)}<br><span class="text-muted small">to ${escape(r.date_to)}</span></td><td>${statusBadge(r.status)}</td><td class="text-nowrap">${escape(formatDate(r.submitted_at))}</td><td class="report-detail ${r.status === "Failed" ? "text-danger" : "text-muted"}">${escape(r.error_message || (r.status === "Submitted" ? "Remote sheet updated successfully." : "Submission was not confirmed. Retry safely using the same report ID."))}</td><td class="text-end">${["Failed", "Pending"].includes(r.status) ? `<button class="btn btn-sm btn-outline-danger retry-report" data-id="${escape(r.id)}"><i class="bi bi-arrow-repeat me-1"></i>Retry</button>` : '<span class="text-success"><i class="bi bi-check-circle"></i></span>'}</td></tr>`).join("")}</tbody></table></div>`
         : '<div class="empty-report-state"><i class="bi bi-inbox"></i><span>No submissions yet.</span></div>';
       document.querySelectorAll(".retry-report").forEach((button) => button.addEventListener("click", async () => {
         if (button.disabled || submitting) return;
@@ -362,10 +421,15 @@
       }
       finishSubmissionPopup(results);
       const failed = results.filter((item) => !item.result.success);
+      const partial = failed.filter(item => item.result.partial);
       try { await loadResults(); }
       catch (error) { say(`Submission finished, but history could not refresh: ${error.message}`, "warning"); setSubmissionBusy(false); return; }
       if (failed.length) {
-        say(`${failed.length} report(s) failed. Check Submission results below for details.`, "danger");
+        if (partial.length) {
+          say(`${partial.length} report(s) partially submitted; ${failed.length - partial.length} failed. See Submission results and Missing Media repair below.`, "warning");
+        } else {
+          say(`${failed.length} report(s) failed. Check Submission results below for details.`, "danger");
+        }
       } else {
         say(`${results.length} report(s) submitted successfully. Check Submission results below for confirmation.`, "success");
       }

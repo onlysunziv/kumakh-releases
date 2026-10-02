@@ -6,7 +6,7 @@
   }
 
   .student-payment-card {
-    overflow: hidden;
+    overflow: visible;
     background: #fff;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -20,6 +20,7 @@
     padding: 16px 20px;
     color: #fff;
     background: #080d72;
+    border-radius: 7px 7px 0 0;
   }
 
   .student-payment-header-icon {
@@ -53,6 +54,60 @@
     color: #374151;
     font-size: 12px;
     font-weight: 600;
+  }
+
+  .payment-student-picker {
+    position: relative;
+  }
+
+  .payment-student-options {
+    position: absolute;
+    z-index: 1050;
+    top: calc(100% + 4px);
+    right: 0;
+    left: 0;
+    max-height: min(280px, 45vh);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 4px;
+    border: 1px solid #cfd7e3;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+  }
+
+  .payment-student-options[hidden] {
+    display: none;
+  }
+
+  .payment-student-option {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 5px;
+    background: #fff;
+    color: #172033;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .payment-student-option:hover,
+  .payment-student-option.is-active {
+    background: #eef4ff;
+  }
+
+  .payment-student-option-name {
+    font-weight: 700;
+  }
+
+  .payment-student-option-registration {
+    flex: 0 0 auto;
+    color: #64748b;
+    font-size: 0.85em;
   }
 
   .payment-type-container {
@@ -299,14 +354,24 @@
             <label class="form-label" for="paymentStudent"
               >Student name / registration number</label
             >
-            <input
-              id="paymentStudent"
-              class="form-control"
-              list="paymentStudentOptions"
-              autocomplete="off"
-              required
-            />
-            <datalist id="paymentStudentOptions"></datalist>
+            <div class="payment-student-picker">
+              <input
+                id="paymentStudent"
+                class="form-control"
+                autocomplete="off"
+                aria-autocomplete="list"
+                aria-controls="paymentStudentOptions"
+                aria-expanded="false"
+                required
+              />
+              <div
+                id="paymentStudentOptions"
+                class="payment-student-options"
+                role="listbox"
+                aria-label="Student suggestions"
+                hidden
+              ></div>
+            </div>
             <div id="selectedStudentDetails" class="form-text text-muted">
               Enter or select a student name.
             </div>

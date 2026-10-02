@@ -8861,14 +8861,27 @@ function personRoot_(entity) {
   throw new Error('Invalid person entity');
 }
 function readPersonFile_(request) {
-  readOnlyImportAdmin_(request);
-  var root=personRoot_(request.entity),file=DriveApp.getFileById(String(request.fileId||''));
-  if(!isUnderDriveRoot_(file,root.getId()))throw new Error('File is outside the configured person root');
-  if(file.getSize()>20*1024*1024)throw new Error('Historical file exceeds 20 MB: '+file.getName());
-  return jsonResponse(true,'File read',{fileName:file.getName(),mimeType:file.getMimeType(),base64:Utilities.base64Encode(file.getBlob().getBytes())});
+  if(request.sessionToken) {
+    var user=sessionUser_(request);
+    if(!user)return jsonResponse(false,'Your reporting session is invalid or expired.',{error:'REPORT_AUTH_REQUIRED'});
+    if(permissionsForUser_(user).indexOf('reports.view')<0)return jsonResponse(false,'You do not have permission to read report media.',{error:'ACCESS_DENIED'});
+  } else {
+    readOnlyImportAdmin_(request);
+  }
+  try {
+    var entity=String(request.entity||'').toLowerCase()==='students'?'Students':String(request.entity||'').toLowerCase()==='staff'?'Staff':'';
+    if(!entity||!request.fileId)throw new Error('Invalid person file reference');
+    var root=personRoot_(entity),file=DriveApp.getFileById(String(request.fileId));
+    if(!isUnderDriveRoot_(file,root.getId()))throw new Error('File is outside the configured person root');
+    if(file.getSize()>20*1024*1024)throw new Error('Historical file exceeds 20 MB');
+    return jsonResponse(true,'File read',{fileName:file.getName(),mimeType:file.getMimeType(),base64:Utilities.base64Encode(file.getBlob().getBytes())});
+  } catch(error) {
+    return jsonResponse(false,'The existing Drive media is missing or inaccessible.',{error:'PERSON_MEDIA_UNAVAILABLE'});
+  }
 }
 function uploadPersonFile_(request) {
-  var lock=LockService.getScriptLock();lock.waitLock(30000);
+  var lock=LockService.getScriptLock();
+  if(!lock.tryLock(5000))return jsonResponse(false,'Google Drive is busy processing another request. Retry shortly.',{error:'DRIVE_BUSY',retryAfterMs:1000});
   var driveStage='open root folder';
   try {
     var entity=String(request.entity||'').trim();

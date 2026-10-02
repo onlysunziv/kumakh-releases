@@ -46,7 +46,6 @@ const PAGE_PERMISSIONS = {
 // STUDENT UPLOAD LIMIT
 // ============================================================
 
-const MAX_STUDENT_UPLOAD_BYTES = 20 * 1024 * 1024;
 
 // ============================================================
 // GENERAL HELPERS
@@ -289,13 +288,33 @@ async function initializePaymentsPage() {
       ? paymentsResponse.data
       : [];
   const options = document.getElementById("paymentStudentOptions");
-  options.innerHTML = students
-    .map((student) => {
-      const id = studentIdentifier(student);
-      const name = studentName(student);
-      return `<option value="${escapeStudentHtml(name)}" label="Registration No: ${escapeStudentHtml(String(registrationNumber(student)))}"></option>`;
-    })
-    .join("");
+  let activeSuggestion = -1;
+  const closeSuggestions = () => {
+    options.hidden = true;
+    input.setAttribute("aria-expanded", "false");
+    activeSuggestion = -1;
+  };
+  const matchingStudents = () => {
+    const query = normalizedIdentifier(input.value);
+    return students.filter((student) => {
+      if (!query) return true;
+      return [
+        studentName(student),
+        registrationNumber(student),
+        studentIdentifier(student),
+      ].some((value) => normalizedIdentifier(value).includes(query));
+    });
+  };
+  const renderSuggestions = () => {
+    const matches = matchingStudents();
+    options.innerHTML = matches
+      .map((student, index) => `<button class="payment-student-option" type="button" role="option" aria-selected="false" data-student-index="${index}"><span class="payment-student-option-name">${escapeStudentHtml(studentName(student))}</span><span class="payment-student-option-registration">Registration No: ${escapeStudentHtml(String(registrationNumber(student)))}</span></button>`)
+      .join("");
+    options.hidden = matches.length === 0;
+    input.setAttribute("aria-expanded", String(!options.hidden));
+    activeSuggestion = -1;
+    return matches;
+  };
   const findStudent = () =>
     students.find((student) => {
       const id = normalizedIdentifier(studentIdentifier(student));
@@ -329,7 +348,48 @@ async function initializePaymentsPage() {
       .reduce((sum, payment) => sum + paymentAmount(payment), 0);
     document.getElementById("paymentTotalPaid").value = paid.toFixed(2);
   };
-  input.oninput = refreshDetails;
+  const selectStudent = (index) => {
+    const student = matchingStudents()[index];
+    if (!student) return;
+    input.value = studentName(student);
+    closeSuggestions();
+    refreshDetails();
+  };
+  input.onfocus = renderSuggestions;
+  input.onblur = closeSuggestions;
+  input.oninput = () => {
+    renderSuggestions();
+    refreshDetails();
+  };
+  input.onkeydown = (event) => {
+    if (event.key === "Escape") {
+      closeSuggestions();
+      return;
+    }
+    if (options.hidden || !["ArrowDown", "ArrowUp", "Enter"].includes(event.key)) return;
+    const suggestionButtons = [...options.querySelectorAll("[data-student-index]")];
+    if (event.key === "Enter") {
+      if (activeSuggestion >= 0) {
+        event.preventDefault();
+        selectStudent(activeSuggestion);
+      }
+      return;
+    }
+    event.preventDefault();
+    const direction = event.key === "ArrowDown" ? 1 : -1;
+    activeSuggestion = (activeSuggestion + direction + suggestionButtons.length) % suggestionButtons.length;
+    suggestionButtons.forEach((button, index) => {
+      const active = index === activeSuggestion;
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-selected", String(active));
+    });
+    suggestionButtons[activeSuggestion]?.scrollIntoView({ block: "nearest" });
+  };
+  options.onmousedown = (event) => event.preventDefault();
+  options.onclick = (event) => {
+    const button = event.target.closest("[data-student-index]");
+    if (button) selectStudent(Number(button.dataset.studentIndex));
+  };
   refreshDetails();
   const today = new Date().toISOString().slice(0, 10);
   document.getElementById("paymentDate").value =
@@ -2420,6 +2480,19 @@ window.initializeStaffPage = async function initializeStaffPage() {
   let selectedPassportPhoto = null;
   let selectedDocuments = [];
   let documentSelectionError = '';
+  let photoSelectionError = '';
+  let mediaSelectionJobs = [];
+  let photoSelectionVersion = 0;
+  let documentSelectionVersion = 0;
+  const clearStagedStaffMedia = () => {
+    photoSelectionVersion += 1;
+    documentSelectionVersion += 1;
+    selectedPassportPhoto = null;
+    selectedDocuments = [];
+    mediaSelectionJobs = [];
+    documentSelectionError = '';
+    photoSelectionError = '';
+  };
 
   const setPageMessage = (text, type) => {
     messageElement.textContent = text;
@@ -2442,9 +2515,7 @@ window.initializeStaffPage = async function initializeStaffPage() {
     modal.style.display = "";
     document.body.classList.remove("modal-scroll-lock");
     form.reset();
-    selectedPassportPhoto = null;
-    selectedDocuments = [];
-    documentSelectionError = '';
+    clearStagedStaffMedia();
     photoInfo.textContent = "No file selected.";
     documentInfo.textContent = "No documents selected.";
     setFormAlert("", "");
@@ -2480,6 +2551,19 @@ window.initializeStaffPage = async function initializeStaffPage() {
         reject(new Error(`Failed to read file: ${file.name}`));
       reader.readAsDataURL(file);
     });
+  const stageStaffMedia = async (file, mediaType) => {
+    const media = await readFileAsBase64(file);
+    const result = await window.kumakhApi.stagePersonMedia({
+      entityTable: "Staff",
+      mediaType,
+      personIdentifier: form.employeeId.value,
+      media,
+    });
+    if (!result?.success || !result.data?.mediaId) {
+      throw new Error(result?.message || `Could not persist ${file.name}.`);
+    }
+    return result.data.mediaId;
+  };
 
   const validateImageFile = (file) => {
     if (!file) return true;
@@ -2567,9 +2651,24 @@ window.initializeStaffPage = async function initializeStaffPage() {
           return;
         }
         validateImageFile(file);
-        selectedPassportPhoto = { file, name: file.name };
+        const selected = { file, name: file.name, stageId: null };
+        selectedPassportPhoto = selected;
         photoInfo.textContent = file.name;
         renderPassportPreview();
+        const version = ++photoSelectionVersion;
+        const job = stageStaffMedia(file, "photo").then(mediaId => {
+          if (version === photoSelectionVersion && selectedPassportPhoto === selected) {
+            selected.stageId = mediaId;
+            photoSelectionError = '';
+            photoInfo.textContent = `${file.name} — copied to KUMAKH storage`;
+          }
+        }).catch(error => {
+          if (version === photoSelectionVersion && selectedPassportPhoto === selected) {
+            photoSelectionError = error.message || "Could not persist the selected photo.";
+            setFormAlert(photoSelectionError, "danger");
+          }
+        });
+        mediaSelectionJobs.push(job);
       } catch (error) {
         selectedPassportPhoto = null;
         photoInput.value = "";
@@ -2585,13 +2684,28 @@ window.initializeStaffPage = async function initializeStaffPage() {
       if (!files.length) return; // Cancelling the picker must preserve the queue.
       try {
         validateDocumentFiles(files);
-        const combined = new Map(selectedDocuments.map(file => [file.name, file]));
-        files.forEach(file => combined.set(file.name, file));
-        selectedDocuments = [...combined.values()];
+        const version = ++documentSelectionVersion;
+        const entries = files.map(file => ({ file, name: file.name, stageId: null }));
+        selectedDocuments.push(...entries);
         documentSelectionError = '';
-        documentInfo.textContent = `${selectedDocuments.length} document(s) ready to save. Upload to Drive happens when you submit the Staff report.`;
+        documentInfo.textContent = `${selectedDocuments.length} document(s) selected. Copying into KUMAKH storage...`;
         setFormAlert('', '');
         renderDocumentList();
+        const job = Promise.all(entries.map(async entry => {
+          entry.stageId = await stageStaffMedia(entry.file, "document");
+        })).then(() => {
+          if (version === documentSelectionVersion) {
+            documentInfo.textContent = `${selectedDocuments.length} document(s) copied to KUMAKH storage.`;
+          }
+        }).catch(error => {
+          selectedDocuments = selectedDocuments.filter(entry => !entries.includes(entry));
+          renderDocumentList();
+          if (version === documentSelectionVersion) {
+            documentSelectionError = error.message || "Could not persist the selected documents.";
+            setFormAlert(documentSelectionError, "danger");
+          }
+        });
+        mediaSelectionJobs.push(job);
       } catch (error) {
         documentSelectionError = error.message || 'Invalid document selection.';
         documentInput.value = "";
@@ -2773,6 +2887,7 @@ window.initializeStaffPage = async function initializeStaffPage() {
   };
 
   const populateStaffForm = (staff) => {
+    clearStagedStaffMedia();
     form.dataset.editStaffId =
       staff.id || staff["Staff ID"] || staffField(staff, "Staff ID") || "";
     form.dataset.editEmployeeId =
@@ -2830,12 +2945,10 @@ window.initializeStaffPage = async function initializeStaffPage() {
 
   const resetForm = () => {
     form.reset();
+    clearStagedStaffMedia();
     form.dataset.editStaffId = "";
     form.dataset.editEmployeeId = "";
     document.getElementById("staffFormTitle").textContent = "Add New Staff";
-    selectedPassportPhoto = null;
-    selectedDocuments = [];
-    documentSelectionError = '';
     photoInput.value = "";
     documentInput.value = "";
     photoInfo.textContent = "No file selected.";
@@ -2991,7 +3104,11 @@ window.initializeStaffPage = async function initializeStaffPage() {
   };
 
   const buildStaffPayload = async () => {
-    if (documentSelectionError) throw new Error(documentSelectionError + ' Select valid documents before saving.');
+    await Promise.all(mediaSelectionJobs);
+    mediaSelectionJobs = [];
+    if (photoSelectionError || documentSelectionError) {
+      throw new Error(photoSelectionError || documentSelectionError);
+    }
     const formData = new FormData(form);
     const staff = Object.fromEntries(formData.entries());
     const payload = {
@@ -3030,18 +3147,15 @@ window.initializeStaffPage = async function initializeStaffPage() {
 
     validateStaffData(payload);
 
-    let photoPayload = null;
     if (selectedPassportPhoto && selectedPassportPhoto.file) {
       validateImageFile(selectedPassportPhoto.file);
-      photoPayload = await readFileAsBase64(selectedPassportPhoto.file);
+      if (!selectedPassportPhoto.stageId) {
+        throw new Error("Wait for the selected photo to finish copying, then save again.");
+      }
     }
 
-    let documentPayload = [];
-    if (selectedDocuments.length) {
-      validateDocumentFiles(selectedDocuments);
-      documentPayload = await Promise.all(
-        selectedDocuments.map(async (file) => readFileAsBase64(file)),
-      );
+    if (selectedDocuments.some(document => !document.stageId)) {
+      throw new Error("Wait for the selected documents to finish copying, then save again.");
     }
 
     const existingEmployeeId =
@@ -3051,8 +3165,12 @@ window.initializeStaffPage = async function initializeStaffPage() {
     return {
       id: existingStaffId || "",
       staff: payload,
-      passportPhoto: photoPayload,
-      documents: documentPayload,
+      passportPhoto: null,
+      documents: [],
+      stagedMedia: [
+        ...(selectedPassportPhoto?.stageId ? [selectedPassportPhoto.stageId] : []),
+        ...selectedDocuments.map(document => document.stageId),
+      ],
       originalEmployeeId: existingEmployeeId || "",
     };
   };
@@ -3158,6 +3276,35 @@ window.initializeStudentsPage = async function initializeStudentsPage() {
   let students = [];
   let step = 1;
   let courses = [];
+  let selectedPhotoMediaId = null;
+  let selectedDocumentMediaIds = [];
+  let mediaSelectionJobs = [];
+  let photoMediaError = "";
+  let documentMediaError = "";
+  let photoSelectionVersion = 0;
+  let documentSelectionVersion = 0;
+  const clearStagedMediaSelection = () => {
+    photoSelectionVersion += 1;
+    documentSelectionVersion += 1;
+    selectedPhotoMediaId = null;
+    selectedDocumentMediaIds = [];
+    mediaSelectionJobs = [];
+    photoMediaError = "";
+    documentMediaError = "";
+  };
+  const stageStudentMedia = async (file, mediaType) => {
+    const media = await readStudentFile(file);
+    const result = await window.kumakhApi.stagePersonMedia({
+      entityTable: "Students",
+      mediaType,
+      personIdentifier: fields("registrationNumber")?.value,
+      media,
+    });
+    if (!result?.success || !result.data?.mediaId) {
+      throw new Error(result?.message || `Could not persist ${file.name}.`);
+    }
+    return result.data.mediaId;
+  };
 
   // --------------------------------------------------------
   // FORM FIELD HELPER
@@ -3413,6 +3560,7 @@ window.initializeStudentsPage = async function initializeStudentsPage() {
   };
 
   const populateStudentForm = (student) => {
+    clearStagedMediaSelection();
     const mappings = {
       registrationNumber: ["Registration Number", "Student ID"],
       joiningDate: ["Joining Date"],
@@ -3673,6 +3821,7 @@ window.initializeStudentsPage = async function initializeStudentsPage() {
   if (addStudentButton) {
     addStudentButton.addEventListener("click", () => {
       addForm.reset();
+      clearStagedMediaSelection();
       delete addForm.dataset.editRegistrationNumber;
       delete addForm.dataset.editStudentId;
       const photoField = fields("passportPhoto");
@@ -3771,6 +3920,8 @@ window.initializeStudentsPage = async function initializeStudentsPage() {
   if (passportPhotoField) {
     passportPhotoField.addEventListener("change", () => {
       const file = passportPhotoField.files[0];
+      const version = ++photoSelectionVersion;
+      selectedPhotoMediaId = null;
 
       const allowed = ["image/jpeg", "image/png", "image/webp"];
 
@@ -3815,6 +3966,22 @@ window.initializeStudentsPage = async function initializeStudentsPage() {
 
         preview.dataset.objectUrl = objectUrl;
       }
+      if (file) {
+        const job = stageStudentMedia(file, "photo").then(mediaId => {
+          if (version === photoSelectionVersion) {
+            selectedPhotoMediaId = mediaId;
+            photoMediaError = "";
+            message("Photo copied to KUMAKH storage.", "success");
+          }
+        }).catch(error => {
+          if (version === photoSelectionVersion) {
+            photoMediaError = error.message || "Could not save the selected photo.";
+            selectedPhotoMediaId = null;
+            message(photoMediaError, "danger");
+          }
+        });
+        mediaSelectionJobs.push(job);
+      }
     });
   }
 
@@ -3853,6 +4020,9 @@ window.initializeStudentsPage = async function initializeStudentsPage() {
         );
 
         documentsField.value = "";
+        documentSelectionVersion += 1;
+        selectedDocumentMediaIds = [];
+        documentMediaError = "One or more selected documents are invalid.";
 
         const list = document.getElementById("studentDocumentList");
 
@@ -3864,14 +4034,30 @@ window.initializeStudentsPage = async function initializeStudentsPage() {
       }
 
       const list = document.getElementById("studentDocumentList");
-
-      if (!list) {
-        return;
+      if (list) {
+        list.innerHTML = files.length
+          ? files.map((file) => escapeStudentHtml(file.name)).join("<br>")
+          : "No documents selected.";
       }
-
-      list.innerHTML = files.length
-        ? files.map((file) => escapeStudentHtml(file.name)).join("<br>")
-        : "No documents selected.";
+      const version = ++documentSelectionVersion;
+      selectedDocumentMediaIds = [];
+      documentMediaError = "";
+      if (files.length) {
+        const job = Promise.all(files.map(file => stageStudentMedia(file, "document"))).then(mediaIds => {
+          if (version === documentSelectionVersion) {
+            selectedDocumentMediaIds = mediaIds;
+            documentMediaError = "";
+            message(`${mediaIds.length} document(s) copied to KUMAKH storage.`, "success");
+          }
+        }).catch(error => {
+          if (version === documentSelectionVersion) {
+            documentMediaError = error.message || "Could not save the selected documents.";
+            selectedDocumentMediaIds = [];
+            message(documentMediaError, "danger");
+          }
+        });
+        mediaSelectionJobs.push(job);
+      }
     });
   }
 
@@ -3915,6 +4101,11 @@ window.initializeStudentsPage = async function initializeStudentsPage() {
     save.disabled = true;
 
     try {
+      await Promise.all(mediaSelectionJobs);
+      mediaSelectionJobs = [];
+      if (photoMediaError || documentMediaError) {
+        throw new Error(photoMediaError || documentMediaError);
+      }
       // ==================================================
       // PHOTO
       // ==================================================
@@ -3932,42 +4123,9 @@ window.initializeStudentsPage = async function initializeStudentsPage() {
       // DOCUMENTS
       // ==================================================
 
-      const documentsField = fields("documents");
-
-      const selectedDocumentFiles =
-        documentsField && documentsField.files ? [...documentsField.files] : [];
-
-      // ==================================================
-      // TOTAL UPLOAD SIZE
-      // ==================================================
-
-      const totalUploadBytes =
-        (photoFile ? photoFile.size : 0) +
-        selectedDocumentFiles.reduce((total, file) => total + file.size, 0);
-
-      if (totalUploadBytes > MAX_STUDENT_UPLOAD_BYTES) {
-        throw new Error(
-          "The selected files are too large to upload together. Please keep the total size below 20 MB.",
-        );
+      if (photoFile && !selectedPhotoMediaId) {
+        throw new Error("Wait for the selected photo to finish copying, then save again.");
       }
-
-      // ==================================================
-      // UPLOAD PHOTO
-      // ==================================================
-
-      message("Uploading photo...", "info");
-
-      const photo = await readStudentFile(photoFile);
-
-      // ==================================================
-      // UPLOAD DOCUMENTS
-      // ==================================================
-
-      message("Uploading documents...", "info");
-
-      const documents = await Promise.all(
-        selectedDocumentFiles.map(readStudentFile),
-      );
 
       // ==================================================
       // COLLECT STUDENT DATA
@@ -4032,23 +4190,12 @@ window.initializeStudentsPage = async function initializeStudentsPage() {
           discount: Number(studentData.discount) || 0,
         },
 
-        passportPhoto: photo
-          ? {
-              fileName: photo.fileName,
-
-              mimeType: photo.mimeType,
-
-              base64: photo.base64,
-            }
-          : null,
-
-        documents: documents.filter(Boolean).map((document) => ({
-          fileName: document.fileName,
-
-          mimeType: document.mimeType,
-
-          base64: document.base64,
-        })),
+        stagedMedia: [
+          ...(selectedPhotoMediaId ? [selectedPhotoMediaId] : []),
+          ...selectedDocumentMediaIds,
+        ],
+        passportPhoto: null,
+        documents: [],
       };
 
       // ==================================================
@@ -4077,6 +4224,11 @@ window.initializeStudentsPage = async function initializeStudentsPage() {
       // ==================================================
 
       addForm.reset();
+      selectedPhotoMediaId = null;
+      selectedDocumentMediaIds = [];
+      mediaSelectionJobs = [];
+      photoMediaError = "";
+      documentMediaError = "";
 
       const documentList = document.getElementById("studentDocumentList");
 

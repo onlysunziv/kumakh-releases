@@ -4,19 +4,7 @@ const sqlite3 = require('sqlite3');
 const { AsyncLocalStorage } = require('async_hooks');
 const columns = require('../database/columns.json');
 
-function databasePath() {
-  const electron = process.versions.electron ? require('electron') : null;
-  if (electron?.app?.getPath) {
-    const databaseDirectory = path.join(electron.app.getPath('userData'), 'database');
-    fs.mkdirSync(databaseDirectory, { recursive: true });
-    const replica = path.join(databaseDirectory, 'kumakh-sync.db');
-    const legacy = path.join(databaseDirectory, 'kumakh.db');
-    if (fs.existsSync(replica)) return replica;
-    if (fs.existsSync(legacy)) return legacy;
-    return replica;
-  }
-  return path.join(path.resolve(__dirname, '..'), 'database', 'kumakh.db');
-}
+const { databasePath } = require('./database-path');
 
 function decimal(value, precision, scale) {
   const match = String(value).match(/^([+-]?)(\d*)(?:\.(\d*))?(?:e([+-]?\d+))?$/i);

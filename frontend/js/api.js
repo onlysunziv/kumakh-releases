@@ -287,6 +287,9 @@ function getReportPreview(payload) { return apiRequest("getReportPreview", paylo
 function submitReport(payload) { return apiRequest("submitReport", payload, undefined, { showLoading: false }); }
 function retryReport(payload) { return apiRequest("retryReport", payload, undefined, { showLoading: false }); }
 function getReportSubmissions(payload) { return apiRequest("getReportSubmissions", payload || {}); }
+function stagePersonMedia(payload) { return apiRequest("stagePersonMedia", payload); }
+function getMissingPersonMedia() { return apiRequest("getMissingPersonMedia"); }
+function repairPersonMedia(payload) { return apiRequest("repairPersonMedia", payload); }
 
 window.kumakhApi = {
   authenticateReports: (payload) => apiRequest("authenticateReports", payload, undefined, { showLoading: false }),
@@ -359,4 +362,7 @@ window.kumakhApi = {
   submitReport,
   retryReport,
   getReportSubmissions,
+  stagePersonMedia,
+  getMissingPersonMedia,
+  repairPersonMedia,
 };

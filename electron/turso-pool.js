@@ -38,6 +38,8 @@ class TursoPool {
     this.authToken = authToken;
     this.seed = seed;
     this.recoveryAttempted = recoveryAttempted;
+    this.previouslySynced = replicaExists(this.file);
+    fs.mkdirSync(path.dirname(this.file), { recursive: true });
     this.client = null;
     this.status = {
       state: syncUrl ? "syncing" : "offline",
@@ -47,7 +49,7 @@ class TursoPool {
     };
     this.clientReady = import("@tursodatabase/sync").then(({ connect }) => connect({
       path: this.file,
-      url: syncUrl,
+      url: this.syncUrl,
       authToken,
       clientName: "KUMAKH-POS",
     }));
@@ -62,6 +64,9 @@ class TursoPool {
       this.file,
       `${this.file}-wal`,
       `${this.file}-shm`,
+      `${this.file}-info`,
+      `${this.file}-changes`,
+      `${this.file}-wal-revert`,
       path.join(path.dirname(this.file), "database_sync_state.json"),
     ].filter(file => fs.existsSync(file));
   }
@@ -94,15 +99,18 @@ class TursoPool {
     }
 
     const displacedFiles = [];
+    let rebuilding = false;
     try {
       await this.client.close();
       this.client = null;
-      for (const { file } of backupFiles) {
+      // Closing can checkpoint/remove WAL files, so enumerate again.
+      for (const file of this.replicaFiles()) {
         const displaced = `${file}.stale-${process.pid}`;
         fs.renameSync(file, displaced);
         displacedFiles.push({ file, displaced });
       }
 
+      rebuilding = true;
       this.recoveryAttempted = true;
       this.client = await import("@tursodatabase/sync").then(({ connect }) => connect({
         path: this.file,
@@ -116,6 +124,11 @@ class TursoPool {
     } catch (recoveryError) {
       if (this.client) await this.client.close().catch(() => {});
       this.client = null;
+      // A failed bootstrap may leave a new database AND new native metadata.
+      // Remove only those exact replica files before restoring the old set.
+      if (rebuilding) {
+        for (const file of this.replicaFiles()) fs.rmSync(file, { force: true });
+      }
       for (const { file, displaced } of displacedFiles) {
         if (!fs.existsSync(file) && fs.existsSync(displaced)) fs.renameSync(displaced, file);
       }
@@ -130,13 +143,16 @@ class TursoPool {
     fs.mkdirSync(path.dirname(this.file), { recursive: true });
     this.client = await this.clientReady;
     const statePath = path.join(path.dirname(this.file), "database_sync_state.json");
-    const previouslySynced = replicaExists(this.file);
+    const previouslySynced = this.previouslySynced;
     let syncError;
     // Always pull at startup. Existing replicas remain authoritative locally
     // when the cloud is temporarily unavailable; a new replica must bootstrap.
     for (let attempt = 1; attempt <= 4; attempt += 1) {
       try {
-        await this.pull();
+        // Flush durable offline writes before receiving changes from other
+        // installations. A restart must not rely on an in-memory dirty flag.
+        if (previouslySynced) await this.sync();
+        else await this.pull();
         syncError = null;
         break;
       } catch (error) {
@@ -171,6 +187,7 @@ class TursoPool {
     }
     if (version >= 1) await require("./schema-migrations").migrateSchema(this, version);
     await this.validateSchema();
+    await this.refreshPending();
 
     fs.mkdirSync(path.dirname(statePath), { recursive: true });
     fs.writeFileSync(statePath, JSON.stringify({ initial_sync_completed: true, updated_at: new Date().toISOString() }, null, 2), "utf8");
@@ -273,7 +290,8 @@ class TursoPool {
 
   async sync() {
     if (!this.syncUrl) return null;
-    return this.serializeSync(async () => {
+    if (this.syncPromise) return this.syncPromise;
+    const operation = this.serializeSync(async () => {
       this.status.state = "syncing";
       try {
         await this.pushNow();
@@ -288,17 +306,27 @@ class TursoPool {
         throw error;
       }
     });
+    this.syncPromise = operation;
+    try { return await operation; }
+    finally { this.syncPromise = null; }
   }
 
   async push() {
     if (!this.syncUrl) return null;
-    return this.serializeSync(() => this.pushNow());
+    if (this.pushPromise) return this.pushPromise;
+    const operation = this.serializeSync(() => this.pushNow());
+    this.pushPromise = operation;
+    try { return await operation; }
+    finally { this.pushPromise = null; }
   }
 
   async pushNow() {
     try {
       await this.client.push();
       this.status.pending = false;
+      this.status.state = "synced";
+      this.status.lastSyncAt = new Date().toISOString();
+      this.status.lastError = null;
       return true;
     } catch (error) {
       this.status.pending = true;
@@ -316,6 +344,7 @@ class TursoPool {
   async pullNow() {
     try {
       const changed = await this.client.pull();
+      await this.refreshPending();
       this.status.state = "synced";
       this.status.lastSyncAt = new Date().toISOString();
       this.status.lastError = null;
@@ -328,13 +357,22 @@ class TursoPool {
   }
 
   serializeSync(work) {
-    const result = this.syncTail.then(work);
+    // The native transaction callback temporarily owns this.client. Sync and
+    // checkpoint must use the same lock as SQL, never the transaction handle.
+    const result = this.syncTail.then(() => this.context.exit(() => this.exclusive(work)));
     this.syncTail = result.catch(() => {});
     return result;
   }
 
   syncStatus() {
     return { ...this.status };
+  }
+
+  async refreshPending() {
+    if (this.syncUrl && typeof this.client.stats === 'function') {
+      const stats = await this.client.stats();
+      this.status.pending = Number(stats.cdcOperations) > 0;
+    }
   }
 
   async end() {
@@ -345,7 +383,8 @@ class TursoPool {
     } catch (error) {
       console.warn("Turso final sync unavailable; local changes remain queued in the replica:", error.message);
     }
-    await this.client.close();
+    await this.syncTail;
+    await this.exclusive(() => this.client.close());
   }
 }
 

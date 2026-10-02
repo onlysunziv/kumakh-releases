@@ -78,9 +78,9 @@ window.KcmtReportSubmission = class KcmtReportSubmission {
   stage(progress) {
     if (!this.running) return;
     const labels = {
-      authorizing: 'Connecting to Google',
+      authorizing: 'Connecting to Google', validating: 'Validating media',
       preparing: 'Preparing records', folders: 'Preparing Drive folders',
-      photos: 'Uploading photos', documents: 'Uploading documents',
+      recovering: 'Recovering existing Drive files', photos: 'Uploading photos', documents: 'Uploading documents',
       saving: 'Saving report',
     };
     if (labels[progress.stage]) this.transition(labels[progress.stage], progress.detail || '');
@@ -106,19 +106,20 @@ window.KcmtReportSubmission = class KcmtReportSubmission {
   finish(results) {
     this.running = false;
     const failed = results.filter(item => !item.result.success);
+    const partial = failed.filter(item => item.result.partial);
     const successful = results.length - failed.length;
     const allSuccessful = results.length === this.total && !failed.length;
-    this.dialog.dataset.state = allSuccessful ? 'success' : 'failed';
+    this.dialog.dataset.state = allSuccessful ? 'success' : partial.length ? 'partial' : 'failed';
     this.mark.className = allSuccessful ? 'bi bi-check-lg' : 'bi bi-exclamation-lg';
     this.processed(results.length, this.total);
     this.transition(allSuccessful ? 'Reports submitted' : 'Submission needs attention',
       allSuccessful ? `${successful} report(s) submitted successfully.` :
-        `${successful} submitted, ${failed.length} failed, ${Math.max(0, this.total - results.length)} not processed.`);
+        `${successful} submitted, ${partial.length} partially submitted, ${failed.length - partial.length} failed, ${Math.max(0, this.total - results.length)} not processed.`);
     this.details.replaceChildren();
     for (const item of results) {
       const row = document.createElement('div');
       row.className = 'submission-result-line';
-      row.dataset.result = item.result.success ? 'success' : 'failed';
+      row.dataset.result = item.result.success ? 'success' : item.result.partial ? 'partial' : 'failed';
       const title = document.createElement('strong');
       title.textContent = item.report;
       const detail = document.createElement('span');

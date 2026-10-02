@@ -6,7 +6,7 @@ const path = require('node:path');
 test('payment form matches student ID and refreshes totals and voucher after successive saves', async () => {
   const elements = new Map();
   const element = id => {
-    if (!elements.has(id)) elements.set(id, { value: '', style: {}, dataset: {}, classList: { add() {}, remove() {} }, showModal() {}, close() {}, reset() {}, addEventListener() {} });
+    if (!elements.has(id)) elements.set(id, { value: '', style: {}, dataset: {}, classList: { add() {}, remove() {} }, setAttribute() {}, showModal() {}, close() {}, reset() {}, addEventListener() {} });
     return elements.get(id);
   };
   const student = { registration_number: 'KCMT-033', full_name: 'SANJU KC', id: 'student-1', 'Student ID': 'student-1', course_name: 'PIZZA', registration_fee: 1000, training_course_fee: 18000 };
@@ -30,6 +30,8 @@ test('payment form matches student ID and refreshes totals and voucher after suc
   await context.initializePaymentsPage();
   element('paymentStudent').value = 'SANJU KC';
   element('paymentStudent').oninput();
+  assert.match(element('paymentStudentOptions').innerHTML, /Registration No: KCMT-033/);
+  assert.equal(element('paymentStudentOptions').hidden, false);
   assert.equal(element('paymentTotalPaid').value, '9000.00');
   element('paymentAmount').value = '1000';
   await element('studentPaymentForm').onsubmit({ preventDefault() {} });
@@ -45,4 +47,3 @@ test('payment form matches student ID and refreshes totals and voucher after suc
   assert.equal(receipts[1].totalPaid, 11000);
   assert.equal(element('paymentTotalPaid').value, '11000.00');
 });
-

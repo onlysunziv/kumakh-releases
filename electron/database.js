@@ -1,8 +1,8 @@
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
-const { SQLitePool } = require("./sqlite-pool");
 const { TursoPool } = require("./turso-pool");
+const { httpResponseError, readJsonResponse } = require("./report-http");
 const electronApp = process.versions.electron ? require("electron").app : null;
 
 function tursoConfigPath() {
@@ -66,22 +66,9 @@ function applyTursoConfiguration(configured) {
   process.env.TURSO_AUTH_TOKEN = configured.authToken;
 }
 
-function reportHttpError(status, fallbackMessage) {
-  const code = Number(status) || 0;
-  const messages = {
-    400: "The report request was rejected by the endpoint.",
-    401: "Report authentication failed. Sign in again.",
-    403: "The report endpoint denied access.",
-    404: "The configured Google Apps Script /exec endpoint was not found.",
-    408: "The report endpoint timed out.",
-    429: "The report endpoint is busy. Try again later.",
-  };
-  if (code >= 500) return "The report endpoint returned a server error. Try again later.";
-  return messages[code] || fallbackMessage || `The report endpoint returned HTTP ${code || "unknown"}.`;
-}
-
 function reportNetworkError(error) {
   const message = String(error?.message || error || "");
+  if (error?.code === "REPORT_DRIVE_TIMEOUT" || error?.code === "DRIVE_BUSY" || /Upload failed for/i.test(message)) return message;
   if (error?.name === "AbortError" || /timeout|aborted/i.test(message)) return "The report endpoint timed out.";
   if (/fetch failed|network|unable to connect|offline/i.test(message)) return "Unable to reach the report endpoint. Check your connection and /exec URL.";
   return message || "Report submission failed.";
@@ -159,6 +146,9 @@ const ACTIONS = Object.freeze({
   authenticatereports: ["authenticateReports", null], savereportconfig: ["saveReportConfig", null], getreportconfig: ["reportConfig", null], getreportpreview: ["reportPreview", null],
   submitreport: ["submitReport", null], retryreport: ["retryReport", null],
   getreportsubmissions: ["reportSubmissions", null],
+  stagepersonmedia: ["stagePersonMedia", null],
+  getmissingpersonmedia: ["missingPersonMedia", null],
+  repairpersonmedia: ["repairPersonMedia", null],
 });
 
 const COLUMNS = Object.freeze({
@@ -203,9 +193,11 @@ class Database {
   constructor(file, options) {
     const configured = resolveTursoConfiguration();
     applyTursoConfiguration(configured);
-    const replicaFile = file || require("./sqlite-pool").databasePath();
-    if (options?.forceSQLite || file) {
-      this.pool = new SQLitePool(file, options);
+    const replicaFile = file || require("./database-path").databasePath();
+    // Explicit local files support development fixtures only. Installed apps
+    // always use Turso, including when a caller supplies a custom replica path.
+    if (!electronApp?.isPackaged && (options?.forceSQLite || file)) {
+      this.pool = new (require("./sqlite-pool").SQLitePool)(file, options);
     } else if (configured) {
       this.pool = new TursoPool(replicaFile, {
         ...options,
@@ -269,6 +261,9 @@ class Database {
   async open() {
     if (!this.ready) {
       await this.pool.ready;
+      if (this.pool instanceof TursoPool && this.pool.syncUrl) {
+        await require('./legacy-database').importLegacyDatabase(this.pool, path.join(path.dirname(this.pool.file),'kumakh.db'));
+      }
       await this.ensureReportSubmissionsTable();
       if (this.initializePermissions) await this.ensurePermissionCatalog();
       this.ready = true;
@@ -377,6 +372,9 @@ class Database {
     else if (operation === "submitReport") data = await this.submitReport(payload, onReportProgress);
     else if (operation === "retryReport") data = await this.retryReport(payload, onReportProgress);
     else if (operation === "reportSubmissions") data = await this.reportSubmissions(payload);
+    else if (operation === "stagePersonMedia") data = await require('./person-files').stageFile(this, payload.entityTable, payload.mediaType, payload.media, payload.personIdentifier);
+    else if (operation === "missingPersonMedia") data = await require('./person-files').validateMedia(this);
+    else if (operation === "repairPersonMedia") data = await require('./person-files').repairFile(this, payload.mediaId, payload.media);
     if (operation === "submitReport" || operation === "retryReport") return data;
     return { success: true, data };
   }
@@ -1099,15 +1097,17 @@ class Database {
       const files = require('./person-files');
       const previousPhoto = files.parse(existing[0]?.passport_photo, existing[0]?.passport_photo || null);
       const previousDocuments = files.parse(existing[0]?.documents, []);
-      storedInput.passportPhoto = input.passportPhoto?.base64
-        ? await this.storeMedia(table, id, 'photo', input.passportPhoto, identifier) : previousPhoto;
+      const staged = await require('./person-files').adoptStagedFiles(this, table, id, identifier, input.stagedMedia);
+      const stagedPhoto = staged.find(media => media.mediaType === 'photo');
+      storedInput.passportPhoto = stagedPhoto || (input.passportPhoto?.base64
+        ? await this.storeMedia(table, id, 'photo', input.passportPhoto, identifier) : previousPhoto);
       storedInput.passport_photo = storedInput.passportPhoto ? JSON.stringify(storedInput.passportPhoto) : null;
       const documents = Array.isArray(previousDocuments) ? previousDocuments.slice() : [];
+      for (const document of staged.filter(media => media.mediaType === 'document')) documents.push(document);
       for (const document of Array.isArray(input.documents) ? input.documents : []) {
         if (!document?.base64) continue;
         const saved = await this.storeMedia(table, id, 'document', document, identifier);
-        const index = documents.findIndex(item => (item.fileName || item.name) === saved.fileName);
-        if (index >= 0) documents[index] = saved; else documents.push(saved);
+        documents.push(saved);
       }
       storedInput.documents = documents;
     }
@@ -1120,6 +1120,7 @@ class Database {
     }
     if (table === 'Students' || table === 'Staff') {
       delete dataInput.student; delete dataInput.staff; delete dataInput.passportPhoto;
+      delete dataInput.stagedMedia;
       dataInput.passport_photo = storedInput.passport_photo; dataInput.documents = storedInput.documents;
     }
     const data = JSON.stringify({ ...dataInput, id, createdAt: input.createdAt || createdAt.toISOString(), updatedAt: updatedAt.toISOString() });
@@ -1633,20 +1634,11 @@ class Database {
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
         const response = await postReportRequest(endpoint, requestBody, 60000);
-        const raw = typeof response.text === "function" ? await response.text() : "";
-        let body;
-        try {
-          body = raw ? JSON.parse(raw) : await response.json();
-        } catch (_) {
-          const detail = raw.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160);
-          throw Object.assign(
-            new Error(reportHttpError(response.status, `Google reporting sign-in returned a non-JSON response${detail ? `: ${detail}` : "."} Check the deployed /exec URL.`)),
-            { code: `REPORT_HTTP_${response.status || "UNKNOWN"}`, retryable: [408, 502, 503, 504].includes(response.status) },
-          );
+        const body = await readJsonResponse(response, endpoint, 'sign-in');
+        if (!response.ok) {
+          const error = httpResponseError(response, endpoint, body, 'sign-in');
+          throw error;
         }
-        if (!response.ok) throw Object.assign(new Error(reportHttpError(response.status, body?.data?.message || body?.message)), {
-          code: `REPORT_HTTP_${response.status}`, retryable: [408, 502, 503, 504].includes(response.status),
-        });
         if (!body.success || !body.data?.sessionToken) {
           const message = body.data?.message || body.message || "Report sign-in failed.";
           const remoteCode = body.data?.error || body.code || body.message;
@@ -1893,6 +1885,7 @@ class Database {
       return { success: false, configured: false, submissionId: id, message: "Reports endpoint is not configured. Set REPORTS_APPS_SCRIPT_URL and retry." };
     }
 
+    let missingMedia = [];
     try {
       if (!payload.sessionToken) throw Object.assign(new Error("Sign in with your reporting username and password before submitting."), { code: "REPORT_AUTH_REQUIRED" });
       if (report.key === 'students' || report.key === 'staff') {
@@ -1904,8 +1897,21 @@ class Database {
           if (!person) throw new Error('A previewed record no longer exists. Create a new preview before submitting.');
           return {...person,...row};
         });
-        reportRows = await require('./person-files').prepareReports(this, table, people, endpoint, payload.sessionToken, onProgress);
-        await this.pool.query('UPDATE ReportSubmissions SET rows_json=? WHERE id=?', [JSON.stringify(reportRows),id]);
+        const personFiles = require('./person-files');
+        const validation = await personFiles.validateReportMedia(this, table, people);
+        onProgress({ stage: 'validating', detail: `${validation.readyRecords} record(s) ready, ${validation.missingCount} missing media file(s).` });
+        const prepared = await personFiles.prepareReports(this, table, people, endpoint, payload.sessionToken, onProgress);
+        reportRows = prepared.rows;
+        missingMedia = prepared.missingMedia;
+        onProgress({ stage: 'validating', detail: `${prepared.readyRecords} record(s) prepared, ${prepared.missingCount} missing media file(s).` });
+        if (!reportRows.length && missingMedia.length) {
+          const details = missingMedia.slice(0, 10).join('; ');
+          const remainder = missingMedia.length > 10 ? `; and ${missingMedia.length - 10} more` : '';
+          throw Object.assign(
+            new Error(`No records were sent to Sheets because media is missing for ${details}${remainder}. Re-select the listed files in the affected records, save, then retry.`),
+            { code: 'PERSON_MEDIA_MISSING' },
+          );
+        }
       }
       if (report.key === "vendors") {
         reportRows = reportRows.map((row) => ({
@@ -1936,26 +1942,13 @@ class Database {
       for (let attempt = 1; attempt <= 2; attempt += 1) {
         try {
           response = await postReportRequest(endpoint, requestBody);
-          const raw = typeof response.text === "function" ? await response.text() : null;
-          if (raw !== null) {
-            try {
-              body = JSON.parse(raw);
-            } catch (_) {
-              throw Object.assign(
-                new Error(reportHttpError(response.status, "The report endpoint returned a non-JSON response.")),
-                { code: `REPORT_HTTP_${response.status || "UNKNOWN"}` },
-              );
-            }
-          } else {
-            body = await response.json();
-          }
-          if (response.ok || attempt === 2 || !/timeout|aborted|fetch failed|network/i.test(String(body.message || ""))) break;
+          body = await readJsonResponse(response, endpoint, 'submission');
+          if (!response.ok) throw httpResponseError(response, endpoint, body, 'submission');
+          if (attempt === 2 || !/timeout|timed out|aborted|fetch failed|network/i.test(String(body?.message || ""))) break;
         } catch (error) {
-          if (attempt === 2 || !/timeout|aborted|fetch failed|network/i.test(String(error.message))) throw error;
+          if (attempt === 2 || !(error.retryable || /timeout|timed out|aborted|fetch failed|network/i.test(String(error.message)))) throw error;
         }
-      }
-      if (!response.ok) {
-        throw Object.assign(new Error(reportHttpError(response.status, body?.data?.message || body?.message)), { code: `REPORT_HTTP_${response.status}` });
+        await new Promise(resolve => setTimeout(resolve, 750));
       }
       if (!body || typeof body !== 'object' || Array.isArray(body)) throw new Error('The reporting service returned an invalid response. Retry this report.');
       if (!body.success) throw Object.assign(new Error(body.data?.message || body.message || "Report submission failed."), { code: body.data?.error || body.code || (body.message === "ACCESS_DENIED" ? "ACCESS_DENIED" : undefined) });
@@ -1972,6 +1965,13 @@ class Database {
       }
       if (report.key === 'students' || report.key === 'staff') {
         for (const row of reportRows) await this.pool.query("UPDATE StudentMedia SET upload_status='SUBMITTED_TO_SHEETS' WHERE entity_table=? AND entity_id=? AND active=1 AND drive_file_id IS NOT NULL AND file_hash=uploaded_hash", [report.key === 'students' ? 'Students' : 'Staff',row.id]);
+      }
+      if (missingMedia.length) {
+        const examples = missingMedia.slice(0, 10).join('; ');
+        const remainder = missingMedia.length > 10 ? `; and ${missingMedia.length - 10} more` : '';
+        const safeMessage = `Partially submitted ${body.data.rows} record(s) to ${body.data.sheet}. Missing media for ${examples}${remainder}. Re-select the listed files in the affected records, save, then retry this report.`;
+        await this.pool.query("UPDATE ReportSubmissions SET status='Failed', remote_id=?, submitted_at=datetime('now', 'localtime'), error_message=? WHERE id=?", [String(body.data?.submissionId || id), safeMessage, id]);
+        return { success: false, partial: true, submissionId: id, sheet: body.data.sheet, rows: body.data.rows, readyRecords: reportRows.length, missingMedia: missingMedia.length, sheetUrl: body.data.sheetUrl, message: safeMessage, code: 'PERSON_MEDIA_MISSING' };
       }
       await this.pool.query("UPDATE ReportSubmissions SET status='Submitted', remote_id=?, submitted_at=datetime('now', 'localtime'), error_message=NULL WHERE id=?", [String(body.data?.submissionId || id), id]);
       return { ...body, submissionId: id, sheet: body.data.sheet, rows: body.data.rows, sheetUrl: body.data.sheetUrl };

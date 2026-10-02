@@ -39,8 +39,8 @@ async function verifyRelease(root = path.resolve(__dirname, '..')) {
       || !packageConfig.asarUnpack.some(pattern => pattern.includes('@tursodatabase') && pattern.endsWith('.node'))) {
     throw new Error('Release verification failed: electron-builder asarUnpack does not cover database native modules.');
   }
-  const sqlitePool = fs.readFileSync(path.join(root, 'electron', 'sqlite-pool.js'), 'utf8');
-  if (!/getPath\(['"]userData['"]\)/.test(sqlitePool)) throw new Error('Release verification failed: local database is not resolved through Electron userData.');
+  const databasePathSource = fs.readFileSync(path.join(root, 'electron', 'database-path.js'), 'utf8');
+  if (!/getPath\(['"]userData['"]\)/.test(databasePathSource)) throw new Error('Release verification failed: local database is not resolved through Electron userData.');
   console.log('[PASS] Native modules are unpacked and writable database path uses app.getPath(userData).');
 
   await verifyPackage({

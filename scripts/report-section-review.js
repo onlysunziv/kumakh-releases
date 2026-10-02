@@ -85,8 +85,9 @@ app.whenReady().then(async()=>{
   await run(`document.body.innerHTML=${JSON.stringify(markup)};`);
   await run('initializeReportsPage()');
   await check('initial history failure does not disable preview','typeof document.getElementById("reportForm").onsubmit==="function" && document.getElementById("reportMessage").textContent.includes("history could not load")');
-  await run(`document.body.innerHTML=${JSON.stringify(markup)};review.historyFail=false;review.history=[{id:'failed-1',report_name:'Courses',status:'Failed'},{id:'failed-2',report_name:'Vendors',status:'Failed'}];review.calls=[];review.holdRetry=true;`);
+  await run(`document.body.innerHTML=${JSON.stringify(markup)};review.historyFail=false;review.history=[{id:'pending-1',report_name:'Courses',status:'Pending'},{id:'failed-2',report_name:'Vendors',status:'Failed'}];review.calls=[];review.holdRetry=true;`);
   await run('initializeReportsPage()');
+  await check('interrupted pending submissions can be retried after restart','document.querySelectorAll(".retry-report").length===2 && document.querySelector(".retry-report").dataset.id==="pending-1"');
   await run('document.querySelectorAll(".retry-report")[0].click();void 0;');
   await run('document.querySelectorAll(".retry-report")[1].click();void 0;');
   await check('retry prevents simultaneous submissions','review.calls.length===1 && document.getElementById("reportFrom").disabled');

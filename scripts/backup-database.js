@@ -1,5 +1,5 @@
 const { Database } = require('../electron/database');
-const { databasePath } = require('../electron/sqlite-pool');
+const { databasePath } = require('../electron/database-path');
 const fs = require('fs');
 (async () => {
   if (!fs.existsSync(databasePath())) throw new Error('No database exists to back up');

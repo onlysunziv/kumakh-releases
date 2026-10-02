@@ -4,6 +4,75 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const { normalizeSyncUrl, replicaExists, isReplicaDeserializationError, syncErrorMessage } = require("../electron/turso-pool");
+const { TursoPool } = require('../electron/turso-pool');
+const { AsyncLocalStorage } = require('node:async_hooks');
+
+function fixture(client) {
+  return Object.assign(Object.create(TursoPool.prototype), {
+    client, context: new AsyncLocalStorage(), tail: Promise.resolve(),
+    syncTail: Promise.resolve(), ready: Promise.resolve(), syncUrl: 'https://test.turso.io',
+    status: {state:'offline',pending:true,lastError:'NETWORK',lastSyncAt:null},
+  });
+}
+const deferred = () => { let resolve; const promise = new Promise(r => { resolve=r; }); return {promise,resolve}; };
+
+test('cloud sync waits for the transaction commit and never uses its temporary handle', async () => {
+  const started = deferred(), release = deferred(), events = [];
+  const pool = fixture({
+    transactionAsync: work => async () => { events.push('begin'); await work({}); events.push('commit'); },
+    push: async () => { events.push('push'); }, pull: async () => { events.push('pull'); },
+  });
+  const transaction = pool.transaction(async () => { started.resolve(); await release.promise; events.push('write'); });
+  await started.promise;
+  const sync = pool.sync();
+  await new Promise(setImmediate);
+  assert.deepEqual(events,['begin']);
+  release.resolve();
+  await Promise.all([transaction,sync]);
+  assert.deepEqual(events,['begin','write','commit','push','pull']);
+});
+
+test('offline writes retry, clear stale errors, and reach a second installation', async () => {
+  let online = false, cloud = [], local = ['offline record'], remote = [];
+  const writer = fixture({push: async () => { if (!online) throw Error('offline'); cloud=local.slice(); },pull:async()=>{local=cloud.slice();}});
+  const reader = fixture({push:async()=>{},pull:async()=>{remote=cloud.slice();}});
+  await assert.rejects(writer.sync(),/offline/);
+  assert.equal(writer.syncStatus().pending,true);
+  online = true;
+  await writer.push();
+  assert.equal(writer.syncStatus().state,'synced');
+  assert.equal(writer.syncStatus().lastError,null);
+  await reader.sync();
+  assert.deepEqual(remote,['offline record']);
+});
+
+test('slow cloud operations coalesce repeated sync requests instead of building a backlog', async () => {
+  const release = deferred(); let pushes=0,pulls=0;
+  const pool=fixture({push:async()=>{pushes++;await release.promise;},pull:async()=>{pulls++;}});
+  const requests=Array.from({length:30},()=>pool.sync());
+  await new Promise(setImmediate);
+  release.resolve();
+  await Promise.all(requests);
+  assert.equal(pushes,1);assert.equal(pulls,1);
+});
+
+test('durable unsent operations restore pending status after restart or pull', async () => {
+  const pool=fixture({pull:async()=>{},stats:async()=>({cdcOperations:3})});
+  pool.status.pending=false;
+  await pool.pull();
+  assert.equal(pool.syncStatus().pending,true);
+});
+
+test('recovery includes the native change log and sync metadata', () => {
+  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'kcmt-sidecars-'));
+  try {
+    const file=path.join(directory,'replica.db');
+    const files=['','-wal','-shm','-info','-changes','-wal-revert'].map(suffix=>file+suffix);
+    files.forEach(file=>fs.writeFileSync(file,'preserve'));
+    const pool=fixture({});pool.file=file;
+    assert.deepEqual(pool.replicaFiles().sort(),files.sort());
+  } finally {fs.rmSync(directory,{recursive:true,force:true});}
+});
 
 test("normalizes supported Turso URLs without changing their database host", () => {
   assert.equal(normalizeSyncUrl("libsql://example.turso.io/"), "libsql://example.turso.io");

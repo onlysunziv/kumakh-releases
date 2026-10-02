@@ -138,7 +138,7 @@ if (!hasSingleInstanceLock) {
 app.whenReady().then(async () => {
   if (!hasSingleInstanceLock) return;
   ({ getDatabase, closeDatabase } = require("./database"));
-  databasePath = require("./sqlite-pool").databasePath;
+  databasePath = require("./database-path").databasePath;
   console.info(`KUMAKH local replica: ${databasePath()}`);
   const database = await getDatabase({ seed: false, initializePermissions: false });
   syncTimer = setInterval(() => {
@@ -153,9 +153,14 @@ app.whenReady().then(async () => {
   });
   ipcMain.handle('kumakh:setup-exit', () => app.quit());
   await database.ensurePermissionCatalog();
-  // Convert legacy SQLite chunks to disk without deleting the originals.
-  const [legacy] = await database.pool.query('SELECT * FROM StudentMedia WHERE active=1 AND local_path IS NULL');
-  for (const row of legacy) await require('./person-files').materialize(database, row);
+  // Normalize legacy media paths on startup without deleting files or records.
+  const [mediaRows] = await database.pool.query('SELECT * FROM StudentMedia WHERE active=1');
+  for (const row of mediaRows) {
+    if (!row.local_path || path.isAbsolute(row.local_path)) {
+      await require('./person-files').materialize(database, row);
+    }
+  }
+  database.syncNow().catch(error => console.warn('Turso startup writes pending:', error.code || error.message));
   ipcMain.handle("kumakh:api-request", async (_event, action, payload) => {
     if (preparingUpdate) throw new Error('The application is restarting to install an update.');
     activeOperations += 1;
@@ -168,15 +173,14 @@ app.whenReady().then(async () => {
         }
       },
     });
-    // Never delay a local UI operation on cloud synchronization. Turso sync
-    // runs independently so login and offline work remain responsive.
+    // Return the committed local result without waiting for this upload.
+    // The pool serializes cloud work with SQL transactions and coalesces retries.
     database.pushChanges().catch(error => {
       console.warn('Turso push pending; local operation succeeded and will retry:', error.code || error.message);
     });
     return result;
     } finally { activeOperations -= 1; }
   });
-  ipcMain.handle('kumakh:sync-status', () => database.getSyncStatus());
 
   ipcMain.handle("kumakh:read-page", async (_event, pageFileName) => {
     const safeFileName = String(pageFileName || "").trim();
@@ -284,9 +288,10 @@ app.on("before-quit", (event) => {
   if (databaseShutdownStarted) return;
   event.preventDefault();
   databaseShutdownStarted = true;
+  clearInterval(syncTimer);
   closeDatabase()
     .catch((error) => {
-      console.error("Failed to close SQLite database:", error.code || error.message);
+      console.error("Failed to close Turso replica:", error.code || error.message);
     })
     .finally(() => {
       clearInterval(syncTimer);

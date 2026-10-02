@@ -30,7 +30,6 @@ contextBridge.exposeInMainWorld("kumakhApp", {
     ipcRenderer.invoke("kumakh:purchase-bill-pdf", documentHtml),
   apiRequest: (action, payload) =>
     ipcRenderer.invoke("kumakh:api-request", action, payload),
-  getSyncStatus: () => ipcRenderer.invoke("kumakh:sync-status"),
   onReportProgress: (callback) => {
     const listener = (_event, progress) => callback(progress);
     ipcRenderer.on('kumakh:report-progress', listener);

@@ -5,6 +5,30 @@ const os = require('os');
 const path = require('path');
 const { validateProductionDatabaseConfig } = require('../scripts/build-win');
 
+test('installed applications use Turso even when passed local fixture options', () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'kcmt-turso-only-'));
+  const databaseFile = path.join(__dirname, '../electron/database.js');
+  const nativeRequire = require('node:module').createRequire(databaseFile);
+  const module = {exports:{}};
+  class TestTursoPool { constructor(file,options) { this.file=file;this.options=options; } }
+  fs.writeFileSync(path.join(directory,'runtime.env'),'TURSO_DATABASE_URL=libsql://test.turso.io\nTURSO_AUTH_TOKEN=test-token\n');
+  try {
+    require('node:vm').runInNewContext(fs.readFileSync(databaseFile,'utf8'),{
+      module, __dirname:path.dirname(databaseFile),
+      process:{versions:{electron:'32.3.3'},env:{},resourcesPath:path.join(directory,'resources')},
+      require:name=>{
+        if(name==='electron') return {app:{isPackaged:true,isReady:()=>true,getPath:()=>directory}};
+        if(name==='./turso-pool') return {TursoPool:TestTursoPool};
+        if(name==='./sqlite-pool') throw Error('Installed applications must not open standalone SQLite');
+        return nativeRequire(name);
+      },
+    });
+    const db = new module.exports.Database(path.join(directory,'replica.db'),{forceSQLite:true});
+    assert.ok(db.pool instanceof TestTursoPool);
+    assert.equal(db.pool.options.syncUrl,'libsql://test.turso.io');
+  } finally {fs.rmSync(directory,{recursive:true,force:true});}
+});
+
 test('production packaging fails when Turso configuration is absent', () => {
   assert.throws(
     () => validateProductionDatabaseConfig(process.cwd(), {}),
@@ -36,8 +60,13 @@ test('production packaging validates the URL and accepts an explicit secure conf
 test('database and configuration are outside replaceable installation files', () => {
   const main = fs.readFileSync(path.join(__dirname, '..', 'electron', 'main.js'), 'utf8');
   const database = fs.readFileSync(path.join(__dirname, '..', 'electron', 'database.js'), 'utf8');
+  const media = fs.readFileSync(path.join(__dirname, '..', 'electron', 'person-files.js'), 'utf8');
   assert.match(main, /app\.setPath\("userData"/);
+  assert.match(main, /SELECT \* FROM StudentMedia WHERE active=1/);
   assert.match(database, /runtime\.env/);
   assert.match(database, /resources.*config.*turso\.env/);
+  assert.match(media, /getPath\('userData'\)/);
+  assert.match(media, /persistentRoot\(db, 'media'\)/);
+  assert.match(media, /function portablePath/);
   assert.doesNotMatch(database, /database\.json/);
 });

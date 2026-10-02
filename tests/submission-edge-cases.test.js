@@ -6,6 +6,28 @@ const path = require('node:path');
 const {Database} = require('../electron/database');
 const reportSheet = require('./helpers/report-sheet');
 
+test('temporary Google HTTP failures retry the identical report and confirm stored rows',async () => {
+  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'kcmt-report-transient-'));
+  const db=new Database(path.join(directory,'test.db'),{seed:false,initializePermissions:false});
+  const original=global.fetch;
+  try {
+    await db.open();
+    await db.save('Courses',{id:'course',courseName:'Course',duration:'1 month',totalFee:100});
+    for (const status of [429,503,504]) {
+      const calls=[];
+      global.fetch=async (_url,options)=>{
+        calls.push(options.body);
+        if(calls.length===1)return {ok:false,status,text:async()=>'<html>Temporarily unavailable</html>'};
+        return {ok:true,status:200,json:async()=>({success:true,data:{sheet:'Courses',rows:1,requestedRows:1,verifiedRows:1}})};
+      };
+      const result=await db.submitReport({reportKey:'courses',sessionToken:'test'});
+      assert.equal(result.success,true,result.message);
+      assert.equal(calls.length,2);assert.equal(calls[0],calls[1]);
+      assert.equal((await db.pool.query('SELECT status FROM ReportSubmissions WHERE id=?',[result.submissionId]))[0][0].status,'Submitted');
+    }
+  } finally {global.fetch=original;await db.close();fs.rmSync(directory,{recursive:true,force:true});}
+});
+
 test('submission validates dates, remote confirmations, offline failures and corrupt retries',async () => {
   const directory=fs.mkdtempSync(path.join(os.tmpdir(),'kcmt-submission-edges-'));
   const db=new Database(path.join(directory,'test.db'),{seed:false,initializePermissions:false});
