@@ -11,7 +11,8 @@ test('installed applications use Turso even when passed local fixture options', 
   const nativeRequire = require('node:module').createRequire(databaseFile);
   const module = {exports:{}};
   class TestTursoPool { constructor(file,options) { this.file=file;this.options=options; } }
-  fs.writeFileSync(path.join(directory,'runtime.env'),'TURSO_DATABASE_URL=libsql://test.turso.io\nTURSO_AUTH_TOKEN=test-token\n');
+  fs.mkdirSync(path.join(directory,'resources','config'), {recursive:true});
+  fs.writeFileSync(path.join(directory,'resources','config','turso.env'),'TURSO_DATABASE_URL=libsql://test.turso.io\nTURSO_AUTH_TOKEN=test-token\n');
   try {
     require('node:vm').runInNewContext(fs.readFileSync(databaseFile,'utf8'),{
       module, __dirname:path.dirname(databaseFile),
@@ -50,7 +51,7 @@ test('production packaging validates the URL and accepts an explicit secure conf
         TURSO_DATABASE_URL: 'not-a-url',
         TURSO_AUTH_TOKEN: 'release-secret',
       }),
-      /must be a valid URL/,
+      /must be a database endpoint/,
     );
   } finally {
     fs.rmSync(directory, { recursive: true, force: true });
@@ -63,8 +64,9 @@ test('database and configuration are outside replaceable installation files', ()
   const media = fs.readFileSync(path.join(__dirname, '..', 'electron', 'person-files.js'), 'utf8');
   assert.match(main, /app\.setPath\("userData"/);
   assert.match(main, /SELECT \* FROM StudentMedia WHERE active=1/);
-  assert.match(database, /runtime\.env/);
-  assert.match(database, /resources.*config.*turso\.env/);
+  const config = fs.readFileSync(path.join(__dirname, '..', 'electron', 'turso-config.js'), 'utf8');
+  assert.match(config, /runtime\.env/);
+  assert.match(config, /resourcesPath.*config.*turso\.env/);
   assert.match(media, /getPath\('userData'\)/);
   assert.match(media, /persistentRoot\(db, 'media'\)/);
   assert.match(media, /function portablePath/);

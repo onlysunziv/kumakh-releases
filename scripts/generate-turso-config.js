@@ -15,11 +15,7 @@ function validateProductionDatabaseConfig(root = path.resolve(__dirname, '..'), 
   if (!url || !authToken) {
     throw new Error('Production Turso configuration is required. Set TURSO_DATABASE_URL and TURSO_AUTH_TOKEN, or TURSO_CONFIG_FILE, before packaging.');
   }
-  let parsed;
-  try { parsed = new URL(url); } catch (_) { throw new Error('TURSO_DATABASE_URL must be a valid URL.'); }
-  if (!['libsql:', 'turso:', 'https:'].includes(parsed.protocol) || !parsed.hostname) {
-    throw new Error('TURSO_DATABASE_URL must use libsql://, turso://, or https:// and include a host.');
-  }
+  require('../electron/turso-config').normalizeSyncUrl(url);
   return { url, authToken };
 }
 

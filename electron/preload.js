@@ -13,6 +13,13 @@ contextBridge.exposeInMainWorld("kumakhApp", {
     ipcRenderer.on('kumakh:update-state', listener);
     return () => ipcRenderer.removeListener('kumakh:update-state', listener);
   },
+  getSyncStatus: () => ipcRenderer.invoke('kumakh:sync-status'),
+  onSyncStatus: (callback) => {
+    if (typeof callback !== 'function') throw new TypeError('A callback is required');
+    const listener = (_event, state) => callback(state);
+    ipcRenderer.on('kumakh:sync-status', listener);
+    return () => ipcRenderer.removeListener('kumakh:sync-status', listener);
+  },
   platform: process.platform,
   isElectron: true,
   setupStatus: () => ipcRenderer.invoke('kumakh:setup-status'),

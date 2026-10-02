@@ -20,13 +20,9 @@ const syncErrorMessage = error => {
   const code = error?.code ? ` [${error.code}]` : "";
   return `${message}${code}`;
 };
-const normalizeSyncUrl = value => {
-  const url = String(value || "").trim().replace(/\/+$/, "");
-  if (!/^(?:libsql|turso|https?):\/\/[^/\s]+(?:\/[^/\s]*)?$/i.test(url)) {
-    throw Object.assign(new Error("TURSO_DATABASE_URL must be a valid libsql://, turso://, or https:// URL."), { code: "TURSO_DATABASE_URL_INVALID" });
-  }
-  return url;
-};
+const { normalizeSyncUrl } = require('./turso-config');
+const { protectCloudRow } = require('./sync-conflicts');
+const { registerSecret, redact } = require('./database-errors');
 
 class TursoPool {
   constructor(file, { syncUrl, authToken, seed = true, recoveryAttempted = false } = {}) {
@@ -36,6 +32,7 @@ class TursoPool {
     this.syncTail = Promise.resolve();
     this.syncUrl = syncUrl ? normalizeSyncUrl(syncUrl) : null;
     this.authToken = authToken;
+    registerSecret(authToken);
     this.seed = seed;
     this.recoveryAttempted = recoveryAttempted;
     this.previouslySynced = replicaExists(this.file);
@@ -46,14 +43,22 @@ class TursoPool {
       pending: false,
       lastSyncAt: null,
       lastError: null,
+      domain: this.syncUrl ? new URL(this.syncUrl).hostname : null,
     };
+    try { this.status.lastSyncAt = JSON.parse(fs.readFileSync(`${this.file}.sync-status.json`, "utf8")).lastSyncAt || null; } catch { /* first launch */ }
+    if (this.syncUrl) this.logSync("connect-start", { authTokenPresent: Boolean(authToken) });
     this.clientReady = import("@tursodatabase/sync").then(({ connect }) => connect({
       path: this.file,
       url: this.syncUrl,
       authToken,
       clientName: "KUMAKH-POS",
+      transform: mutation => this.transformMutation(mutation),
+      fetch: (url, options = {}) => fetch(url, { ...options, signal: AbortSignal.timeout(15000) }),
     }));
     this.ready = this.initialize(seed).catch(async error => {
+      this.status.state = "offline";
+      this.status.lastError = error.code || "TURSO_CONNECTION_FAILED";
+      if (this.syncUrl) this.logSync("connect-error", { error: redact(syncErrorMessage(error)) });
       if (this.client) await this.client.close().catch(() => {});
       throw error;
     });
@@ -90,7 +95,7 @@ class TursoPool {
     // A push is the safety gate: if local changes cannot be sent to Turso,
     // rebuilding this replica could discard unsynchronized records.
     try {
-      await this.client.push();
+      await this.pushNow();
     } catch (pushError) {
       throw Object.assign(
         new Error(`Local replica sync metadata is invalid and pending changes could not be preserved. Backup: ${recoveryDirectory}. ${syncErrorMessage(error)}`),
@@ -117,6 +122,8 @@ class TursoPool {
         url: this.syncUrl,
         authToken: this.authToken,
         clientName: "KUMAKH-POS",
+        transform: mutation => this.transformMutation(mutation),
+        fetch: (url, options = {}) => fetch(url, { ...options, signal: AbortSignal.timeout(15000) }),
       }));
       await this.pull();
       for (const { displaced } of displacedFiles) fs.rmSync(displaced, { force: true });
@@ -142,15 +149,19 @@ class TursoPool {
   async initialize(seed) {
     fs.mkdirSync(path.dirname(this.file), { recursive: true });
     this.client = await this.clientReady;
+    if (this.syncUrl && !this.previouslySynced) {
+      this.status.lastSyncAt = new Date().toISOString();
+      this.status.state = "synced";
+      this.logSync("bootstrap", { downloadedRecords: (await this.rowFingerprints()).size });
+    }
     const statePath = path.join(path.dirname(this.file), "database_sync_state.json");
     const previouslySynced = this.previouslySynced;
     let syncError;
-    // Always pull at startup. Existing replicas remain authoritative locally
-    // when the cloud is temporarily unavailable; a new replica must bootstrap.
+    // Every launch refreshes the cache from Turso. Existing replicas can be
+    // used in explicit offline mode; a new replica must bootstrap online.
     for (let attempt = 1; attempt <= 4; attempt += 1) {
       try {
-        // Flush durable offline writes before receiving changes from other
-        // installations. A restart must not rely on an in-memory dirty flag.
+        // Pull, rebase guarded offline writes, push, then pull the cloud result.
         if (previouslySynced) await this.sync();
         else await this.pull();
         syncError = null;
@@ -170,7 +181,7 @@ class TursoPool {
       if (!previouslySynced) {
         throw Object.assign(new Error(`Initial Turso bootstrap failed: ${syncErrorMessage(syncError)}`), { cause: syncError, code: "TURSO_INITIAL_SYNC_FAILED" });
       }
-      console.warn("Turso initial sync unavailable; continuing with the local replica:", syncErrorMessage(syncError));
+      console.warn("LOCAL/OFFLINE MODE: Turso startup sync failed:", redact(syncErrorMessage(syncError)));
     }
     const [{ user_version: version }] = await this.all("PRAGMA user_version");
     if (version > require('./schema-migrations').CURRENT_SCHEMA_VERSION) throw new Error("Database schema is newer than this application");
@@ -187,10 +198,10 @@ class TursoPool {
     }
     if (version >= 1) await require("./schema-migrations").migrateSchema(this, version);
     await this.validateSchema();
-    await this.refreshPending();
+    if (syncError) await this.refreshPending();
 
     fs.mkdirSync(path.dirname(statePath), { recursive: true });
-    fs.writeFileSync(statePath, JSON.stringify({ initial_sync_completed: true, updated_at: new Date().toISOString() }, null, 2), "utf8");
+    fs.writeFileSync(statePath, JSON.stringify({ initial_sync_completed: Boolean(this.status.lastSyncAt), lastSyncAt: this.status.lastSyncAt }, null, 2), "utf8");
   }
 
   async validateSchema() {
@@ -294,11 +305,16 @@ class TursoPool {
     const operation = this.serializeSync(async () => {
       this.status.state = "syncing";
       try {
+        const firstPull = await this.pullNow();
         await this.pushNow();
-        const pulled = await this.pullNow();
+        const pulled = (await this.pullNow()) || firstPull;
+        // Native CDC stats can include acknowledged replay history. The full
+        // round trip holds the SQL lock, so no new local write can be pending.
+        this.status.pending = false;
         this.status.state = "synced";
         this.status.lastSyncAt = new Date().toISOString();
         this.status.lastError = null;
+        this.logSync("sync-complete");
         return pulled;
       } catch (error) {
         this.status.state = "offline";
@@ -314,7 +330,13 @@ class TursoPool {
   async push() {
     if (!this.syncUrl) return null;
     if (this.pushPromise) return this.pushPromise;
-    const operation = this.serializeSync(() => this.pushNow());
+    const operation = this.serializeSync(async () => {
+      await this.pullNow();
+      await this.pushNow();
+      const changed = await this.pullNow();
+      this.status.pending = false;
+      return changed;
+    });
     this.pushPromise = operation;
     try { return await operation; }
     finally { this.pushPromise = null; }
@@ -322,17 +344,23 @@ class TursoPool {
 
   async pushNow() {
     try {
+      this.uploadedMutations = 0;
+      this.pushing = true;
       await this.client.push();
       this.status.pending = false;
       this.status.state = "synced";
       this.status.lastSyncAt = new Date().toISOString();
       this.status.lastError = null;
+      this.logSync("push", { uploadedRecords: this.uploadedMutations, uploadedCountMeaning: "submitted guarded row mutations" });
       return true;
     } catch (error) {
       this.status.pending = true;
       this.status.state = "offline";
       this.status.lastError = error.code || "TURSO_PUSH_FAILED";
+      this.logSync("push-error", { error: redact(syncErrorMessage(error)) });
       throw error;
+    } finally {
+      this.pushing = false;
     }
   }
 
@@ -343,15 +371,24 @@ class TursoPool {
 
   async pullNow() {
     try {
+      const before = await this.rowFingerprints();
       const changed = await this.client.pull();
+      const after = changed ? await this.rowFingerprints() : before;
+      let downloadedRecords = 0, downloadedDeletes = 0;
+      for (const [key, value] of after) if (before.get(key) !== value) downloadedRecords++;
+      for (const key of before.keys()) if (!after.has(key)) downloadedDeletes++;
+      this.status.downloadedRecords = downloadedRecords;
+      this.status.downloadedDeletes = downloadedDeletes;
       await this.refreshPending();
       this.status.state = "synced";
       this.status.lastSyncAt = new Date().toISOString();
       this.status.lastError = null;
+      this.logSync("pull", { downloadedRecords, downloadedDeletes });
       return changed;
     } catch (error) {
       this.status.state = "offline";
       this.status.lastError = error.code || "TURSO_PULL_FAILED";
+      this.logSync("pull-error", { error: redact(syncErrorMessage(error)) });
       throw error;
     }
   }
@@ -362,6 +399,51 @@ class TursoPool {
     const result = this.syncTail.then(() => this.context.exit(() => this.exclusive(work)));
     this.syncTail = result.catch(() => {});
     return result;
+  }
+
+  transformMutation(mutation) {
+    const result = protectCloudRow(mutation);
+    if (this.file) {
+      // Preserve intent before the server may reject a stale mutation. This is
+      // a local recovery file, never the diagnostic log or renderer payload.
+      const directory = path.join(path.dirname(this.file), 'backups');
+      fs.mkdirSync(directory, { recursive: true });
+      fs.appendFileSync(path.join(directory, 'sync-intents.jsonl'), JSON.stringify(mutation) + '\n', { mode: 0o600 });
+      if (this.pushing) this.uploadedMutations++;
+    }
+    return result;
+  }
+
+  async rowFingerprints() {
+    const result = new Map();
+    if (!this.file || typeof this.client.prepare !== 'function') return result;
+    const crypto = require('node:crypto');
+    const tables = await this.all("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'");
+    for (const { name } of tables) {
+      if (!Object.hasOwn(columns, name)) continue;
+      const info = await this.all('PRAGMA table_info("' + name + '")');
+      const keys = info.filter(column => column.pk).sort((a, b) => a.pk - b.pk).map(column => column.name);
+      for (const row of await this.all('SELECT * FROM "' + name + '"')) {
+        const key = name + ':' + JSON.stringify(keys.map(key => row[key]));
+        result.set(key, crypto.createHash('sha256').update(JSON.stringify(row)).digest('hex'));
+      }
+    }
+    return result;
+  }
+
+  logSync(event, extra = {}) {
+    const details = { event, domain: new URL(this.syncUrl).hostname, connectionStatus: this.status.state,
+      lastSyncAt: this.status.lastSyncAt, pending: this.status.pending, ...extra };
+    this.status.domain = details.domain;
+    console.info('Turso sync:', JSON.stringify(details));
+    if (this.file) {
+      try {
+      const directory = path.join(path.dirname(this.file), 'logs');
+      fs.mkdirSync(directory, { recursive: true });
+      fs.appendFileSync(path.join(directory, 'turso-sync.jsonl'), JSON.stringify({ time: new Date().toISOString(), ...details }) + '\n');
+      fs.writeFileSync(`${this.file}.sync-status.json`, JSON.stringify({ lastSyncAt: this.status.lastSyncAt }));
+      } catch (error) { console.warn('Turso diagnostic log unavailable:', error.code); }
+    }
   }
 
   syncStatus() {
@@ -381,7 +463,7 @@ class TursoPool {
     try {
       await this.push();
     } catch (error) {
-      console.warn("Turso final sync unavailable; local changes remain queued in the replica:", error.message);
+      console.warn("Turso final sync unavailable; local changes remain queued in the replica:", redact(error.message));
     }
     await this.syncTail;
     await this.exclusive(() => this.client.close());

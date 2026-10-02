@@ -141,9 +141,21 @@ app.whenReady().then(async () => {
   databasePath = require("./database-path").databasePath;
   console.info(`KUMAKH local replica: ${databasePath()}`);
   const database = await getDatabase({ seed: false, initializePermissions: false });
-  syncTimer = setInterval(() => {
-    database.syncNow().catch(error => console.warn('Turso background sync unavailable:', error.code || error.message));
-  }, 30000);
+  let revision = 0;
+  const publishSync = () => {
+    const state = { ...database.getSyncStatus(), revision };
+    for (const window of applicationWindows) {
+      if (!window.isDestroyed()) window.webContents.send('kumakh:sync-status', state);
+    }
+    return state;
+  };
+  const syncCloud = async () => {
+    try { if (await database.syncNow()) revision++; }
+    catch (error) { console.warn('Turso sync pending:', error.code || 'SYNC_OFFLINE'); }
+    finally { publishSync(); }
+  };
+  ipcMain.handle('kumakh:sync-status', () => ({ ...database.getSyncStatus(), revision }));
+  syncTimer = setInterval(syncCloud, 30000);
   syncTimer.unref();
   // Initial Google Sheets import is no longer part of application startup.
   // Turso is the operational source of truth; Sheets is report output only.
@@ -160,7 +172,7 @@ app.whenReady().then(async () => {
       await require('./person-files').materialize(database, row);
     }
   }
-  database.syncNow().catch(error => console.warn('Turso startup writes pending:', error.code || error.message));
+  await syncCloud();
   ipcMain.handle("kumakh:api-request", async (_event, action, payload) => {
     if (preparingUpdate) throw new Error('The application is restarting to install an update.');
     activeOperations += 1;
@@ -173,11 +185,9 @@ app.whenReady().then(async () => {
         }
       },
     });
-    // Return the committed local result without waiting for this upload.
-    // The pool serializes cloud work with SQL transactions and coalesces retries.
-    database.pushChanges().catch(error => {
-      console.warn('Turso push pending; local operation succeeded and will retry:', error.code || error.message);
-    });
+    // Await the immediate cloud attempt before acknowledging Add/Edit/Delete.
+    // Offline commits remain durable, and the status event makes that explicit.
+    if (database.getSyncStatus().pending) await syncCloud();
     return result;
     } finally { activeOperations -= 1; }
   });

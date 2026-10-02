@@ -5,59 +5,8 @@ const { TursoPool } = require("./turso-pool");
 const { httpResponseError, readJsonResponse } = require("./report-http");
 const electronApp = process.versions.electron ? require("electron").app : null;
 
-function tursoConfigPath() {
-  if (!electronApp || process.env.NODE_ENV === "test") return null;
-  const packagedConfig = electronApp.isPackaged && process.resourcesPath
-    ? path.join(process.resourcesPath, "config", "turso.env")
-    : null;
-  const candidates = electronApp.isReady()
-    ? [
-        path.join(electronApp.getPath("userData"), "runtime.env"),
-        packagedConfig,
-      ]
-    : [
-        packagedConfig,
-      ];
-  return candidates.find(candidate => candidate && fs.existsSync(candidate)) || null;
-}
-
-function readEnvFile(filePath) {
-  if (!filePath || !fs.existsSync(filePath)) return {};
-  const values = {};
-  for (const line of fs.readFileSync(filePath, "utf8").split(/\r?\n/)) {
-    const trimmed = line.trim();
-    const separator = trimmed.indexOf("=");
-    if (!trimmed || trimmed.startsWith("#") || separator <= 0) continue;
-    values[trimmed.slice(0, separator).trim()] = trimmed.slice(separator + 1).trim().replace(/^['"]|['"]$/g, "");
-  }
-  return values;
-}
-
 function resolveTursoConfiguration() {
-  const persistentConfig = electronApp?.isReady()
-    ? path.join(electronApp.getPath("userData"), "runtime.env")
-    : null;
-  const packagedConfig = electronApp?.isPackaged && process.resourcesPath
-    ? path.join(process.resourcesPath, "config", "turso.env")
-    : null;
-  const userConfig = tursoConfigPath();
-  if (!userConfig && electronApp?.isPackaged) {
-    throw Object.assign(new Error("Packaged Turso configuration is unavailable."), { code: "TURSO_PACKAGED_CONFIGURATION_MISSING" });
-  }
-  const fromUserConfig = readEnvFile(userConfig);
-  const url = String(fromUserConfig.TURSO_DATABASE_URL || process.env.TURSO_DATABASE_URL || "").trim();
-  const authToken = String(fromUserConfig.TURSO_AUTH_TOKEN || process.env.TURSO_AUTH_TOKEN || "").trim();
-  if (!url || !authToken) return null;
-  if (electronApp?.isPackaged && userConfig === packagedConfig && persistentConfig) {
-    fs.mkdirSync(path.dirname(persistentConfig), { recursive: true });
-    const temporary = `${persistentConfig}.tmp-${process.pid}`;
-    fs.writeFileSync(temporary, `TURSO_DATABASE_URL=${url}\nTURSO_AUTH_TOKEN=${authToken}\n`, { encoding: "utf8", mode: 0o600 });
-    try { fs.renameSync(temporary, persistentConfig); } catch (error) {
-      fs.rmSync(temporary, { force: true });
-      if (!fs.existsSync(persistentConfig)) throw error;
-    }
-  }
-  return { url, authToken, source: persistentConfig || userConfig || "environment" };
+  return require('./turso-config').resolveConfiguration({ app: electronApp, resourcesPath: process.resourcesPath });
 }
 
 function applyTursoConfiguration(configured) {
@@ -193,7 +142,8 @@ class Database {
   constructor(file, options) {
     const configured = resolveTursoConfiguration();
     applyTursoConfiguration(configured);
-    const replicaFile = file || require("./database-path").databasePath();
+    let replicaFile = file || require("./database-path").databasePath();
+    if (configured && !file) replicaFile = require("./turso-config").bindReplica(replicaFile, configured);
     // Explicit local files support development fixtures only. Installed apps
     // always use Turso, including when a caller supplies a custom replica path.
     if (!electronApp?.isPackaged && (options?.forceSQLite || file)) {
@@ -261,9 +211,8 @@ class Database {
   async open() {
     if (!this.ready) {
       await this.pool.ready;
-      if (this.pool instanceof TursoPool && this.pool.syncUrl) {
-        await require('./legacy-database').importLegacyDatabase(this.pool, path.join(path.dirname(this.pool.file),'kumakh.db'));
-      }
+      // Do not resurrect cloud-deleted rows from an old SQLite snapshot on
+      // another PC. Legacy files stay intact for an explicit reviewed import.
       await this.ensureReportSubmissionsTable();
       if (this.initializePermissions) await this.ensurePermissionCatalog();
       this.ready = true;

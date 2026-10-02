@@ -910,6 +910,7 @@ function applySessionState() {
 // ============================================================
 
 let pageLoadSequence = 0;
+let visiblePageName = null;
 let reportPageAuthenticationPromise = null;
 
 async function requireReportPageAuthentication() {
@@ -1235,7 +1236,11 @@ async function loadPage(pageName) {
       await window.initializeReportsPage();
     }
 
-    if (loadSequence === pageLoadSequence) applyPageActionPermissions(container, pageName);
+    if (loadSequence === pageLoadSequence) {
+      applyPageActionPermissions(container, pageName);
+      visiblePageName = pageName;
+      window.dispatchEvent(new CustomEvent('kumakh:page-loaded'));
+    }
   } catch (error) {
     console.error("Page loading error:", error);
     if (loadSequence !== pageLoadSequence) return;
@@ -5356,4 +5361,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadPage("dashboard");
 
   dismissSplash();
+});
+
+window.addEventListener('kumakh:cloud-refresh', () => {
+  if (visiblePageName) loadPage(visiblePageName);
 });

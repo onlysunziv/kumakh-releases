@@ -29,12 +29,12 @@ test('cloud sync waits for the transaction commit and never uses its temporary h
   assert.deepEqual(events,['begin']);
   release.resolve();
   await Promise.all([transaction,sync]);
-  assert.deepEqual(events,['begin','write','commit','push','pull']);
+  assert.deepEqual(events,['begin','write','commit','pull','push','pull']);
 });
 
 test('offline writes retry, clear stale errors, and reach a second installation', async () => {
   let online = false, cloud = [], local = ['offline record'], remote = [];
-  const writer = fixture({push: async () => { if (!online) throw Error('offline'); cloud=local.slice(); },pull:async()=>{local=cloud.slice();}});
+  const writer = fixture({push: async () => { if (!online) throw Error('offline'); cloud=local.slice(); },pull:async()=>{local=[...new Set([...cloud,...local])];}});
   const reader = fixture({push:async()=>{},pull:async()=>{remote=cloud.slice();}});
   await assert.rejects(writer.sync(),/offline/);
   assert.equal(writer.syncStatus().pending,true);
@@ -53,7 +53,7 @@ test('slow cloud operations coalesce repeated sync requests instead of building 
   await new Promise(setImmediate);
   release.resolve();
   await Promise.all(requests);
-  assert.equal(pushes,1);assert.equal(pulls,1);
+  assert.equal(pushes,1);assert.equal(pulls,2);
 });
 
 test('durable unsent operations restore pending status after restart or pull', async () => {
@@ -98,4 +98,12 @@ test("matches only the known local replica deserialization failure", () => {
   assert.equal(isReplicaDeserializationError(new Error("sync engine operation failed: deserialization error: expected value at line 1 column 1")), true);
   assert.equal(isReplicaDeserializationError(new Error("fetch failed: network unavailable")), false);
   assert.equal(isReplicaDeserializationError(new Error("SQLITE_CORRUPT: database disk image is malformed")), false);
+});
+
+test('successful round trip clears acknowledged CDC history from pending UI state', async () => {
+  const pool = fixture({ pull: async () => false, push: async () => {}, stats: async () => ({cdcOperations: 2}) });
+  await pool.sync();
+  assert.equal(pool.syncStatus().pending, false);
+  await pool.push();
+  assert.equal(pool.syncStatus().pending, false);
 });

@@ -56,7 +56,7 @@ async function verifyPackagedRuntime(appOutDir) {
   )).href);
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'kumakh-native-runtime-'));
   let sqlite;
-  let replica;
+  let replica, cloud;
   try {
     sqlite = await new Promise((resolve, reject) => {
       const instance = new sqlite3.Database(path.join(directory, 'sqlite3.db'), error => error ? reject(error) : resolve(instance));
@@ -71,6 +71,15 @@ async function verifyPackagedRuntime(appOutDir) {
     await replica.exec('CREATE TABLE native_probe(value TEXT)');
     await (await replica.prepare('INSERT INTO native_probe(value) VALUES (?)')).run('turso-sync-ok');
     assert.equal((await (await replica.prepare('SELECT value FROM native_probe')).all())[0].value, 'turso-sync-ok');
+    // This uses only the EXE's shipped credentials, never shell/.env values.
+    const packaged = appRequire('./turso-config').resolveConfiguration({
+      app: { isPackaged: true, isReady: () => false },
+      resourcesPath: path.join(appOutDir, 'resources'), environment: {},
+    });
+    cloud = await connect({ path: path.join(directory, 'cloud-check.db'), url: packaged.url,
+      authToken: packaged.authToken, fetch: (url, options = {}) => fetch(url, { ...options, signal: AbortSignal.timeout(15000) }) });
+    await cloud.pull();
+    await (await cloud.prepare('SELECT COUNT(*) AS count FROM Students')).all();
     console.log(JSON.stringify({
       electron: process.versions.electron,
       node: process.versions.node,
@@ -79,13 +88,17 @@ async function verifyPackagedRuntime(appOutDir) {
       tursoBinding: bindingPath,
       sqliteBinding: sqliteBindingPath,
       appLocalRuntime: runtimePath,
+      packagedCloudDomain: new URL(packaged.url).hostname,
+      packagedCloudRead: 'passed without environment credentials',
       sqliteReadWrite: 'passed',
       tursoLocalReplicaReadWrite: 'passed',
     }));
   } finally {
     if (sqlite) await new Promise(resolve => sqlite.close(resolve));
     if (replica) await replica.close();
-    fs.rmSync(directory, { recursive: true, force: true });
+    if (cloud) await cloud.close();
+    try { await fs.promises.rm(directory, { recursive: true, force: true, maxRetries: 8, retryDelay: 100 }); }
+    catch (error) { console.warn('Temporary runtime probe retained until native handles close:', error.code); }
   }
 }
 

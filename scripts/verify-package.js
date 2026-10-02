@@ -14,6 +14,7 @@ module.exports = async function verifyPackage(context) {
     if (!fs.existsSync(resourceConfig)) throw new Error('Packaged application is missing resources/config/turso.env.');
     const config = dotenv.parse(fs.readFileSync(resourceConfig));
     if (!config.TURSO_DATABASE_URL || !config.TURSO_AUTH_TOKEN) throw new Error('Packaged application has incomplete Turso configuration.');
+    require('../electron/turso-config').normalizeSyncUrl(config.TURSO_DATABASE_URL);
     const archive = path.join(context.appOutDir, 'resources', 'app.asar');
     const files = asar.listPackage(archive).map(name => name.replace(/^[/\\]/, '').replaceAll('\\', '/'));
     if (context.electronPlatformName === 'win32') {

@@ -14,7 +14,7 @@ async function checkTurso({ writeProbe = false } = {}) {
   let reader, writer, probeKey;
   try {
     const { connect } = await import('@tursodatabase/sync');
-    reader = await connect({ path:path.join(directory,'reader.db'), url:syncUrl, authToken });
+    reader = await connect({ path:path.join(directory,'reader.db'), url:syncUrl, authToken, transform: require('../electron/sync-conflicts').protectCloudRow });
     await reader.pull();
     const counts = {};
     for (const table of ['Students','Staff','Courses','Purchases','ReportSubmissions']) {
@@ -37,6 +37,17 @@ async function checkTurso({ writeProbe = false } = {}) {
       const rows = await (await reader.prepare('SELECT value FROM SystemSettings WHERE key=?')).all(probeKey);
       if (rows[0]?.value !== 'offline-restart-probe') throw new Error('Offline write did not reach the independent reader after restart.');
       console.log('PASS: offline write survived restart and reached a second installation.');
+      await writer.query('UPDATE SystemSettings SET value=? WHERE key=?',['stale-offline',probeKey]);
+      await (await reader.prepare('UPDATE SystemSettings SET value=? WHERE key=?')).run('new-cloud',probeKey);
+      await reader.push();
+      await writer.sync();
+      if ((await writer.query('SELECT value FROM SystemSettings WHERE key=?',[probeKey]))[0][0]?.value !== 'new-cloud') throw new Error('Stale offline update replaced a newer cloud value.');
+      await writer.query('DELETE FROM SystemSettings WHERE key=?',[probeKey]);
+      await (await reader.prepare('UPDATE SystemSettings SET value=? WHERE key=?')).run('newest-cloud',probeKey);
+      await reader.push();
+      await writer.sync();
+      if ((await writer.query('SELECT value FROM SystemSettings WHERE key=?',[probeKey]))[0][0]?.value !== 'newest-cloud') throw new Error('Stale offline delete removed a newer cloud value.');
+      console.log('PASS: stale edits/deletes preserve newer cloud values and replicas converge.');
       await writer.query('DELETE FROM SystemSettings WHERE key=?',[probeKey]);
       await writer.sync();
       await reader.pull();
